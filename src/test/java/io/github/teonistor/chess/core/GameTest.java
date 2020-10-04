@@ -87,7 +87,11 @@ class GameTest {
         game.play();
 
         verify(provider).createState();
+<<<<<<< HEAD
         verify(view, times(howManyLoops)).refresh(board, White, List.empty(), OutOfBoard, HashSet.empty());
+=======
+        verify(view, times(howManyLoops)).refresh(board, White, HashSet.empty(), OutOfBoard, HashSet.empty());
+>>>>>>> Different game state providers become plausible
         verify(view).announce(endMessage);
         verify(state, times(howManyLoops * 2)).getBoard();
         verify(state, times(howManyLoops * 2)).getPlayer();

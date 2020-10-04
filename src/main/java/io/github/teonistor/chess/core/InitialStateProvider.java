@@ -14,6 +14,10 @@ public class InitialStateProvider implements GameStateProvider {
 
     @Override
     public GameState createState() {
+<<<<<<< HEAD
         return new GameState(initialBoardProvider.createInitialBoard(), White, List.empty(), null);
+=======
+        return new GameState(initialBoardProvider.createInitialBoard(), White, HashSet.empty(), null);
+>>>>>>> Different game state providers become plausible
     }
 }
