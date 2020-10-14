@@ -6,63 +6,44 @@ import io.github.teonistor.chess.inter.MultipleViewWrapper;
 import io.github.teonistor.chess.inter.TerminalInput;
 import io.github.teonistor.chess.inter.TerminalView;
 import io.github.teonistor.chess.inter.View;
-<<<<<<< HEAD
 import io.github.teonistor.chess.save.SaveLoad;
-
 import java.io.IOException;
-
 import static org.apache.commons.lang3.exception.ExceptionUtils.rethrow;
-=======
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
-
 import static io.github.teonistor.chess.core.StateProvision.New;
->>>>>>> Different game state providers become plausible
+import io.github.teonistor.chess.piece.PieceBox;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 
 public class GameFactory {
 
     private final UnderAttackRule underAttackRule;
     private final CheckRule checkRule;
     private final GameOverChecker gameOverChecker;
+    private final PieceBox pieceBox;
     private final InitialBoardProvider initialBoardProvider;
-<<<<<<< HEAD
-    private final GameStateProvider gameStateProvider;
-=======
     private final InitialStateProvider initialStateProvider;
     private final Map<StateProvision, InitialStateProvider> stateProvision;
->>>>>>> Different game state providers become plausible
 
     public GameFactory() {
         underAttackRule = new UnderAttackRule();
         checkRule = new CheckRule(underAttackRule);
         gameOverChecker = new GameOverChecker(underAttackRule);
         initialBoardProvider = new InitialBoardProvider(underAttackRule);
-<<<<<<< HEAD
-        gameStateProvider = new InitialStateProvider(initialBoardProvider);
-=======
         initialStateProvider = new InitialStateProvider(initialBoardProvider);
         stateProvision = HashMap.of(New, initialStateProvider);
->>>>>>> Different game state providers become plausible
+        pieceBox = new PieceBox(underAttackRule);
+        initialBoardProvider = new InitialBoardProvider(pieceBox);
+        initialStateProvider = new InitialStateProvider(initialBoardProvider);
+        stateProvision = HashMap.of(StateProvision.New, initialStateProvider);
     }
 
     public Game createTerminalGame() {
         return createGame(new TerminalInput(), new TerminalInput(), new TerminalView());
     }
 
-<<<<<<< HEAD
-    public Game createGame(final Input white, final Input black, final View... views) {
-        return new Game(gameStateProvider, checkRule, gameOverChecker, white, black, MultipleViewWrapper.wrapIfNeeded(views));
-    }
-
-    public Game loadGame() {
-        try {
-            return new Game(SaveLoad.loadState(), checkRule, gameOverChecker, new TerminalInput(), new TerminalInput(), MultipleViewWrapper.wrapIfNeeded(new TerminalView()));
-        } catch (final IOException e) {
-            return rethrow(e);
-        }
-=======
     public Game createGame(Input white, Input black, View... views) {
         return new Game(white.stateProvision().map(stateProvision).get(), checkRule, gameOverChecker, white, black, MultipleViewWrapper.wrapIfNeeded(views));
->>>>>>> Different game state providers become plausible
     }
 }
