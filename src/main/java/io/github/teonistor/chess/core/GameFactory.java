@@ -1,9 +1,7 @@
 package io.github.teonistor.chess.core;
 
-import io.github.teonistor.chess.board.InitialBoardProvider;
-import io.github.teonistor.chess.ctrl.ControlLoop;
-import io.github.teonistor.chess.ctrl.InputActionProvider;
 import io.github.teonistor.chess.inter.Input;
+<<<<<<< HEAD
 import io.github.teonistor.chess.inter.InputEngine;
 import io.github.teonistor.chess.inter.MultipleViewWrapper;
 import io.github.teonistor.chess.inter.View;
@@ -62,4 +60,10 @@ public class GameFactory {
 
         return controlLoop;
     }
+=======
+
+// Isolates the parameters which the control loop is responsible for from those which the factory is responsible for
+public interface GameFactory {
+    Game create(GameStateProvider provider, Input input);
+>>>>>>> Refactor Factory
 }
