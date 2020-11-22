@@ -28,11 +28,16 @@ function disconnect() {
     console.log("Disconnected");
 }
 
+//function sendMessage() {
+//    var from = document.getElementById('from').value;
+//    var text = document.getElementById('text').value;
+//    stompClient.send("/app/chat", {},
+//      JSON.stringify({'from':from, 'text':text}));
+//}
+
 function sendMessage() {
-    var from = document.getElementById('from').value;
-    var text = document.getElementById('text').value;
     stompClient.send("/app/chat", {},
-      JSON.stringify({'from':from, 'text':text}));
+      JSON.stringify([1, 7, 14, 3]));
 }
 
 function showMessageOutput(messageOutput) {
@@ -47,8 +52,18 @@ function showMessageOutput(messageOutput) {
 
 new Vue({
   el: '#app',
-  data: {
+  data: () => ({
+
+
     items: ['a', 'b', 'c']
+  }),
+
+  methods: {
+    receive () {
+
+
+    }
+
   }
 });
 

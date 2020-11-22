@@ -14,8 +14,6 @@ class TttConfig extends WebSocketMessageBrokerConfigurer {
   }
 
   override def registerStompEndpoints(registry: StompEndpointRegistry): Unit = {
-    registry.addEndpoint("/chat")
     registry.addEndpoint("/chat").withSockJS
   }
-
 }
