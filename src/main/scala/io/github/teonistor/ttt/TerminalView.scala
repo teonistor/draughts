@@ -5,16 +5,12 @@ import io.vavr.collection.Stream.rangeClosed
 class TerminalView {
 
   def view(state: GameState): Unit = {
-    val (is,js) = LazyList.concat(state.xs, state.os).unzip
-
-    val (left, right, top, bottom) =
-      if (is.isEmpty) (-2, 2, -2, 2)
-      else (js.min - 2, js.max + 2, is.min - 2, is.max + 2)
+    val (left, right, top, bottom) = state.margins
 
 //    println(s"left=$left right=$right top=$top bottom=$bottom")
 
     val indication = s"Top-left corner: line $top, column $left"
-  // TODO Top and bottom line
+  // TODO Top and bottom grid line
     val board = rangeClosed(top, bottom).map(i =>
       rangeClosed(left, right).map(j =>
         if (state.xs.contains((i, j))) " X "
@@ -29,6 +25,7 @@ class TerminalView {
 
     println(indication)
     println(board)
+    print("Place " + state.player)
 //      1,1,1,1)
 
 //    if (is.isEmpty) {
@@ -39,11 +36,5 @@ class TerminalView {
 
 //    io.vavr.collection.Stream.concat(state.xs, state.os)
 //      .
-  }
-}
-
-object TerminalView {
-  def main(args: Array[String]): Unit = {
-    new TerminalView().view(GameState().x(-1,0).o(0,2))
   }
 }
