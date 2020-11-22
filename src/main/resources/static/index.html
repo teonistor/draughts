@@ -1,0 +1,43 @@
+<html>
+<head>
+    <title>Chat WebSocket</title>
+</head>
+
+<body onload="disconnect()">
+
+AAA
+<div id="app">
+
+    <ul>
+        <li v-for="item in items">{{item}}</li>
+    </ul>
+
+</div>
+
+
+<div>
+    <div>
+        <input type="text" id="from" placeholder="Choose a nickname"/>
+    </div>
+    <br/>
+    <div>
+        <button id="connect" onclick="connect();">Connect</button>
+        <button id="disconnect" disabled="disabled" onclick="disconnect();">
+            Disconnect
+        </button>
+    </div>
+    <br/>
+    <div id="conversationDiv">
+        <input type="text" id="text" placeholder="Write a message..."/>
+        <button id="sendMessage" onclick="sendMessage();">Send</button>
+        <p id="response"></p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="/stomp.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<script src="/main.js"></script>
+
+</body>
+</html>
