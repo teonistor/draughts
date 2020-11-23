@@ -4,7 +4,7 @@ import io.vavr.collection.Stream.rangeClosed
 
 class TerminalView {
 
-  def view(state: GameState): Unit = {
+  def view(state: GameState){
     val (left, right, top, bottom) = state.margins
 
 //    println(s"left=$left right=$right top=$top bottom=$bottom")
@@ -36,5 +36,9 @@ class TerminalView {
 
 //    io.vavr.collection.Stream.concat(state.xs, state.os)
 //      .
+  }
+
+  def announce(message:String){
+    println(message)
   }
 }
