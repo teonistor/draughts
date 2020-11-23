@@ -10,7 +10,7 @@ object Player {
     override def toString: String = "X"
   }
 
-  val O: Player = new Player{
+  val O: Player = new Player {
     override def next: Player = X
     override def toString: String = "O"
   }

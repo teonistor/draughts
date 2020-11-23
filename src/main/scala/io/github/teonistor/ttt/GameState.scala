@@ -1,6 +1,6 @@
 package io.github.teonistor.ttt
 
-class GameState private (val xs: Set[(Int,Int)], val os: Set[(Int,Int)], val player: Player) {
+class GameState (val xs: Set[(Int,Int)], val os: Set[(Int,Int)], val player: Player) {
 //  private val xos = HashMap.from(List((Player.X, xs), (Player.O, os)))
 
   lazy val margins = {
