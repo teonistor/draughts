@@ -38,7 +38,7 @@ class TerminalView {
 //      .
   }
 
-  def announce(message:String){
-    println(message)
+  def announceWinner(winner:String){
+    println(s"\n\n*********\n $winner wins!\n*********")
   }
 }

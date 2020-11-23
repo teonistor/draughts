@@ -5,7 +5,7 @@ class GameOverChecker {
   private val transformations = LazyList(curry(line), curry(column), curry(diagonalUp), curry(diagonalDown))
 //    private val transformations = LazyList[(Int,Int) => Set[(Int,Int)]](line, column, diagonalUp, diagonalDown).map(curry)
 
-  def isGameOver(state: GameState): Option[Player] = {
+  def check(state: GameState): Option[Player] = {
 
     val xWins = sass(state.xs)
     val oWins = sass(state.os)

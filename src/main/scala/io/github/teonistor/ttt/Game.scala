@@ -1,6 +1,6 @@
 package io.github.teonistor.ttt
 
-class Game extends Runnable {
+class Game {
   private val terminalInput = new TerminalInput
   private val terminalView = new TerminalView
   private val gameOverChecker = new GameOverChecker
@@ -11,12 +11,13 @@ class Game extends Runnable {
   private var _winner: Option[Player] = Option.empty
   def winner: Option[Player] = _winner
 
-  override def run(): Unit = {
-    if (state == null) {
-      _state = GameState()
-      terminalView.view(state)
-    }
+  def launch(): Runnable = {
+    _state = GameState()
+    terminalView.view(state)
+    () => playRound()
+  }
 
+  private def playRound() {
     val (i, j): (Int, Int) = terminalInput.takeInput()
     if (validMove(i, j)) {
       updateState(i, j)
@@ -35,9 +36,9 @@ class Game extends Runnable {
   }
 
   private def checkWinner() {
-    _winner = gameOverChecker.isGameOver(_state)
+    _winner = gameOverChecker.check(_state)
     if (_winner.isDefined) {
-      terminalView.announce(s"${_winner.get} wins!")
+      terminalView.announceWinner(_winner.get.toString)
       throw new ThreadDeath
     }
   }
