@@ -8,12 +8,12 @@ import org.springframework.web.socket.config.annotation.{EnableWebSocketMessageB
 @EnableWebSocketMessageBroker
 class TttConfig extends WebSocketMessageBrokerConfigurer {
 
-  override def configureMessageBroker(config: MessageBrokerRegistry): Unit = {
-    config.enableSimpleBroker("/topic")
-    config.setApplicationDestinationPrefixes("/app")
+  override def configureMessageBroker(config: MessageBrokerRegistry) {
+    config.enableSimpleBroker("/ttt")
+    config.setApplicationDestinationPrefixes("/ttt")
   }
 
-  override def registerStompEndpoints(registry: StompEndpointRegistry): Unit = {
-    registry.addEndpoint("/chat").withSockJS
+  override def registerStompEndpoints(registry: StompEndpointRegistry) {
+    registry.addEndpoint("/ttt-subscribe").withSockJS
   }
 }

@@ -1,0 +1,21 @@
+body {
+	background: #423737;
+	color: #e6e6e6;
+	text-align: center;
+}
+
+.cell {
+	width: 49px;
+	height: 49px;
+	vertical-align: middle;
+	font-size: xx-large;
+	font-family: Ubuntu;
+	font-weight: bold;
+	border-radius: 3px;
+	color: inherit;
+	background: #00000030;
+}
+
+.cell.enabled:hover {
+	background: #00000070;
+}

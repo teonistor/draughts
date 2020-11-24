@@ -1,38 +1,41 @@
 <html>
 <head>
-    <title>Chat WebSocket</title>
+    <title>Endless TTT</title>
+    <link rel="stylesheet" href="/main.css" />
 </head>
 
-<body onload="disconnect()">
+<body>
 
-AAA
 <div id="app">
 
-    <ul>
-        <li v-for="item in items">{{item}}</li>
-    </ul>
+    <h2>Endless TTT</h2>
 
-</div>
-
-
-<div>
-    <div>
-        <input type="text" id="from" placeholder="Choose a nickname"/>
-    </div>
-    <br/>
-    <div>
-        <button id="connect" onclick="connect();">Connect</button>
-        <button id="disconnect" disabled="disabled" onclick="disconnect();">
-            Disconnect
+    <div v-for="row,i in rows">
+        <button class="cell"
+                v-for="cell,j in row"
+                :disabled="cell !== ' ' || !stompClient"
+                :class="{enabled: cell === ' ' && !!stompClient}"
+                @click="send(i,j)">
+            {{ cell }}
         </button>
     </div>
-    <br/>
-    <div id="conversationDiv">
-        <input type="text" id="text" placeholder="Write a message..."/>
-        <button id="sendMessage" onclick="sendMessage();">Send</button>
-        <p id="response"></p>
+
+<!--    <ul>-->
+<!--        <li v-for="row in rows">-->
+<!--            <span v-for="cell in row">{{ cell }}</span>-->
+<!--        </li>-->
+<!--    </ul>-->
+
+    <!-- v-if="!stompClient" -->
+    <div
+         style="margin-top: 49px">
+        Lost connection?
+        <button @click="connect()">Reconnect</button>
     </div>
+
 </div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="/stomp.js"></script>
