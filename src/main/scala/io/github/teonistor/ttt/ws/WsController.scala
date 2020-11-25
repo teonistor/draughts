@@ -7,12 +7,15 @@ import io.github.teonistor.ttt.ui._
 import io.vavr.collection.Stream.rangeClosed
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
+import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Controller
 
 @Controller
 class WsController(ws: SimpMessagingTemplate) extends Input with View {
 
   private val q = new ArrayBlockingQueue[(Int,Int)](1)
+  // TODO Initial state triplication!
+  private var lastSentState: Array[Any] = Array(-2, -2, Array("     ", "     ", "     ", "     ", "     "), "X")
 
 //  @LocalServerPort // Translates to the undefined @Value("${local.server.port}")
 //  private var port: Int =_
@@ -23,9 +26,12 @@ class WsController(ws: SimpMessagingTemplate) extends Input with View {
 //  }
 
   @MessageMapping(Array("/click"))
-  def receive(message: Array[Int]): Unit = {
+  def receive(message: Array[Int]) {
     q.put((message(0), message(1)))
   }
+
+  @SubscribeMapping(Array("/board"))
+  def sendOnSubscribe1(): Array[Any] = lastSentState
 
   override def takeInput() = q.take()
 
@@ -41,7 +47,8 @@ class WsController(ws: SimpMessagingTemplate) extends Input with View {
       ).reduce((_: String) + (_: String)) // Why types?
     ).toJavaList()
 
-    ws.convertAndSend("/ttt/board", Array(top, left, board))
+    lastSentState = Array(top, left, board, state.player.toString)
+    ws.convertAndSend("/ttt/board", lastSentState)
   }
 
   override def announceWinner(winner: String): Unit = ???
