@@ -1,8 +1,9 @@
-package io.github.teonistor.ttt
+package io.github.teonistor.ttt.ui
 
+import io.github.teonistor.ttt.GameState
 import io.vavr.collection.Stream.rangeClosed
 
-class TerminalView {
+class TerminalView extends View {
 
   def view(state: GameState){
     val (left, right, top, bottom) = state.margins

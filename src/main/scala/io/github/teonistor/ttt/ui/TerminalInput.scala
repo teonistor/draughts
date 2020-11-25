@@ -1,11 +1,11 @@
-package io.github.teonistor.ttt
+package io.github.teonistor.ttt.ui
 
 import java.io.{BufferedReader, InputStreamReader}
 import java.util.regex.Pattern
 
 import scala.util.Try
 
-class TerminalInput {
+class TerminalInput extends Input{
 
   private val gamePrompt = " > ".getBytes()
   private val global = Pattern.compile("\\s*(-?\\d+)[\\s,]*(-?\\d+)\\s*")
