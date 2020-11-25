@@ -4,7 +4,7 @@ import io.github.teonistor.ttt.ControlLoop
 import io.github.teonistor.ttt.ui.{TerminalInput, TerminalView}
 
 object TerminalLauncher {
-  def main(arg: Array[String]): Unit = {
+  def main(arg: Array[String]) {
     new ControlLoop(new TerminalInput, new TerminalView).launch()
   }
 }

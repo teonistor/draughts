@@ -4,8 +4,8 @@ new Vue({
 
     stompClient: null,
 
-    offsetI: 0,
-    offsetJ: 0,
+    offsetI: -2,
+    offsetJ: -2,
 
     rows: ["     ","     ","     ","     ","     "]
   }),

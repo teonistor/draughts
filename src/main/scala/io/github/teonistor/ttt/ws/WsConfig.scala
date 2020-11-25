@@ -6,7 +6,7 @@ import org.springframework.web.socket.config.annotation.{EnableWebSocketMessageB
 
 @SpringBootApplication
 @EnableWebSocketMessageBroker
-class TttConfig extends WebSocketMessageBrokerConfigurer {
+class WsConfig extends WebSocketMessageBrokerConfigurer {
 
   override def configureMessageBroker(config: MessageBrokerRegistry) {
     config.enableSimpleBroker("/ttt")

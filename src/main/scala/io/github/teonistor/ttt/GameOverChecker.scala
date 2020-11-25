@@ -3,20 +3,15 @@ package io.github.teonistor.ttt
 class GameOverChecker {
 
   private val transformations = LazyList(curry(line), curry(column), curry(diagonalUp), curry(diagonalDown))
-//    private val transformations = LazyList[(Int,Int) => Set[(Int,Int)]](line, column, diagonalUp, diagonalDown).map(curry)
 
   def check(state: GameState): Option[Player] = {
 
-    val xWins = sass(state.xs)
-    val oWins = sass(state.os)
-
-
-    if (xWins) Option(Player.X)
-    else if (oWins) Option(Player.O)
+    if (isWinning(state.xs)) Option(Player.X)
+    else if (isWinning(state.os)) Option(Player.O)
     else Option.empty
   }
 
-  private def sass(coords: Set[(Int, Int)]) = {
+  private def isWinning(coords: Set[(Int, Int)]) = {
     transformations.flatMap(transformation => coords.map(transformation))
       .map(_ & coords)
       .exists(_.size == 5)

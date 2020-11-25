@@ -5,11 +5,8 @@ import io.vavr.collection.Stream.rangeClosed
 
 class TerminalView extends View {
 
-  def view(state: GameState){
+  def view(state: GameState) {
     val (left, right, top, bottom) = state.margins
-
-//    println(s"left=$left right=$right top=$top bottom=$bottom")
-
     val indication = s"Top-left corner: line $top, column $left"
   // TODO Top and bottom grid line
     val board = rangeClosed(top, bottom).map(i =>

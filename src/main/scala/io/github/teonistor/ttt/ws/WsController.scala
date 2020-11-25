@@ -10,7 +10,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Controller
 
 @Controller
-class TttController(ws: SimpMessagingTemplate) extends Input with View {
+class WsController(ws: SimpMessagingTemplate) extends Input with View {
 
   private val q = new ArrayBlockingQueue[(Int,Int)](1)
 
@@ -25,11 +25,6 @@ class TttController(ws: SimpMessagingTemplate) extends Input with View {
   @MessageMapping(Array("/click"))
   def receive(message: Array[Int]): Unit = {
     q.put((message(0), message(1)))
-  }
-
-  def send(message: Any): Unit = {
-    ws.convertAndSend("/ttt/board", message)
-    println("TBC " + message)
   }
 
   override def takeInput() = q.take()
