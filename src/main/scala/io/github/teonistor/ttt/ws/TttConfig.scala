@@ -1,10 +1,10 @@
 package io.github.teonistor.ttt.ws
 
-import org.springframework.context.annotation.Configuration
+import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.web.socket.config.annotation.{EnableWebSocketMessageBroker, StompEndpointRegistry, WebSocketMessageBrokerConfigurer}
 
-@Configuration
+@SpringBootApplication
 @EnableWebSocketMessageBroker
 class TttConfig extends WebSocketMessageBrokerConfigurer {
 

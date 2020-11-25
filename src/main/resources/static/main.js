@@ -4,6 +4,9 @@ new Vue({
 
     stompClient: null,
 
+    offsetI: 0,
+    offsetJ: 0,
+
     rows: ["     ","     ","     ","     ","     "]
   }),
 
@@ -19,11 +22,14 @@ new Vue({
     },
 
     receive (message) {
-      this.rows = JSON.parse(message.body);
+      let data = JSON.parse(message.body);
+      this.offsetI = data[0];
+      this.offsetJ = data[1];
+      this.rows = data[2];
     },
 
     send (i, j) {
-      this.stompClient.send("/ttt/click", {}, JSON.stringify([i, j]));
+      this.stompClient.send("/ttt/click", {}, JSON.stringify([i + this.offsetI, j + this.offsetJ]));
     }
   },
 
