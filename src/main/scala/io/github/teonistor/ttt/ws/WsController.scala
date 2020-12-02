@@ -51,5 +51,7 @@ class WsController(ws: SimpMessagingTemplate) extends Input with View {
     ws.convertAndSend("/ttt/board", lastSentState)
   }
 
-  override def announceWinner(winner: String): Unit = ???
+  override def announceWinner(winner: String) {
+    ws.convertAndSend("/ttt/winner", winner)
+  }
 }

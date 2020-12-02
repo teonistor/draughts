@@ -4,10 +4,11 @@ new Vue({
 
     stompClient: null,
 
-    offsetI: -2,
-    offsetJ: -2,
-
-    rows: ["     ","     ","     ","     ","     "]
+    offsetI: 0,
+    offsetJ: 0,
+    rows: [],
+    player: '',
+    winner: ''
   }),
 
   methods: {
@@ -16,16 +17,34 @@ new Vue({
       let socket = new SockJS('/ttt-subscribe');
       this.stompClient = Stomp.over(socket);
       this.stompClient.connect({}, frame => {
-        console.log('Connected: ' + frame);
-        this.stompClient.subscribe('/ttt/board', this.receive);
+//        console.log('Connected: ' + frame);
+        this.stompClient.subscribe('/ttt/board', this.receiveBoard);
+        this.stompClient.subscribe('/ttt/winner', this.receiveWinner);
+//      }, message => {
+//        console.log('Errorm: ', message);
       });
+
+      let stompOnClose = socket.onclose;
+      socket.onclose = status => {
+        stompOnClose(status);
+        this.stompClient = null;
+      }
+
+//      console.log('SockJS disconnect handl', socket.onclose)
+//      socket.onclose = () => this.stompClient = null
+
     },
 
-    receive (message) {
+    receiveBoard (message) {
       let data = JSON.parse(message.body);
       this.offsetI = data[0];
       this.offsetJ = data[1];
       this.rows = data[2];
+      this.player = data[3];
+    },
+
+    receiveWinner (message) {
+      this.winner = message.body;
     },
 
     send (i, j) {

@@ -20,9 +20,14 @@
         </button>
     </div>
 
-    <!-- v-if="!stompClient" -->
-    <div
-         style="margin-top: 49px">
+    <div v-if="!!stompClient" style="margin-top: 21px">
+        {{ player }}'s turn
+    </div>
+    <div v-if="!!winner" style="margin-top: 21px">
+        {{ winner }} wins
+    </div>
+
+    <div v-if="!stompClient && !winner" style="margin-top: 49px">
         Lost connection?
         <button @click="connect()">Reconnect</button>
     </div>
