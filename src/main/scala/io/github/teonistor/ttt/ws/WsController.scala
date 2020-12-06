@@ -16,14 +16,6 @@ class WsController(ws: SimpMessagingTemplate) extends Input with View {
   private val q = new ArrayBlockingQueue[(Int,Int)](1)
   private var lastSentState: Array[Any] = Array(0, 0, Array(""), "")
 
-//  @LocalServerPort // Translates to the undefined @Value("${local.server.port}")
-//  private var port: Int =_
-//
-//  @PostConstruct
-//  protected def postConstruct() {
-//    println(s"Server runing on http://localhost:$port/")
-//  }
-
   @MessageMapping(Array("/click"))
   def receive(message: Array[Int]) {
     q.put((message(0), message(1)))
