@@ -6,7 +6,7 @@ new Vue({
 
     offsetI: 0,
     offsetJ: 0,
-    rows: [],
+    rows: [""],
     player: '',
     winner: ''
   }),
@@ -17,22 +17,16 @@ new Vue({
       let socket = new SockJS('/ttt-subscribe');
       this.stompClient = Stomp.over(socket);
       this.stompClient.connect({}, frame => {
-//        console.log('Connected: ' + frame);
         this.stompClient.subscribe('/ttt/board', this.receiveBoard);
         this.stompClient.subscribe('/ttt/winner', this.receiveWinner);
-//      }, message => {
-//        console.log('Errorm: ', message);
       });
 
+      // Poor man's callback chain
       let stompOnClose = socket.onclose;
       socket.onclose = status => {
         stompOnClose(status);
         this.stompClient = null;
       }
-
-//      console.log('SockJS disconnect handl', socket.onclose)
-//      socket.onclose = () => this.stompClient = null
-
     },
 
     receiveBoard (message) {

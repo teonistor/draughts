@@ -14,8 +14,7 @@ import org.springframework.stereotype.Controller
 class WsController(ws: SimpMessagingTemplate) extends Input with View {
 
   private val q = new ArrayBlockingQueue[(Int,Int)](1)
-  // TODO Initial state triplication!
-  private var lastSentState: Array[Any] = Array(-2, -2, Array("     ", "     ", "     ", "     ", "     "), "X")
+  private var lastSentState: Array[Any] = Array(0, 0, Array(""), "")
 
 //  @LocalServerPort // Translates to the undefined @Value("${local.server.port}")
 //  private var port: Int =_
@@ -31,7 +30,7 @@ class WsController(ws: SimpMessagingTemplate) extends Input with View {
   }
 
   @SubscribeMapping(Array("/board"))
-  def sendOnSubscribe1(): Array[Any] = lastSentState
+  def sendOnSubscribe(): Array[Any] = lastSentState
 
   override def takeInput() = q.take()
 
