@@ -13,8 +13,8 @@
     <div v-for="row,i in rows">
         <button class="cell"
                 v-for="cell,j in row"
-                :disabled="cell !== ' ' || !stompClient"
-                :class="{enabled: cell === ' ' && !!stompClient}"
+                :disabled="cell !== ' ' || !stompClient || !!winner"
+                :class="{enabled: cell === ' ' && !!stompClient && !winner}"
                 @click="send(i,j)">
             {{ cell }}
         </button>
@@ -27,11 +27,15 @@
         {{ winner }} wins
     </div>
 
-    <div v-if="!stompClient && !winner" style="margin-top: 49px">
+    <div v-if="!stompClient" style="margin-top: 49px">
         Lost connection?
         <button @click="connect()">Reconnect</button>
     </div>
 
+    <div v-if="!!stompClient" style="margin-top: 49px">
+        <button :disabled="!stompClient"
+                @click="restart()">New Game</button>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>

@@ -41,6 +41,11 @@ new Vue({
       this.winner = message.body;
     },
 
+    restart() {
+      this.stompClient.send("/ttt/restart", {}, ".");
+      this.winner = '';
+    },
+
     send (i, j) {
       this.stompClient.send("/ttt/click", {}, JSON.stringify([i + this.offsetI, j + this.offsetJ]));
     }
