@@ -18,4 +18,8 @@ class ControlLoop(input: Input, view: View) {
     Try(future.get()).getOrElse(null)
     executor.shutdown()
   }
+
+  def shutdown() {
+    executor.shutdown()
+  }
 }
