@@ -4,6 +4,19 @@ body {
 	text-align: center;
 }
 
+.margin-top-20 {
+	margin-top: 20px;
+}
+
+.play-area-outer {
+	overflow: auto;
+}
+
+.play-area-inner {
+	width: max-content;
+	min-width: 100%;
+}
+
 .cell {
 	width: 49px;
 	height: 49px;
