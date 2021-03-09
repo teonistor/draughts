@@ -10,7 +10,7 @@
 
     <groupId>io.github.teonistor</groupId>
     <artifactId>ttt</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <name>Board Game Protos</name>
     <packaging>jar</packaging>
 
