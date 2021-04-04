@@ -7,6 +7,7 @@ import io.github.teonistor.chess.testmixin.RandomPositionsTestMixin;
 import io.vavr.Tuple2;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+<<<<<<< HEAD
 @MockitoSettings
 class ChessCtrlTest implements RandomPositionsTestMixin {
 
@@ -27,6 +29,10 @@ class ChessCtrlTest implements RandomPositionsTestMixin {
     private @Mock ControlLoop controlLoop;
 
     private @InjectMocks ChessCtrl ctrl;
+=======
+@Disabled
+class ChessCtrlTest {
+>>>>>>> Temporarily disable missing tests
 
     @BeforeEach
     void setUp() {
