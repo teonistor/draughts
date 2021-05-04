@@ -1,8 +1,14 @@
 package io.github.teonistor.chess.spring;
 
 import io.github.teonistor.chess.board.Position;
+import io.github.teonistor.chess.core.Player;
 import io.github.teonistor.chess.ctrl.ControlLoop;
 import io.github.teonistor.chess.ctrl.NormalGameInput;
+<<<<<<< HEAD
+=======
+import io.github.teonistor.chess.ctrl.PromotionGameInput;
+import io.github.teonistor.chess.piece.Piece;
+>>>>>>> Promotion information reaches from the controller to the game
 import io.github.teonistor.chess.testmixin.RandomPositionsTestMixin;
 import io.vavr.Tuple2;
 import org.junit.jupiter.api.AfterEach;
@@ -11,6 +17,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -18,8 +25,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 <<<<<<< HEAD
 @MockitoSettings
@@ -63,6 +72,26 @@ class ChessCtrlTest {
         final Position to = randomPositions.next();
         ctrl.onMove("irrelevant for now", new Tuple2<>(from, to));
         verify(controlLoop).gameInput(new NormalGameInput(from, to));
+    }
+
+    @ParameterizedTest
+    @EnumSource(Player.class)
+    void onPromote(final Player player, final @Mock Piece piece) {
+        when(piece.getPlayer()).thenReturn(player);
+        ctrl.onPromote(player.name(), piece);
+        verify(controlLoop).gameInput(new PromotionGameInput(piece));
+    }
+
+    @Test
+    void onPromoteWhileHotseat(final @Mock Piece piece) {
+        ctrl.onPromote("Hotseat", piece);
+        verify(controlLoop).gameInput(new PromotionGameInput(piece));
+    }
+
+    @Test
+    void onPromoteFailsOnWrongPlayer(final @Mock Piece piece) {
+        when(piece.getPlayer()).thenReturn(Player.White);
+        assertThatIllegalArgumentException().isThrownBy(() -> ctrl.onPromote("Black", piece));
     }
 
     @ParameterizedTest
