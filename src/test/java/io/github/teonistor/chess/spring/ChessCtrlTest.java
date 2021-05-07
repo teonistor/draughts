@@ -11,6 +11,13 @@ import io.github.teonistor.chess.piece.Piece;
 >>>>>>> Promotion information reaches from the controller to the game
 import io.github.teonistor.chess.testmixin.RandomPositionsTestMixin;
 import io.vavr.Tuple2;
+<<<<<<< HEAD
+=======
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
+import io.vavr.collection.Stream;
+import io.vavr.collection.Traversable;
+>>>>>>> Consolidate game state transmission through ExternalGameState (partial)
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -24,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomUtils.nextBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verify;
@@ -52,6 +60,50 @@ class ChessCtrlTest {
     @Test
     void refresh() {
 
+<<<<<<< HEAD
+=======
+    @Nested
+    class CachedFields {
+
+        private @Mock Map<Position, Piece> board;
+        private @Mock Traversable<Piece> capturedPieces;
+        private final Tuple2<Position, Position> possibleMoveBlack = new Tuple2<>(randomPositions.next(), randomPositions.next());
+        private final Tuple2<Position, Position> possibleMoveWhite = new Tuple2<>(randomPositions.next(), randomPositions.next());
+        private final boolean promotionRequiredBlack = nextBoolean();
+        private final boolean promotionRequiredWhite = nextBoolean();
+
+        private ExternalGameState externalStateBlack;
+        private ExternalGameState externalStateWhite;
+        private ExternalGameState externalStateAll;
+
+        @BeforeEach
+        void refresh() {
+            externalStateBlack = new ExternalGameState(board, capturedPieces, Stream.of(possibleMoveBlack), HashMap.empty(), false, promotionRequiredBlack);
+            externalStateWhite = new ExternalGameState(board, capturedPieces, Stream.of(possibleMoveWhite), HashMap.empty(), promotionRequiredWhite, false);
+            externalStateAll = externalStateWhite.combine(externalStateBlack);
+
+            ctrl.refresh(board, capturedPieces, Stream.of(possibleMoveBlack), Stream.of(possibleMoveWhite), promotionRequiredBlack, promotionRequiredWhite);
+
+            verify(ws).convertAndSend("/chess-ws/state-black", externalStateBlack);
+            verify(ws).convertAndSend("/chess-ws/state-white", externalStateWhite);
+            verify(ws).convertAndSend("/chess-ws/state-all", externalStateAll);
+        }
+
+        @Test
+        void onSubscribeStateBlack() {
+            assertThat(ctrl.onSubscribeStateBlack()).isEqualTo(externalStateBlack);
+        }
+
+        @Test
+        void onSubscribeStateWhite() {
+            assertThat(ctrl.onSubscribeStateWhite()).isEqualTo(externalStateWhite);
+        }
+
+        @Test
+        void onSubscribeStateAll() {
+            assertThat(ctrl.onSubscribeStateAll()).isEqualTo(externalStateAll);
+        }
+>>>>>>> Consolidate game state transmission through ExternalGameState (partial)
     }
 
     @Test
@@ -95,12 +147,12 @@ class ChessCtrlTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"White,moves-white",
-                "Black,moves-black",
-                "any,moves-all",
-                "thing,moves-all"})
-    void movesChannel(String player, String channel) {
-        assertThat(ctrl.movesChannel(player)).isEqualTo(channel);
+    @CsvSource({"White,state-white",
+                "Black,state-black",
+                "any,state-all",
+                "thing,state-all"})
+    void movesChannel(final String player, final String channel) {
+        assertThat(ctrl.stateChannel(player)).isEqualTo(channel);
     }
 
     @Test
