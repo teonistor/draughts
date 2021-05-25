@@ -6,7 +6,6 @@ import java.lang.annotation.Retention;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@EnableTttCore
-@Import(TttWsConfig.class)
+@Import(TttController.class)
 @Retention(RUNTIME)
-public @interface EnableTtt {}
+public @interface EnableTttCore {}

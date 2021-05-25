@@ -1,12 +1,8 @@
 package io.github.teonistor.ttt.ws
 
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.Executors.newSingleThreadExecutor
-
 import io.github.teonistor.ttt.ui._
 import io.github.teonistor.ttt.{ControlLoop, GameState}
 import io.vavr.collection.Stream.rangeClosed
-import javax.annotation.{PostConstruct, PreDestroy}
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.context.annotation.Lazy
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -14,9 +10,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Controller
 
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.Executors.newSingleThreadExecutor
+import javax.annotation.{PostConstruct, PreDestroy}
+
 @Controller
 @Lazy
-class WsController(ws: SimpMessagingTemplate) extends Input with View {
+class TttController(ws: SimpMessagingTemplate) extends Input with View {
 
   private val q = new ArrayBlockingQueue[(Int,Int)](1)
   private val overarchingExecutor = newSingleThreadExecutor()

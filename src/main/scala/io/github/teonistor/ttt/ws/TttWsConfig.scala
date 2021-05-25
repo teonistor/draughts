@@ -1,13 +1,12 @@
 package io.github.teonistor.ttt.ws
 
-import org.springframework.context.annotation.{ComponentScan, Configuration}
+import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.web.socket.config.annotation.{EnableWebSocketMessageBroker, StompEndpointRegistry, WebSocketMessageBrokerConfigurer}
 
-@ComponentScan
 @Configuration
 @EnableWebSocketMessageBroker
-class WsConfig extends WebSocketMessageBrokerConfigurer {
+class TttWsConfig extends WebSocketMessageBrokerConfigurer {
 
   override def configureMessageBroker(config: MessageBrokerRegistry) {
     config.enableSimpleBroker("/ttt")

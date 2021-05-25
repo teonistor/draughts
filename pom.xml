@@ -10,8 +10,8 @@
 
     <groupId>io.github.teonistor</groupId>
     <artifactId>ttt</artifactId>
-    <version>1.0.2</version>
-    <name>Board Game Protos</name>
+    <version>2.0.0</version>
+    <name>Tic Tac Toe</name>
     <packaging>jar</packaging>
 
     <properties>
