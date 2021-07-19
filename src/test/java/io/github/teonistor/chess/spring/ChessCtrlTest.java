@@ -14,6 +14,7 @@ import io.vavr.Tuple2;
 <<<<<<< HEAD
 =======
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 import io.vavr.collection.Traversable;
@@ -90,11 +91,11 @@ class ChessCtrlTest {
 
         @BeforeEach
         void refresh() {
-            externalStateBlack = new ExternalGameState(board, capturedPieces, Stream.of(possibleMoveBlack), HashMap.empty(), false, promotionRequiredBlack);
-            externalStateWhite = new ExternalGameState(board, capturedPieces, Stream.of(possibleMoveWhite), HashMap.empty(), promotionRequiredWhite, false);
+            externalStateBlack = new ExternalGameState(board, capturedPieces, HashSet.empty(), Stream.of(possibleMoveBlack), HashMap.empty(), false, promotionRequiredBlack);
+            externalStateWhite = new ExternalGameState(board, capturedPieces, HashSet.empty(), Stream.of(possibleMoveWhite), HashMap.empty(), promotionRequiredWhite, false);
             externalStateAll = externalStateWhite.combine(externalStateBlack);
 
-            ctrl.refresh(board, capturedPieces, Stream.of(possibleMoveBlack), Stream.of(possibleMoveWhite), promotionRequiredBlack, promotionRequiredWhite);
+            ctrl.refresh(board, capturedPieces, HashSet.empty(), Stream.of(possibleMoveBlack), Stream.of(possibleMoveWhite), promotionRequiredBlack, promotionRequiredWhite);
 
             verify(ws).convertAndSend("/chess-ws/state-black", externalStateBlack);
             verify(ws).convertAndSend("/chess-ws/state-white", externalStateWhite);
