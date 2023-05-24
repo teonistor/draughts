@@ -8,12 +8,12 @@ sealed trait Player {
 object Player {
   val black: Player = new Player {
     def next: Player = white
-    override def isMyPiece(piece: Piece): Boolean = ???
+    def isMyPiece(piece: Piece): Boolean = piece == Piece.blackKing || piece == Piece.blackPeon
   }
 
   val white: Player = new Player {
     def next: Player = black
-    override def isMyPiece(piece: Piece): Boolean = ???
+    def isMyPiece(piece: Piece): Boolean = piece == Piece.whiteKing || piece == Piece.whitePeon
   }
 }
 
