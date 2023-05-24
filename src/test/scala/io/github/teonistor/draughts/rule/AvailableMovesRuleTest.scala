@@ -1,11 +1,13 @@
 package io.github.teonistor.draughts.rule
 
+import io.github.teonistor.draughts.data.{GameState, Position}
 import io.github.teonistor.draughts.move.Move
-import io.github.teonistor.draughts.{Piece, Player, Position, State}
+import io.github.teonistor.draughts.{Piece, Player}
 import io.vavr.control.Validation.{invalid, valid}
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.`given`
 import org.mockito.Mock
+import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.junit.jupiter.MockitoSettings
 import org.scalatest.Assertions
 
@@ -30,14 +32,13 @@ class AvailableMovesRuleTest extends Assertions {
     given(move1 execute startingBoard) willReturn valid(boardAfterMove1)
     given(move2 execute startingBoard) willReturn invalid("invalidity from move")
 
-    val actual = new AvailableMovesRule().computeAvailableMoves(new State{
-      def board = startingBoard
-      def currentPlayer: Player = currentPlayerr
-    })
+    val actual = new AvailableMovesRule().computeAvailableMoves(GameState(startingBoard, currentPlayerr))
 
     assert(actual == Map(
       startingPosition -> Map (
         positionAfterMove1 -> valid(boardAfterMove1),
         positionAfterMove2 -> invalid("invalidity from move"))))
+
+    verifyNoMoreInteractions(currentPlayerr, myPiece, otherPiece, move1, move2, move3, boardAfterMove1)
   }
 }

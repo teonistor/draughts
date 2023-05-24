@@ -1,6 +1,6 @@
 package io.github.teonistor.draughts.move
 
-import io.github.teonistor.draughts.Position
+import io.github.teonistor.draughts.data.Position
 import org.scalatest.funsuite.AnyFunSuite
 
 class MoveTest extends AnyFunSuite {

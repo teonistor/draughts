@@ -1,11 +1,12 @@
 package io.github.teonistor.draughts.rule
 
-import io.github.teonistor.draughts.{Piece, Position, State}
+import io.github.teonistor.draughts.Piece
+import io.github.teonistor.draughts.data.{GameState, Position}
 import io.vavr.control.Validation
 
 class AvailableMovesRule {
 
-  def computeAvailableMoves(gameState: State): Map[Position, Map[Position, Validation[String, Map[Position, Piece]]]] = {
+  def computeAvailableMoves(gameState: GameState): Map[Position, Map[Position, Validation[String, Map[Position, Piece]]]] = {
     gameState.board.view
       .filter { case (_, piece) => gameState.currentPlayer isMyPiece piece }
       .map { case (from, piece) => (from, piece.emitMoves(from)

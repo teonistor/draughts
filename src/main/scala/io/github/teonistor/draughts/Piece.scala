@@ -1,5 +1,6 @@
 package io.github.teonistor.draughts
 
+import io.github.teonistor.draughts.data.Position
 import io.github.teonistor.draughts.move.Move
 
 sealed trait Piece {
