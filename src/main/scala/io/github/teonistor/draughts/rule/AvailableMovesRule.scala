@@ -7,14 +7,12 @@ class AvailableMovesRule {
 
   def computeAvailableMoves(gameState: State): Map[Position, Map[Position, Validation[String, Map[Position, Piece]]]] = {
     gameState.board.view
-      // .filter for my pieces
-      .map {
-        case (from, piece) => (from, piece.emitMoves(from)
-          .view
-          .filterKeys(isPositionOnBoard)
-          .mapValues(_.execute(gameState.board))
-          .toMap)
-      }
+      .filter { case (_, piece) => gameState.currentPlayer isMyPiece piece }
+      .map { case (from, piece) => (from, piece.emitMoves(from)
+        .view
+        .filterKeys(isPositionOnBoard)
+        .mapValues(_ execute gameState.board)
+        .toMap) }
       .filterNot(_._2.isEmpty)
       .toMap
   }
