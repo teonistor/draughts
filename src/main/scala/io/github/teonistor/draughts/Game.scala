@@ -1,11 +1,12 @@
 package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.{ComputedState, GameState, Position, Settings}
-import io.github.teonistor.draughts.rule.AvailableMovesRule
+import io.github.teonistor.draughts.rule.{AvailableMovesRule, PromotionRule}
 import io.vavr.control.Validation
 import io.vavr.control.Validation.invalid
 
 class Game(val availableMovesRule: AvailableMovesRule,
+           val promotionRule: PromotionRule,
            val settings: Settings, val gameState: GameState) {
 
   lazy val computedState: ComputedState = ComputedState(
@@ -23,9 +24,10 @@ class Game(val availableMovesRule: AvailableMovesRule,
       .get(from)
       .map(_.getOrElse(to, invalid(s"Your piece from $from cannot reach $to")))
       .getOrElse(invalid(s"You don't have a piece at $from"))
+      .map(promotionRule.promoteAsNeeded)
     // Here be logic to keep the same player if jump
       .map(newBoard => GameState(newBoard, gameState.currentPlayer.next))
-      .map(newState => new Game(availableMovesRule, settings, newState))
+      .map(newState => new Game(availableMovesRule, promotionRule, settings, newState))
   }
 
 }
