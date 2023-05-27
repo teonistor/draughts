@@ -1,6 +1,5 @@
 package io.github.teonistor.draughts.data
 
-import io.github.teonistor.draughts.Piece
-import io.vavr.control.Validation
+import io.github.teonistor.draughts.rule.AvailableMoves
 
-case class ComputedState(availableMoves: Map[Position, Map[Position, Validation[String, Map[Position, Piece]]]])
+case class ComputedState(availableMoves: AvailableMoves)

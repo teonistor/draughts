@@ -1,8 +1,7 @@
 package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.{ComputedState, GameState, Position, Settings}
-import io.github.teonistor.draughts.rule.AvailableMovesRule
-import io.vavr.control.Validation
+import io.github.teonistor.draughts.rule.{AvailableMoves, AvailableMovesRule}
 import io.vavr.control.Validation.{invalid, valid}
 import org.junit.jupiter.api.{BeforeEach, Nested, Test}
 import org.mockito.BDDMockito.`given`
@@ -15,7 +14,7 @@ import org.scalatest.Assertions
 class GameTest extends Assertions {
 
   @Test
-  def computedState(@Mock availableMovesRule: AvailableMovesRule, @Mock settings: Settings, @Mock gameState: GameState, @Mock availableMoves: Map[Position, Map[Position, Validation[String, Map[Position, Piece]]]]): Unit = {
+  def computedState(@Mock availableMovesRule: AvailableMovesRule, @Mock settings: Settings, @Mock gameState: GameState, @Mock availableMoves: AvailableMoves): Unit = {
     val game = new Game(availableMovesRule, settings, gameState)
     given(availableMovesRule computeAvailableMoves gameState) willReturn availableMoves
 
