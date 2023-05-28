@@ -1,7 +1,7 @@
 package io.github.teonistor.draughts.move
 
-import io.github.teonistor.draughts.Piece
 import io.github.teonistor.draughts.data.Position
+import io.github.teonistor.draughts.{Piece, Player}
 import io.vavr.control.Validation
 import io.vavr.control.Validation.{invalid, valid}
 
@@ -25,11 +25,11 @@ object Move {
         invalid(s"$to is occupied")
 
       // TODO Duplication
-      // TODO Incomplete condition
-      else if (!board.contains(over))
-        invalid(s"$over is not occupied by your opponent")
+      // TODO Bonkers way of doing it
+      else if (board.get(over).exists(p => Player.white.isMyPiece(p) != Player.white.isMyPiece(board(from))))
+        valid(board.updated(to, board(from)).removedAll(List(from, over)))
 
       else
-        valid(board.updated(to, board(from)).removedAll(List(from, over)))
+        invalid(s"$over is not occupied by your opponent")
   }
 }

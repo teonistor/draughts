@@ -6,6 +6,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class MoveTest extends AnyFunSuite {
 
+  // TODO Generalise
   private val moveMe = Piece.whitePeon
   private val ignoreMe = Piece.whitePeon
   private val captureMe = Piece.blackPeon
