@@ -1,16 +1,15 @@
 package io.github.teonistor.draughts.move
 
+import io.github.teonistor.draughts.Piece
 import io.github.teonistor.draughts.data.Position
 import org.scalatest.funsuite.AnyFunSuite
 
 class MoveTest extends AnyFunSuite {
 
-  private val moveMe = "move me"
-  private val ignoreMe = "leave me alone"
-  private val captureMe = "capture me"
-  private val iBlockU = "i block u"
-
-
+  private val moveMe = Piece.whitePeon
+  private val ignoreMe = Piece.whitePeon
+  private val captureMe = Piece.blackPeon
+  private val iBlockU = Piece.whitePeon
 
   test("sliding move happens") {
     assert(Move.Sliding(Position(2,2), Position(3,3))

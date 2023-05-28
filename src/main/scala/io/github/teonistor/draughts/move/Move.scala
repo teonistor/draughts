@@ -1,17 +1,18 @@
 package io.github.teonistor.draughts.move
 
+import io.github.teonistor.draughts.Piece
 import io.github.teonistor.draughts.data.Position
 import io.vavr.control.Validation
 import io.vavr.control.Validation.{invalid, valid}
 
 sealed trait Move {
-  def execute[P](board: Map[Position, P]): Validation[String, Map[Position,P]]
+  def execute(board: Map[Position, Piece]): Validation[String, Map[Position, Piece]]
 }
 
 object Move {
 
   case class Sliding(from: Position, to: Position) extends Move {
-    override def execute[P](board: Map[Position, P]): Validation[String, Map[Position, P]] =
+    override def execute(board: Map[Position, Piece]): Validation[String, Map[Position, Piece]] =
       if (board contains to)
         invalid(s"$to is occupied")
       else
@@ -19,7 +20,7 @@ object Move {
   }
 
   case class Jumping(from: Position, over: Position, to: Position) extends Move {
-    override def execute[P](board: Map[Position, P]): Validation[String, Map[Position, P]] =
+    override def execute(board: Map[Position, Piece]): Validation[String, Map[Position, Piece]] =
       if (board contains to)
         invalid(s"$to is occupied")
 
