@@ -1,7 +1,7 @@
 package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.{GameState, Position}
-import io.github.teonistor.draughts.rule.{AvailableMovesRule, PromotionRule}
+import io.github.teonistor.draughts.rule.{AvailableMovesRule, GameOverChecker, PromotionRule}
 import org.scalatest.funsuite.AnyFunSuite
 
 import java.io.{BufferedReader, InputStreamReader}
@@ -11,9 +11,9 @@ object EvolvingIT extends AnyFunSuite{
 
   def main(arg: Array[String]): Unit = {
     val ll = "(-?\\d+) +(-?\\d+) +(-?\\d+) +(-?\\d+)".r
-    var game = new Game(
-      new AvailableMovesRule(),
+    var game = new Game(new AvailableMovesRule(),
       new PromotionRule(),
+      new GameOverChecker(),
       null,
       GameState(Map(
         Position(0,0) -> Piece.whitePeon,
