@@ -1,20 +1,20 @@
 package io.github.teonistor.draughts
 
-import io.github.teonistor.draughts.data.{GameState, Position}
+import io.github.teonistor.draughts.data.{GameState, Position, Settings}
 import io.github.teonistor.draughts.rule.{AvailableMovesRule, GameOverChecker, PromotionRule}
 import org.scalatest.funsuite.AnyFunSuite
 
 import java.io.{BufferedReader, InputStreamReader}
-import java.lang.Math.{max, min}
 
 object EvolvingIT extends AnyFunSuite{
 
   def main(arg: Array[String]): Unit = {
-    val ll = "(-?\\d+) +(-?\\d+) +(-?\\d+) +(-?\\d+)".r
+    val inputLine = "(-?\\d+) +(-?\\d+) +(-?\\d+) +(-?\\d+)".r
+    val terminalView = new TerminalView()
     var game = new Game(new AvailableMovesRule(),
       new PromotionRule(),
       new GameOverChecker(),
-      null,
+      Settings(8,8,2),
       GameState(Map(
         Position(0,0) -> Piece.whitePeon,
         Position(2,0) -> Piece.whitePeon,
@@ -26,23 +26,9 @@ object EvolvingIT extends AnyFunSuite{
 
     val rd = new BufferedReader(new InputStreamReader(System.in))
     while(true) {
-      val (maxY, minY, minX, maxX) = game.gameState.board.keys
-        .map(p => (p.y,p.y,p.x,p.x))
-        .reduce[(Int,Int,Int,Int)] {
-          case((a,b,c,d),(e,f,g,h)) => (max(a,e), min(b,f), min(c,g), max(d,h))
-        }
-      (minY to maxY).reverse.foreach(y =>
-        println((minX to maxX).map(x =>
-          game.gameState.board.get(Position(x,y))
-        .map {
-          case Piece.blackKing => "B"
-          case Piece.blackPeon => "b"
-          case Piece.whiteKing => "W"
-          case Piece.whitePeon => "w"
-        } .getOrElse("."))
-          .mkString))
+      println(terminalView.display(game))
 
-      val mtch = ll.pattern.matcher(rd.readLine())
+      val mtch = inputLine.pattern.matcher(rd.readLine())
       if (mtch.matches()) {
         val result = game.move(
           Position(mtch.group(1).toInt, mtch.group(2).toInt),
