@@ -27,6 +27,10 @@ class TerminalView {
       .mkString(top, sep, bot) +
       (0 until game.settings.boardWidth)
         .map("%3d" format _)
-        .mkString("   ", " ", "\n")
+        .mkString("   ", " ", "\n") +
+      (if (game.isGameOver)
+        "Game over!\n"
+      else
+        s"${game.gameState.currentPlayer} to move.\n")
   }
 }

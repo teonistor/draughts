@@ -2,6 +2,7 @@ package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.{GameState, Position, Settings}
 import org.scalatest.funsuite.AnyFunSuite
+import org.springframework.test.util.ReflectionTestUtils.setField
 
 class TerminalViewTest extends AnyFunSuite {
 
@@ -13,7 +14,10 @@ class TerminalViewTest extends AnyFunSuite {
         Position(0, 2) -> Piece.blackPeon,
         Position(2, 0) -> Piece.blackKing,
         Position(2, 2) -> Piece.whiteKing),
-        Player.black))
+        Player.white))
+
+    setField(game, "isGameOver", false)
+    setField(game, "bitmap$0", 3.asInstanceOf[Byte])
 
     assert(new TerminalView().display(game) ==
       """   ╭───┬───┬───╮
@@ -24,6 +28,7 @@ class TerminalViewTest extends AnyFunSuite {
         | 0 │ w │   │ B │
         |   ╰───┴───┴───╯
         |     0   1   2
+        |White to move.
         |""".stripMargin)
   }
 
@@ -36,6 +41,9 @@ class TerminalViewTest extends AnyFunSuite {
         Position(4, 6) -> Piece.blackKing,
         Position(7, 5) -> Piece.whiteKing),
         Player.black))
+
+    setField(game, "isGameOver", true)
+    setField(game, "bitmap$0", 3.asInstanceOf[Byte])
 
     assert(new TerminalView().display(game) ==
       """   ╭───┬───┬───┬───┬───┬───┬───┬───╮
@@ -56,6 +64,7 @@ class TerminalViewTest extends AnyFunSuite {
         | 0 │ w │   │   │   │   │   │   │   │
         |   ╰───┴───┴───┴───┴───┴───┴───┴───╯
         |     0   1   2   3   4   5   6   7
+        |Game over!
         |""".stripMargin)
   }
 
@@ -70,6 +79,9 @@ class TerminalViewTest extends AnyFunSuite {
         Position(11,9) -> Piece.whiteKing,
         Position(7,11) -> Piece.whiteKing),
         Player.black))
+
+    setField(game, "isGameOver", false)
+    setField(game, "bitmap$0", 3.asInstanceOf[Byte])
 
     assert(new TerminalView().display(game) ==
       """   ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -98,6 +110,7 @@ class TerminalViewTest extends AnyFunSuite {
         | 0 │   │   │   │   │   │   │   │   │   │   │   │   │
         |   ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
         |     0   1   2   3   4   5   6   7   8   9  10  11
+        |Black to move.
         |""".stripMargin)
   }
 }
