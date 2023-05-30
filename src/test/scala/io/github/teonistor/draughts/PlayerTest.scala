@@ -28,4 +28,9 @@ class PlayerTest extends AnyFunSuite {
     assert(!Player.black.isMyPiece(Piece.whiteKing))
     assert(!Player.black.isMyPiece(Piece.whitePeon))
   }
+
+  test("toString") {
+    assert(Player.black.toString == "Black")
+    assert(Player.white.toString == "White")
+  }
 }
