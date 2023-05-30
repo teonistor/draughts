@@ -10,7 +10,7 @@ class Game(val availableMovesRule: AvailableMovesRule,
            val gameOverChecker: GameOverChecker,
            val settings: Settings, val gameState: GameState) {
 
-  lazy val availableMoves: AvailableMoves = availableMovesRule computeAvailableMoves gameState
+  lazy val availableMoves: AvailableMoves = availableMovesRule.computeAvailableMoves(gameState, settings)
   lazy val isGameOver: Boolean = gameOverChecker isGameOver availableMoves
 
   def move(from: Position, to: Position): Validation[String,Game] = {

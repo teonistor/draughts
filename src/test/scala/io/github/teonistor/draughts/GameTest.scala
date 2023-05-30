@@ -20,7 +20,7 @@ class GameTest extends Assertions {
     val game = new Game(availableMovesRule, promotionRule, gameOverChecker, settings, gameState)
 
     val isGameOver = nextBoolean()
-    given(availableMovesRule computeAvailableMoves gameState) willReturn availableMoves
+    given(availableMovesRule.computeAvailableMoves(gameState, settings)) willReturn availableMoves
     given(gameOverChecker isGameOver availableMoves) willReturn isGameOver
 
     assert(game.availableMoves == availableMoves)
@@ -46,7 +46,7 @@ class GameTest extends Assertions {
       val gameState = GameState(null, Player.black)
       this.game = new Game(availableMovesRule, promotionRule, gameOverChecker, settings, gameState)
 
-      given(availableMovesRule computeAvailableMoves gameState) willReturn Map(
+      given(availableMovesRule.computeAvailableMoves(gameState, settings)) willReturn Map(
         from -> Map(
           good -> valid(boardAfterMove),
           bad -> invalid("invalidity from computation")))
