@@ -15,10 +15,10 @@ import org.scalatest.Assertions
 class AvailableMovesRuleTest extends Assertions {
 
   @Test
-  def computeAvailableMoves(@Mock currentPlayerr: Player, @Mock myPiece: Piece, @Mock otherPiece: Piece,
-                            @Mock move1: Move, @Mock move2: Move, @Mock move3: Move,
-                            @Mock boardAfterMove1: Map[Position,Piece]): Unit = {
-    val startingPosition = Position(3,4)
+  def computeAvailableMoves1(@Mock currentPlayerr: Player, @Mock myPiece: Piece, @Mock otherPiece: Piece,
+                             @Mock move1: Move, @Mock move2: Move, @Mock move3: Move,
+                             @Mock boardAfterMove1: Map[Position,Piece]): Unit = {
+    val startingPosition = Position(3, 4)
     val positionAfterMove1 = Position(7, 9)
     val positionAfterMove2 = Position(4, 4)
     val positionOutsideBoard1 = Position(8, 3)
@@ -47,5 +47,32 @@ class AvailableMovesRuleTest extends Assertions {
         positionAfterMove2 -> invalid("invalidity from move"))))
 
     verifyNoMoreInteractions(currentPlayerr, myPiece, otherPiece, move1, move2, move3, boardAfterMove1)
+  }
+
+  @Test
+  def computeAvailableMoves2(@Mock currentPlayerr: Player, @Mock piece1: Piece, @Mock piece2: Piece,
+                             @Mock move1: Move, @Mock move2: Move,
+                             @Mock boardAfterMove1: Map[Position, Piece]): Unit = {
+    val startingPosition = Position(3, 4)
+    val otherStartingPosition = Position(5, 4)
+    val positionAfterMove1 = Position(7, 9)
+    val positionAfterMove2 = Position(4, 4)
+    val startingBoard = Map(startingPosition -> piece1, otherStartingPosition -> piece2)
+
+    given(currentPlayerr isMyPiece piece1) willReturn true
+    given(piece1 emitMoves startingPosition) willReturn Map(positionAfterMove1 -> move1, positionAfterMove2 -> move2)
+    given(move1 execute startingBoard) willReturn valid(boardAfterMove1)
+    given(move2 execute startingBoard) willReturn invalid("invalidity from move")
+
+    val actual = new AvailableMovesRule().computeAvailableMoves(
+      GameState(startingBoard, currentPlayerr, Some(startingPosition)),
+      Settings(8, 10, 3))
+
+    assert(actual == Map(
+      startingPosition -> Map(
+        positionAfterMove1 -> valid(boardAfterMove1),
+        positionAfterMove2 -> invalid("invalidity from move"))))
+
+    verifyNoMoreInteractions(currentPlayerr, piece1, piece2, move1, move2, boardAfterMove1)
   }
 }
