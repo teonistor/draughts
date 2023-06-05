@@ -43,7 +43,7 @@ class GameTest extends Assertions {
 
     @BeforeEach
     def before(@Mock availableMovesRule: AvailableMovesRule, @Mock gameOverChecker: GameOverChecker, @Mock settings: Settings): Unit = {
-      val gameState = GameState(null, Player.black)
+      val gameState = GameState(null, Player.black, None)
       this.game = new Game(availableMovesRule, promotionRule, gameOverChecker, settings, gameState)
 
       given(availableMovesRule.computeAvailableMoves(gameState, settings)) willReturn Map(

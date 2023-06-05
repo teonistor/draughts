@@ -27,7 +27,7 @@ class Game(val availableMovesRule: AvailableMovesRule,
       .getOrElse(invalid(s"You don't have a piece at $from"))
       .map(promotionRule.promoteAsNeeded)
     // Here be logic to keep the same player if jump
-      .map(newBoard => GameState(newBoard, gameState.currentPlayer.next))
+      .map(newBoard => GameState(newBoard, gameState.currentPlayer.next, gameState.ongoingJump))
       .map(newState => new Game(availableMovesRule, promotionRule, gameOverChecker, settings, newState))
   }
 

@@ -14,7 +14,8 @@ class TerminalViewTest extends AnyFunSuite {
         Position(0, 2) -> Piece.blackPeon,
         Position(2, 0) -> Piece.blackKing,
         Position(2, 2) -> Piece.whiteKing),
-        Player.white))
+        Player.white,
+        None))
 
     setField(game, "isGameOver", false)
     setField(game, "bitmap$0", 3.asInstanceOf[Byte])
@@ -40,7 +41,8 @@ class TerminalViewTest extends AnyFunSuite {
         Position(0, 4) -> Piece.blackPeon,
         Position(4, 6) -> Piece.blackKing,
         Position(7, 5) -> Piece.whiteKing),
-        Player.black))
+        Player.black,
+        None))
 
     setField(game, "isGameOver", true)
     setField(game, "bitmap$0", 3.asInstanceOf[Byte])
@@ -78,7 +80,8 @@ class TerminalViewTest extends AnyFunSuite {
         Position(9, 9) -> Piece.whitePeon,
         Position(11,9) -> Piece.whiteKing,
         Position(7,11) -> Piece.whiteKing),
-        Player.black))
+        Player.black,
+        None))
 
     setField(game, "isGameOver", false)
     setField(game, "bitmap$0", 3.asInstanceOf[Byte])

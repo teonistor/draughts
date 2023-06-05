@@ -11,18 +11,17 @@ object EvolvingIT extends AnyFunSuite{
   def main(arg: Array[String]): Unit = {
     val inputLine = " *(-?\\d+) +(-?\\d+) +(-?\\d+) +(-?\\d+) *".r
     val terminalView = new TerminalView()
+    val initialBoardProvider = new InitialBoardProvider()
+
+    val settings = Settings(6, 6, 2)
     var game = new Game(new AvailableMovesRule(),
       new PromotionRule(),
       new GameOverChecker(),
-      Settings(4,5,2),
-      GameState(Map(
-        Position(0,0) -> Piece.whitePeon,
-        Position(2,0) -> Piece.whitePeon,
-        Position(1,1) -> Piece.whitePeon,
-        Position(3,3) -> Piece.blackPeon,
-        Position(1,3) -> Piece.blackPeon,
-        Position(2,2) -> Piece.blackPeon),
-        Player.white))
+      settings,
+      GameState(
+        initialBoardProvider.createBoard(settings),
+        Player.white,
+        None))
 
     val rd = new BufferedReader(new InputStreamReader(System.in))
     println(terminalView.display(game))

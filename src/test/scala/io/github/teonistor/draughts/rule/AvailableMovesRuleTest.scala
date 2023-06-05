@@ -39,7 +39,7 @@ class AvailableMovesRuleTest extends Assertions {
     given(move1 execute startingBoard) willReturn valid(boardAfterMove1)
     given(move2 execute startingBoard) willReturn invalid("invalidity from move")
 
-    val actual = new AvailableMovesRule().computeAvailableMoves(GameState(startingBoard, currentPlayerr), Settings(8, 10, 3))
+    val actual = new AvailableMovesRule().computeAvailableMoves(GameState(startingBoard, currentPlayerr, None), Settings(8, 10, 3))
 
     assert(actual == Map(
       startingPosition -> Map (
