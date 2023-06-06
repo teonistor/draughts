@@ -11,6 +11,7 @@ class AvailableMovesRule {
       p.x >= 0 && p.x < settings.boardWidth && p.y >= 0 && p.y < settings.boardHeight
 
     val arePositionAndPieceRelevant = (position: Position, piece: Piece) =>
+      // Now we have a misrepresentation problem because invalidity messages from the game would imply these pieces won't exist
       !gameState.ongoingJump.exists(_ != position) &&
        gameState.currentPlayer.isMyPiece(piece)
 
@@ -22,7 +23,7 @@ class AvailableMovesRule {
     gameState.board.view
       .filter(arePositionAndPieceRelevant.tupled)
       .map(emitMoves.tupled)
-      .filterNot(_._2.isEmpty)  // Ensure no sources are returned with empty targets... dor sanity
+      .filterNot(_._2.isEmpty)  // Ensure no sources are returned with empty targets... for sanity
       .toMap
   }
 }
