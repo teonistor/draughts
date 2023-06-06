@@ -15,7 +15,7 @@ object EvolvingIT extends AnyFunSuite{
 
     val settings = Settings(6, 6, 2)
     var game = new Game(new AvailableMovesRule(),
-      new PromotionRule(),
+      new PromotionRule(settings),
       new GameOverChecker(),
       settings,
       GameState(
