@@ -15,9 +15,9 @@ import org.scalatest.Assertions
 class AvailableMovesRuleTest extends Assertions {
 
   @Test
-  def computeAvailableMoves1(@Mock currentPlayer: Player, @Mock myPiece: Piece, @Mock otherPiece: Piece,
-                             @Mock move1: Move, @Mock move2: Move, @Mock move3: Move,
-                             @Mock stateAfterMove1: GameState): Unit = {
+  def computeAvailableMovesNormally(@Mock currentPlayer: Player, @Mock myPiece: Piece, @Mock otherPiece: Piece,
+                                    @Mock move1: Move, @Mock move2: Move, @Mock move3: Move,
+                                    @Mock stateAfterMove1: GameState): Unit = {
     val startingPosition = Position(3, 4)
     val positionAfterMove1 = Position(7, 9)
     val positionAfterMove2 = Position(4, 4)
@@ -50,9 +50,9 @@ class AvailableMovesRuleTest extends Assertions {
   }
 
   @Test
-  def computeAvailableMoves2(@Mock currentPlayer: Player, @Mock piece1: Piece, @Mock piece2: Piece,
-                             @Mock move1: Move, @Mock move2: Move,
-                             @Mock stateAfterMove1: GameState): Unit = {
+  def computeAvailableMovesWhenContinuingJump(@Mock currentPlayer: Player, @Mock piece1: Piece, @Mock piece2: Piece,
+                                              @Mock move1: Move, @Mock move2: Move,
+                                              @Mock stateAfterMove1: GameState): Unit = {
     val startingPosition = Position(3, 4)
     val otherStartingPosition = Position(5, 4)
     val positionAfterMove1 = Position(7, 9)
@@ -60,7 +60,7 @@ class AvailableMovesRuleTest extends Assertions {
     val startingState = GameState(Map(startingPosition -> piece1, otherStartingPosition -> piece2), currentPlayer, Some(startingPosition))
 
     given(currentPlayer isMyPiece piece1) willReturn true
-    given(piece1 emitMoves startingPosition) willReturn Map(positionAfterMove1 -> move1, positionAfterMove2 -> move2)
+    given(piece1.emitJumps(startingPosition)) willReturn Map(positionAfterMove1 -> move1, positionAfterMove2 -> move2)
     given(move1 execute startingState) willReturn valid(stateAfterMove1)
     given(move2 execute startingState) willReturn invalid("invalidity from move")
 
