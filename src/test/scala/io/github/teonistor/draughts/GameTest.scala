@@ -48,7 +48,7 @@ class GameTest extends Assertions {
 
       given(availableMovesRule.computeAvailableMoves(gameState, settings)) willReturn Map(
         from -> Map(
-          good -> valid(boardAfterMove),
+          good -> valid(GameState(boardAfterMove, Player.white, None)),
           bad -> invalid("invalidity from computation")))
     }
 
