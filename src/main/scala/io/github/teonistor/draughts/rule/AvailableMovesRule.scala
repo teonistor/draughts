@@ -17,7 +17,7 @@ class AvailableMovesRule {
 
     val emitMoves = (from: Position, piece: Piece) => (from, piece.emitMoves(from).view
       .filterKeys(isPositionOnBoard)
-      .mapValues(_ execute gameState.board)
+      .mapValues(_ execute gameState)
       .toMap)
 
     gameState.board.view

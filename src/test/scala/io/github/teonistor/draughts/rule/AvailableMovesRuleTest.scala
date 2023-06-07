@@ -17,7 +17,7 @@ class AvailableMovesRuleTest extends Assertions {
   @Test
   def computeAvailableMoves1(@Mock currentPlayer: Player, @Mock myPiece: Piece, @Mock otherPiece: Piece,
                              @Mock move1: Move, @Mock move2: Move, @Mock move3: Move,
-                             @Mock boardAfterMove1: Map[Position,Piece]): Unit = {
+                             @Mock stateAfterMove1: GameState): Unit = {
     val startingPosition = Position(3, 4)
     val positionAfterMove1 = Position(7, 9)
     val positionAfterMove2 = Position(4, 4)
@@ -25,7 +25,7 @@ class AvailableMovesRuleTest extends Assertions {
     val positionOutsideBoard2 = Position(2, 10)
     val positionOutsideBoard3 = Position(1, -1)
     val positionOutsideBoard4 = Position(-1, 6)
-    val startingBoard = Map(startingPosition -> myPiece, Position(7,8) -> otherPiece)
+    val startingState = GameState(Map(startingPosition -> myPiece, Position(7, 8) -> otherPiece), currentPlayer, None)
 
     given(currentPlayer isMyPiece myPiece) willReturn true
     given(currentPlayer isMyPiece otherPiece) willReturn false
@@ -36,43 +36,41 @@ class AvailableMovesRuleTest extends Assertions {
       positionOutsideBoard2 -> move3,
       positionOutsideBoard3 -> move3,
       positionOutsideBoard4 -> move3)
-    given(move1 execute startingBoard) willReturn valid(boardAfterMove1)
-    given(move2 execute startingBoard) willReturn invalid("invalidity from move")
+    given(move1 execute startingState) willReturn valid(stateAfterMove1)
+    given(move2 execute startingState) willReturn invalid("invalidity from move")
 
-    val actual = new AvailableMovesRule().computeAvailableMoves(GameState(startingBoard, currentPlayer, None), Settings(8, 10, 3))
+    val actual = new AvailableMovesRule().computeAvailableMoves(startingState, Settings(8, 10, 3))
 
     assert(actual == Map(
       startingPosition -> Map (
-        positionAfterMove1 -> valid(boardAfterMove1),
+        positionAfterMove1 -> valid(stateAfterMove1),
         positionAfterMove2 -> invalid("invalidity from move"))))
 
-    verifyNoMoreInteractions(currentPlayer, myPiece, otherPiece, move1, move2, move3, boardAfterMove1)
+    verifyNoMoreInteractions(currentPlayer, myPiece, otherPiece, move1, move2, move3, stateAfterMove1)
   }
 
   @Test
   def computeAvailableMoves2(@Mock currentPlayer: Player, @Mock piece1: Piece, @Mock piece2: Piece,
                              @Mock move1: Move, @Mock move2: Move,
-                             @Mock boardAfterMove1: Map[Position, Piece]): Unit = {
+                             @Mock stateAfterMove1: GameState): Unit = {
     val startingPosition = Position(3, 4)
     val otherStartingPosition = Position(5, 4)
     val positionAfterMove1 = Position(7, 9)
     val positionAfterMove2 = Position(4, 4)
-    val startingBoard = Map(startingPosition -> piece1, otherStartingPosition -> piece2)
+    val startingState = GameState(Map(startingPosition -> piece1, otherStartingPosition -> piece2), currentPlayer, Some(startingPosition))
 
     given(currentPlayer isMyPiece piece1) willReturn true
     given(piece1 emitMoves startingPosition) willReturn Map(positionAfterMove1 -> move1, positionAfterMove2 -> move2)
-    given(move1 execute startingBoard) willReturn valid(boardAfterMove1)
-    given(move2 execute startingBoard) willReturn invalid("invalidity from move")
+    given(move1 execute startingState) willReturn valid(stateAfterMove1)
+    given(move2 execute startingState) willReturn invalid("invalidity from move")
 
-    val actual = new AvailableMovesRule().computeAvailableMoves(
-      GameState(startingBoard, currentPlayer, Some(startingPosition)),
-      Settings(8, 10, 3))
+    val actual = new AvailableMovesRule().computeAvailableMoves(startingState, Settings(8, 10, 3))
 
     assert(actual == Map(
       startingPosition -> Map(
-        positionAfterMove1 -> valid(boardAfterMove1),
+        positionAfterMove1 -> valid(stateAfterMove1),
         positionAfterMove2 -> invalid("invalidity from move"))))
 
-    verifyNoMoreInteractions(currentPlayer, piece1, piece2, move1, move2, boardAfterMove1)
+    verifyNoMoreInteractions(currentPlayer, piece1, piece2, move1, move2, stateAfterMove1)
   }
 }
