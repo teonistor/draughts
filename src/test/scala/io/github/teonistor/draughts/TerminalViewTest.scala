@@ -81,7 +81,7 @@ class TerminalViewTest extends AnyFunSuite {
         Position(11,9) -> Piece.whiteKing,
         Position(7,11) -> Piece.whiteKing),
         Player.black,
-        None))
+        Some(Position(9,9))))
 
     setField(game, "isGameOver", false)
     setField(game, "bitmap$0", 3.asInstanceOf[Byte])
@@ -113,7 +113,7 @@ class TerminalViewTest extends AnyFunSuite {
         | 0 │   │   │   │   │   │   │   │   │   │   │   │   │
         |   ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
         |     0   1   2   3   4   5   6   7   8   9  10  11
-        |Black to move.
+        |Black to continue jumping from Position(9,9) (or pass).
         |""".stripMargin)
   }
 }

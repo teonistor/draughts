@@ -30,7 +30,10 @@ class TerminalView {
         .mkString("   ", " ", "\n") +
       (if (game.isGameOver)
         "Game over!\n"
-      else
-        s"${game.gameState.currentPlayer} to move.\n")
+      else game.gameState.ongoingJump
+        .map("continue jumping from " +_+ " (or pass)")
+        .orElse(Some("move"))
+        .map(game.gameState.currentPlayer + " to " +_+ ".\n")
+        .get)
   }
 }
