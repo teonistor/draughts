@@ -21,7 +21,7 @@ class GameTest extends Assertions {
 
     val isGameOver = nextBoolean()
     given(availableMovesRule.computeAvailableMoves(gameState, settings)) willReturn availableMoves
-    given(gameOverChecker isGameOver availableMoves) willReturn isGameOver
+    given(gameOverChecker.isGameOver(gameState, availableMoves)) willReturn isGameOver
 
     assert(game.availableMoves == availableMoves)
     assert(game.isGameOver == isGameOver)
@@ -76,5 +76,23 @@ class GameTest extends Assertions {
     }
   }
 
+  @Nested
+  class PassJump {
 
+    @Test
+    def yes(): Unit = {
+      val in = new Game(null, null, null, null, GameState(null, Player.black, Some(null)))
+      val actual:Game = in.pass().get
+
+      assert(actual.gameState.currentPlayer == Player.white)
+      assert(actual.gameState.ongoingJump.isEmpty)
+    }
+
+    @Test
+    def no(): Unit = {
+      val in = new Game(null, null, null, null, GameState(null, Player.black, None))
+
+      assert(in.pass().getError == "No jump in progress")
+    }
+  }
 }

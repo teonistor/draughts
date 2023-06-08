@@ -3,7 +3,7 @@ package io.github.teonistor.draughts
 import io.github.teonistor.draughts.data.{GameState, Position, Settings}
 import io.github.teonistor.draughts.rule.{AvailableMoves, AvailableMovesRule, GameOverChecker, PromotionRule}
 import io.vavr.control.Validation
-import io.vavr.control.Validation.invalid
+import io.vavr.control.Validation.{invalid, valid}
 
 class Game(val availableMovesRule: AvailableMovesRule,
            val promotionRule: PromotionRule,
@@ -11,7 +11,7 @@ class Game(val availableMovesRule: AvailableMovesRule,
            val settings: Settings, val gameState: GameState) {
 
   lazy val availableMoves: AvailableMoves = availableMovesRule.computeAvailableMoves(gameState, settings)
-  lazy val isGameOver: Boolean = gameOverChecker isGameOver availableMoves
+  lazy val isGameOver: Boolean = gameOverChecker.isGameOver(gameState, availableMoves)
 
   def move(from: Position, to: Position): Validation[String,Game] = {
    /* Caution! Visitor pattern looming as always!
@@ -29,4 +29,7 @@ class Game(val availableMovesRule: AvailableMovesRule,
       .map(newState => new Game(availableMovesRule, promotionRule, gameOverChecker, settings, newState))
   }
 
+  def pass(): Validation[String, Game] = gameState.ongoingJump
+    .map(_ => valid[String, Game](new Game(availableMovesRule, promotionRule, gameOverChecker, settings, GameState(gameState.board, gameState.currentPlayer.next, None))))
+    .getOrElse(invalid("No jump in progress"))
 }
