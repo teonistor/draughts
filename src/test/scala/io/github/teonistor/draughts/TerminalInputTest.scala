@@ -1,5 +1,6 @@
 package io.github.teonistor.draughts
 
+import io.github.teonistor.draughts.data.Position
 import io.vavr.control.Validation
 import org.mockito.ArgumentMatchers.any
 import org.mockito.BDDMockito.`given`
@@ -48,6 +49,24 @@ class TerminalInputTest extends AnyFunSuiteLike with BeforeAndAfterEach {
 
     assert(captor.getValue()(gameIn) == gameOut)
     verify(gameIn).pass()
+  }
+
+  test("move") {
+    val ti = new TerminalInput(new ByteArrayInputStream(lines("1 2 3 4")), juncture)
+    given(gameIn.move(Position(1,2), Position(3,4))) willReturn gameOut
+
+    val captor: ArgumentCaptor[Game => Validation[String, Game]] = ArgumentCaptor.forClass(classOf[Game => Validation[String, Game]])
+
+    ti.run()
+    val juncture1 = verify(juncture)
+    val function = captor.capture()
+    val v = juncture1.progress(function)
+
+    // Did I find a bug in Scala or WTAF??
+    println("lalala" + v)
+
+    assert(captor.getValue()(gameIn) == gameOut)
+    verify(gameIn).move(Position(1,2), Position(3,4))
   }
 
   private def lines(lns: String*) =
