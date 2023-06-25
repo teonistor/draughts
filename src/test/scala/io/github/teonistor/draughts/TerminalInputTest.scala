@@ -2,18 +2,13 @@ package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.Position
 import io.vavr.control.Validation
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito.`given`
-import org.mockito.Mockito.{mock, verify, verifyNoMoreInteractions}
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
+import org.mockito.Mockito.{mock, reset, verify, verifyNoMoreInteractions}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funsuite.AnyFunSuiteLike
-import org.apache.commons
-import org.mockito.ArgumentCaptor
 
 import java.io.ByteArrayInputStream
-import java.nio.charset.StandardCharsets
 import java.nio.charset.StandardCharsets.UTF_8
 import scala.util.Random.between
 
@@ -22,6 +17,10 @@ class TerminalInputTest extends AnyFunSuiteLike with BeforeAndAfterEach {
   private val juncture = mock(classOf[Juncture])
   private val gameIn = mock(classOf[Game])
   private val gameOut = mock(classOf[Validation[String,Game]])
+
+  override def beforeEach(): Unit = {
+    reset(juncture)
+  }
 
   test("exit") {
     new TerminalInput(new ByteArrayInputStream(lines()), juncture)
@@ -70,7 +69,9 @@ class TerminalInputTest extends AnyFunSuiteLike with BeforeAndAfterEach {
   }
 
   private def lines(lns: String*) =
-    lns.appended("exit")
+    lns
+      .prepended("garbage")
+      .appended("exit")
       .map(" " * between(1,4) +_+ " " * between(1,4))
       .mkString("\n")
       .getBytes(UTF_8)
