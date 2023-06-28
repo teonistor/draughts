@@ -29,5 +29,11 @@
             <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-scala-scalatest_2.13</artifactId>
+            <version>${mockito-scala.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

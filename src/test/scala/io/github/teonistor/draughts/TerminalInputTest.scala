@@ -2,9 +2,9 @@ package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.Position
 import io.vavr.control.Validation
-import org.mockito.ArgumentCaptor
-import org.mockito.BDDMockito.`given`
-import org.mockito.Mockito.{mock, reset, verify, verifyNoMoreInteractions}
+import org.mockito.BDDMockito.{willDoNothing, willReturn}
+import org.mockito.captor.ArgCaptor
+import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funsuite.AnyFunSuiteLike
 
@@ -12,60 +12,38 @@ import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets.UTF_8
 import scala.util.Random.between
 
-class TerminalInputTest extends AnyFunSuiteLike with BeforeAndAfterEach {
-
-  private val juncture = mock(classOf[Juncture])
-  private val gameIn = mock(classOf[Game])
-  private val gameOut = mock(classOf[Validation[String,Game]])
-
-  override def beforeEach(): Unit = {
-    reset(juncture)
-  }
+class TerminalInputTest extends AnyFunSuiteLike with BeforeAndAfterEach with IdiomaticMockito {
 
   test("exit") {
-    new TerminalInput(new ByteArrayInputStream(lines()), juncture)
-      .run()
+    new TerminalInput(new ByteArrayInputStream(lines()), mock[Juncture]).run()
   }
 
   test("pass") {
-    val ti = new TerminalInput(new ByteArrayInputStream(lines("pass")), juncture)
-    given(gameIn.pass()) willReturn gameOut
-//    val value = any()
-//    val value1 = juncture.progress(value)
-//    val v = given(value1)
-//    v.will(invocation =>
-//      assert(invocation.getArgument[Game => Validation[String,Game]](0)(gameIn) == gameOut))
+    val juncture = mock[Juncture]
+    val gameIn = mock[Game]
+    val gameOut = mock[Validation[String, Game]]
+    val gameFunc = ArgCaptor[Game=>Validation[String,Game]]
 
-    val captor: ArgumentCaptor[Game=>Validation[String,Game]] = ArgumentCaptor.forClass(classOf[Game=>Validation[String,Game]])
+    willDoNothing().given(juncture).progress(gameFunc)
+    willReturn(gameOut).given(gameIn).pass()
 
-    ti.run()
-    val juncture1 = verify(juncture)
-    val function = captor.capture()
-    val v=juncture1.progress(function)
+    new TerminalInput(new ByteArrayInputStream(lines("pass")), juncture).run()
 
-    // Did I find a bug in Scala or WTAF??
-    println("lalala" + v)
-
-    assert(captor.getValue()(gameIn) == gameOut)
-    verify(gameIn).pass()
+    assert(gameFunc.value(gameIn) == gameOut)
   }
 
   test("move") {
-    val ti = new TerminalInput(new ByteArrayInputStream(lines("1 2 3 4")), juncture)
-    given(gameIn.move(Position(1,2), Position(3,4))) willReturn gameOut
+    val juncture = mock[Juncture]
+    val gameIn = mock[Game]
+    val gameOut = mock[Validation[String, Game]]
+    val gameFunc = ArgCaptor[Game=>Validation[String,Game]]
 
-    val captor: ArgumentCaptor[Game => Validation[String, Game]] = ArgumentCaptor.forClass(classOf[Game => Validation[String, Game]])
+    willDoNothing().given(juncture).progress(gameFunc)
+    willReturn(gameOut).given(gameIn).move(Position(1,2), Position(3,4))
 
-    ti.run()
-    val juncture1 = verify(juncture)
-    val function = captor.capture()
-    val v = juncture1.progress(function)
+    new TerminalInput(new ByteArrayInputStream(lines("1 2 3 4")), juncture).run()
 
-    // Did I find a bug in Scala or WTAF??
-    println("lalala" + v)
-
-    assert(captor.getValue()(gameIn) == gameOut)
-    verify(gameIn).move(Position(1,2), Position(3,4))
+    assert(gameFunc.value(gameIn) == gameOut)
   }
 
   private def lines(lns: String*) =
@@ -75,7 +53,4 @@ class TerminalInputTest extends AnyFunSuiteLike with BeforeAndAfterEach {
       .map(" " * between(1,4) +_+ " " * between(1,4))
       .mkString("\n")
       .getBytes(UTF_8)
-
-  override protected def afterEach(): Unit =
-    verifyNoMoreInteractions(juncture, gameIn, gameOut)
 }
