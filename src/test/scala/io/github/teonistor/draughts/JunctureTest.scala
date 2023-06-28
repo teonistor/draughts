@@ -1,11 +1,11 @@
 package io.github.teonistor.draughts
 
 import io.vavr.control.Validation.{invalid, valid}
-import org.mockito.scalatest.MockitoSugar
-import org.scalatest.funsuite.AnyFunSuite
+import org.mockito.scalatest.IdiomaticMockito
+import org.scalatest.funsuite.AnyFunSuiteLike
 import org.springframework.test.util.ReflectionTestUtils
 
-class JunctureTest extends AnyFunSuite with MockitoSugar {
+class JunctureTest extends AnyFunSuiteLike with IdiomaticMockito {
 
   test("when valid") {
     val expectedInput = mock[Game]

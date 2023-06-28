@@ -5,14 +5,13 @@ import io.vavr.control.Validation
 import org.mockito.BDDMockito.{willDoNothing, willReturn}
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.IdiomaticMockito
-import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets.UTF_8
 import scala.util.Random.between
 
-class TerminalInputTest extends AnyFunSuiteLike with BeforeAndAfterEach with IdiomaticMockito {
+class TerminalInputTest extends AnyFunSuiteLike with IdiomaticMockito {
 
   test("exit") {
     new TerminalInput(new ByteArrayInputStream(lines()), mock[Juncture]).run()
