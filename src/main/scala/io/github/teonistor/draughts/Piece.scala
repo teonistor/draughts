@@ -34,42 +34,34 @@ object Piece {
 
   private class King extends Piece with PieceBase {
     protected def fanOut(input: Vector[Int]): Iterable[Vector[Int]] =
-      fanOutRecu(Vector(input), `+-1`)
+      fanOut0(input, `+-1`)
 
     override def promote: Piece = this
   }
 
   private class Peon(forward: Int, val promote: Piece) extends Piece with PieceBase {
     protected def fanOut(input: Vector[Int]): Iterable[Vector[Int]] =
-      fanOutRecu(Vector(input), Some(forward))
+      fanOut0(input, Some(forward))
   }
+
+  private def fanOut0(input: Vector[Int], lastMovement: Iterable[Int]) =
+    fanOut1(Vector(input), input.size - 1, lastMovement, 0)
 
   @tailrec
-  private def fanOutRecu(accum: Vector[Vector[Int]], lastOne: Iterable[Int], i: Int = 0): Iterable[Vector[Int]] =
-    if (i < accum.head.size - 1)
-      fanOutRecu(accum.flatMap(v => `+-1`.map(d => v.updated(i, v(i) + d))), lastOne, i + 1)
+  private def fanOut1(accum: Vector[Vector[Int]], lastIndex: Int, lastMovement: Iterable[Int], i: Int): Iterable[Vector[Int]] =
+    if (i < lastIndex)
+      fanOut1(accum.flatMap(v => `+-1`.map(d => v.updated(i, v(i) + d))), lastIndex, lastMovement, i + 1)
     else
-      accum.flatMap(v => lastOne.map(d => v.updated(i, v(i) + d)))
+      accum.flatMap(v => lastMovement.map(d => v.updated(i, v(i) + d)))
 
-  private def emitSlidesInOneDirection(from: Vector[Int], firstSteps: Iterable[Vector[Int]]) = {
+  private def emitSlidesInOneDirection(from: Vector[Int], firstSteps: Iterable[Vector[Int]]) =
     firstSteps.map(to => (to, Move.Sliding(from, to)))
-//    to.ma
-//    val x1 = dx + from.x
-//    val y1 = dy + from.y
-//    emission(from, Position(x1, y1), Position(dx + x1, dy + y1))
-  }
 
-//  private def emitAllMovesInOneDirection(from: Position, p1: Position, p2: Position) =
-//    List(p1 -> Move.Sliding(from, p1),
-//         p2 -> Move.Jumping(from, p1, p2))
-
-  private def emitJumpsInOneDirection(from: Vector[Int], firstSteps: Iterable[Vector[Int]]) = {
+  private def emitJumpsInOneDirection(from: Vector[Int], firstSteps: Iterable[Vector[Int]]) =
     firstSteps.map(over => {
       val to = secondStep(from, over)
       (to, Move.Jumping(from, over, to))
     })
-//    Some(p2 -> Move.Jumping(from, p1, p2))
-  }
 
   private def secondStep(origin:Vector[Int], firstStep:Vector[Int]) =
     Vector.tabulate(origin.size)(i => 2 * firstStep(i) - origin(i))
