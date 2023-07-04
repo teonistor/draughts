@@ -9,7 +9,8 @@ class AvailableMovesRule {
   def computeAvailableMoves(gameState: GameState, settings: Settings): AvailableMoves = {
 
     val isPositionOnBoard = (p: Position) =>
-      p.x >= 0 && p.x < settings.boardWidth && p.y >= 0 && p.y < settings.boardHeight
+      settings.boardSizes.indices.forall(i =>
+        p(i) >= 0 && p(i) < settings.boardSizes(i))
 
     val executeMovesOnBoard = (from: Position, moves: Map[Position,Move]) => (from, moves.view
       .filterKeys(isPositionOnBoard)
