@@ -1,17 +1,30 @@
 package io.github.teonistor.draughts
 
+import io.github.teonistor.draughts.data.Settings
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.Mockito.verify
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
-import org.springframework.test.util.ReflectionTestUtils
+import org.springframework.test.util.ReflectionTestUtils.{getField, setField}
 
 class JunctureTest extends AnyFunSuiteLike with IdiomaticMockito {
 
+  test("start new game") {
+    val settings = mock[Settings]
+    val game = mock[Game]
+
+    val juncture = new Juncture(actualInput => {
+      assert(actualInput == settings)
+      game
+    }, null)
+    juncture.start(settings)
+
+    assert(getField(juncture, "game") == game)
+  }
 
   test("progress when null") {
     val view = mock[View]
-    new Juncture(view).progress(null)
+    new Juncture(null, view).progress(null)
 
     verify(view).announce("No game in progress")
   }
@@ -21,15 +34,15 @@ class JunctureTest extends AnyFunSuiteLike with IdiomaticMockito {
     val expectedInput = mock[Game]
     val expectedOutput = mock[Game]
 
-    val juncture = new Juncture(view)
-    ReflectionTestUtils.setField(juncture, "game", expectedInput)
+    val juncture = new Juncture(null, view)
+    setField(juncture, "game", expectedInput)
 
     juncture.progress(actualInput => {
       assert(actualInput == expectedInput)
       valid(expectedOutput)
     })
 
-    assert(ReflectionTestUtils.getField(juncture, "game") == expectedOutput)
+    assert(getField(juncture, "game") == expectedOutput)
     verify(view).display(expectedOutput)
   }
 
@@ -37,15 +50,15 @@ class JunctureTest extends AnyFunSuiteLike with IdiomaticMockito {
     val view = mock[View]
     val unchanged = mock[Game]
 
-    val juncture = new Juncture(view)
-    ReflectionTestUtils.setField(juncture, "game", unchanged)
+    val juncture = new Juncture(null, view)
+    setField(juncture, "game", unchanged)
 
     juncture.progress(actualInput => {
       assert(actualInput == unchanged)
       invalid("Busted!")
     })
 
-    assert(ReflectionTestUtils.getField(juncture, "game") == unchanged)
+    assert(getField(juncture, "game") == unchanged)
     verify(view).announce("Busted!")
   }
 }

@@ -1,9 +1,15 @@
 package io.github.teonistor.draughts
 
+import io.github.teonistor.draughts.data.Settings
 import io.vavr.control.Validation
 
-class Juncture(view:View) {
+class Juncture(gameMaker: Settings=>Game, view: View) {
+
   private var game: Game =_
+
+  def start(settings: Settings): Unit = {
+    game = gameMaker(settings)
+  }
 
   def progress(function: Game=>Validation[String,Game]): Unit =
     if (game != null)
