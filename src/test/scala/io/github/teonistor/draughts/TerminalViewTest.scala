@@ -1,10 +1,12 @@
 package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.{GameState, Settings}
+import org.mockito.Mockito.verify
+import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuite
 import org.springframework.test.util.ReflectionTestUtils.setField
 
-class TerminalViewTest extends AnyFunSuite {
+class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
 
   test("3x3") {
     val game = new Game(null, null, null,
@@ -20,7 +22,7 @@ class TerminalViewTest extends AnyFunSuite {
     setField(game, "isGameOver", false)
     setField(game, "bitmap$0", 3.asInstanceOf[Byte])
 
-    assert(new TerminalView().display(game) ==
+    assertStringification(game,
       """   ╭───┬───┬───╮
         | 2 │ b │   │ W │
         |   ├───┼───┼───┤
@@ -49,7 +51,7 @@ class TerminalViewTest extends AnyFunSuite {
     setField(game, "isGameOver", false)
     setField(game, "bitmap$0", 3.asInstanceOf[Byte])
 
-    assert(new TerminalView().display(game) ==
+    assertStringification(game,
       """Board plane (0, x, y)
         |   ╭───┬───╮
         | 2 │ b │ W │
@@ -95,7 +97,7 @@ class TerminalViewTest extends AnyFunSuite {
     setField(game, "isGameOver", true)
     setField(game, "bitmap$0", 3.asInstanceOf[Byte])
 
-    assert(new TerminalView().display(game) ==
+    assertStringification(game,
       """   ╭───┬───┬───┬───┬───┬───┬───┬───╮
         | 7 │   │   │   │   │   │   │   │   │
         |   ├───┼───┼───┼───┼───┼───┼───┼───┤
@@ -134,7 +136,7 @@ class TerminalViewTest extends AnyFunSuite {
     setField(game, "isGameOver", false)
     setField(game, "bitmap$0", 3.asInstanceOf[Byte])
 
-    assert(new TerminalView().display(game) ==
+    assertStringification(game,
       """   ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
         |11 │   │   │   │   │   │   │   │ W │   │   │   │   │
         |   ├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
@@ -163,5 +165,12 @@ class TerminalViewTest extends AnyFunSuite {
         |     0   1   2   3   4   5   6   7   8   9  10  11
         |Black to continue jumping from (9, 9) (or pass).
         |""".stripMargin)
+  }
+
+  private def assertStringification(game: Game, expectedStringifiedGame: String): Unit = {
+    val terminalView = spy(new TerminalView())  // Ah the joys of real I/O
+    terminalView.display(game)
+    verify(terminalView).display(game) // No shit Sherlock!
+    verify(terminalView).announce(expectedStringifiedGame)
   }
 }
