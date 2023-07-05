@@ -39,7 +39,7 @@ class TerminalInput(inputStream: InputStream, juncture: Juncture) extends Runnab
     val startingRow = reader.readLine().strip().toIntOption.getOrElse(2)
     println(startingRow)
 
-    print("Starting rows (default 2): ")
+    print("Dimensions (default 8 8): ")
     val boardSizes = Option(reader.readLine().strip())
       .filter(moveInput.matches)
       .map(_.split(" +").map(_.toInt).to(Vector))

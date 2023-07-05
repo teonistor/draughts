@@ -8,6 +8,9 @@ class PieceTest extends AnyFunSuite {
   test("kings move where they please - all moves - 3D") {
     List(Piece.blackKing, Piece.whiteKing).foreach(piece =>
       assert(piece.emitMoves(Vector(6,3,4)) == Map(
+
+        // TODO COME HERE - THIS IS INCORRECT and you'll see that if you look at the coordinate sums for any time at all
+
         Vector(5,4,5) -> Move.Sliding(Vector(6,3,4), Vector(5,4,5)),
         Vector(5,4,3) -> Move.Sliding(Vector(6,3,4), Vector(5,4,3)),
         Vector(5,2,5) -> Move.Sliding(Vector(6,3,4), Vector(5,2,5)),
