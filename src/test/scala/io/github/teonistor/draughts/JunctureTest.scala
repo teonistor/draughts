@@ -10,16 +10,18 @@ import org.springframework.test.util.ReflectionTestUtils.{getField, setField}
 class JunctureTest extends AnyFunSuiteLike with IdiomaticMockito {
 
   test("start new game") {
+    val view = mock[View]
     val settings = mock[Settings]
     val game = mock[Game]
 
     val juncture = new Juncture(actualInput => {
       assert(actualInput == settings)
       game
-    }, null)
+    }, view)
     juncture.start(settings)
 
     assert(getField(juncture, "game") == game)
+    verify(view).display(game)
   }
 
   test("progress when null") {

@@ -8,7 +8,7 @@ class Juncture(gameMaker: Settings=>Game, view: View) {
   private var game: Game =_
 
   def start(settings: Settings): Unit = {
-    game = gameMaker(settings)
+    displayAndAssign(gameMaker(settings))
   }
 
   def progress(function: Game=>Validation[String,Game]): Unit =
