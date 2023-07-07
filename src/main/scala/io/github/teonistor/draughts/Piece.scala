@@ -11,7 +11,7 @@ sealed trait Piece {
 }
 
 object Piece {
-  private val `+-1` = List(1, -1)
+  private val surrounding = List(-1, 0, 1)
 
   // DONTDO Ideally the concept of "forward" would be relegated to the board (via the specific player) but the static initialisaiton implications of that are asinine
 
@@ -22,42 +22,43 @@ object Piece {
 
   private trait PieceBase {
     def emitMoves(from: Vector[Int]): Map[Vector[Int], Move] = {
-      val firstSteps = fanOut(from)
-      (emitSlidesInOneDirection(from, firstSteps) ++ emitJumpsInOneDirection(from, firstSteps)).toMap
+      val firstSteps = emitTargets(from)
+      (emitSlides0(from, firstSteps) ++ emitJumps0(from, firstSteps)).toMap
     }
 
-    def emitJumps(from: Vector[Int]): Map[Vector[Int], Move] = 
-      emitJumpsInOneDirection(from, fanOut(from)).toMap
+    def emitJumps(from: Vector[Int]): Map[Vector[Int], Move] =
+      emitJumps0(from, emitTargets(from)).toMap
 
-    protected def fanOut(input: Vector[Int]): Iterable[Vector[Int]]
+    protected def emitTargets(input: Vector[Int]): Iterable[Vector[Int]]
   }
 
   private class King extends Piece with PieceBase {
-    protected def fanOut(input: Vector[Int]): Iterable[Vector[Int]] =
-      fanOut0(input, `+-1`)
+    protected def emitTargets(input: Vector[Int]): Iterable[Vector[Int]] =
+      fanOutKeepParity(input, surrounding)
 
     override def promote: Piece = this
   }
 
   private class Peon(forward: Int, val promote: Piece) extends Piece with PieceBase {
-    protected def fanOut(input: Vector[Int]): Iterable[Vector[Int]] =
-      fanOut0(input, Some(forward))
+    protected def emitTargets(input: Vector[Int]): Iterable[Vector[Int]] =
+      fanOutKeepParity(input, Some(forward))
   }
 
-  private def fanOut0(input: Vector[Int], lastMovement: Iterable[Int]) =
-    fanOut1(Vector(input), input.size - 1, lastMovement, 0)
+  private def fanOutKeepParity(input: Vector[Int], lastMovement: Iterable[Int]) =
+    fanOut(Vector(input), input.size - 1, lastMovement, 0)
+      .filter(output => output != input && (output.sum + input.sum) % 2 == 0)
 
   @tailrec
-  private def fanOut1(accum: Vector[Vector[Int]], lastIndex: Int, lastMovement: Iterable[Int], i: Int): Iterable[Vector[Int]] =
+  private def fanOut(accum: Vector[Vector[Int]], lastIndex: Int, lastMovement: Iterable[Int], i: Int): Iterable[Vector[Int]] =
     if (i < lastIndex)
-      fanOut1(accum.flatMap(v => `+-1`.map(d => v.updated(i, v(i) + d))), lastIndex, lastMovement, i + 1)
+      fanOut(accum.flatMap(v => surrounding.map(d => v.updated(i, v(i) + d))), lastIndex, lastMovement, i + 1)
     else
       accum.flatMap(v => lastMovement.map(d => v.updated(i, v(i) + d)))
 
-  private def emitSlidesInOneDirection(from: Vector[Int], firstSteps: Iterable[Vector[Int]]) =
+  private def emitSlides0(from: Vector[Int], firstSteps: Iterable[Vector[Int]]) =
     firstSteps.map(to => (to, Move.Sliding(from, to)))
 
-  private def emitJumpsInOneDirection(from: Vector[Int], firstSteps: Iterable[Vector[Int]]) =
+  private def emitJumps0(from: Vector[Int], firstSteps: Iterable[Vector[Int]]) =
     firstSteps.map(over => {
       val to = secondStep(from, over)
       (to, Move.Jumping(from, over, to))
