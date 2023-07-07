@@ -35,7 +35,7 @@ class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
         |""".stripMargin)
   }
 
-  test("3x3x3") {
+  test("3x2x3") {
     val game = new Game(null, null, null,
       Settings(1, 3, 2, 3),
       GameState(Map(
