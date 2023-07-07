@@ -1,9 +1,9 @@
 package io.github.teonistor.draughts
 
-import io.github.teonistor.draughts.data.{Position, Settings}
+import io.github.teonistor.draughts.data.Settings
 
 class InitialBoardProvider {
-  def createBoard(settings: Settings): Map[Position,Piece] = {
+  def createBoard(settings: Settings): Map[Vector[Int],Piece] = {
 
     val mkRow = (piece: Piece) => (lastCoordinate: Iterable[Int]) =>
       HDUtils.cartesianProduct(Vector.tabulate(settings.boardSizes.size)(i =>

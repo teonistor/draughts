@@ -7,6 +7,6 @@ import io.github.teonistor.draughts.{Piece, Player}
  * @param currentPlayer player about to make a move
  * @param ongoingJump if the last move to happen was a jump by the current player, the position onto which that piece landed; otherwise None
  */
-case class GameState(board: Map[Position, Piece],
+case class GameState(board: Map[Vector[Int], Piece],
                      currentPlayer: Player,
-                     ongoingJump: Option[Position])
+                     ongoingJump: Option[Vector[Int]])

@@ -37,8 +37,8 @@ class GameTest extends Assertions {
     private val bad  = Position(4,5)
 
     @Mock private var promotionRule: PromotionRule =_
-    @Mock private var boardAfterMove: Map[Position,Piece] =_
-    @Mock private var boardAfterPromotion: Map[Position,Piece] =_
+    @Mock private var boardAfterMove: Map[Vector[Int],Piece] =_
+    @Mock private var boardAfterPromotion: Map[Vector[Int],Piece] =_
     private var game: Game =_
 
     @BeforeEach

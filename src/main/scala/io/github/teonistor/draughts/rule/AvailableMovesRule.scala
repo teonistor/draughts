@@ -1,18 +1,18 @@
 package io.github.teonistor.draughts.rule
 
 import io.github.teonistor.draughts.Piece
-import io.github.teonistor.draughts.data.{GameState, Position, Settings}
+import io.github.teonistor.draughts.data.{GameState, Settings}
 import io.github.teonistor.draughts.move.Move
 
 class AvailableMovesRule {
 
   def computeAvailableMoves(gameState: GameState, settings: Settings): AvailableMoves = {
 
-    val isPositionOnBoard = (p: Position) =>
+    val isPositionOnBoard = (p: Vector[Int]) =>
       settings.boardSizes.indices.forall(i =>
         p(i) >= 0 && p(i) < settings.boardSizes(i))
 
-    val executeMovesOnBoard = (from: Position, moves: Map[Position,Move]) => (from, moves.view
+    val executeMovesOnBoard = (from: Vector[Int], moves: Map[Vector[Int],Move]) => (from, moves.view
       .filterKeys(isPositionOnBoard)
       .mapValues(_ execute gameState)
       .toMap)
