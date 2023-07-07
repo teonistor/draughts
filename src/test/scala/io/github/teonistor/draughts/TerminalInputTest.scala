@@ -2,7 +2,7 @@ package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.Settings
 import io.vavr.control.Validation
-import org.mockito.BDDMockito.{willDoNothing, willReturn}
+import org.mockito.BDDMockito.{willDoNothing, willReturn, willThrow}
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
@@ -12,6 +12,13 @@ import java.nio.charset.StandardCharsets.UTF_8
 import scala.util.Random.between
 
 class TerminalInputTest extends AnyFunSuiteLike with IdiomaticMockito {
+
+  test("stray exception propagates out") {
+    val juncture = mock[Juncture]
+    willThrow(classOf[NoSuchElementException]).given(juncture).start(Settings(1, 3, 3))
+
+    assertThrows[NoSuchElementException](new TerminalInput(new ByteArrayInputStream(lines("new game", "1", "3 3")), juncture).run())
+  }
 
   test("exit") {
     new TerminalInput(new ByteArrayInputStream(lines()), mock[Juncture]).run()
@@ -23,6 +30,10 @@ class TerminalInputTest extends AnyFunSuiteLike with IdiomaticMockito {
     willDoNothing().given(juncture).start(Settings(3, 5, 6, 7))
 
     new TerminalInput(new ByteArrayInputStream(lines("new game", "3", "5 6  7")), juncture).run()
+  }
+
+  test("new game cannot") {
+    new TerminalInput(new ByteArrayInputStream(lines("new game", "", "3 4")), mock[Juncture]).run()
   }
 
   test("new game with defaults") {

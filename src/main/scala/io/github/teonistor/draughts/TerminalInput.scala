@@ -4,13 +4,13 @@ import io.github.teonistor.draughts.data.Settings
 
 import java.io.{BufferedReader, InputStream, InputStreamReader}
 import scala.annotation.tailrec
-import scala.util.Using
+import scala.util.{Try, Using}
 
 class TerminalInput(inputStream: InputStream, juncture: Juncture) extends Runnable {
   private val moveInput = "[\\d ]+".r
 
   def run(): Unit =
-    Using(new BufferedReader(new InputStreamReader(inputStream)))(runLine)
+    Using(new BufferedReader(new InputStreamReader(inputStream)))(runLine).get
 
   @tailrec
   private def runLine(reader: BufferedReader): Unit = {
@@ -20,7 +20,7 @@ class TerminalInput(inputStream: InputStream, juncture: Juncture) extends Runnab
       juncture.progress(_.pass())
 
     else if("new game" equalsIgnoreCase line)
-      juncture.start(readSettings(reader))
+      readSettings(reader).foreach(juncture.start)
 
     else if(moveInput matches line) {
       val u = line.split(" +").map(_.toInt).to(Vector)
@@ -34,7 +34,7 @@ class TerminalInput(inputStream: InputStream, juncture: Juncture) extends Runnab
       runLine(reader)
   }
 
-  private def readSettings(reader: BufferedReader) = {
+  private def readSettings(reader: BufferedReader): Option[Settings] = {
     print("Starting rows (default 2): ")
     val startingRow = reader.readLine().strip().toIntOption.getOrElse(2)
     println(startingRow)
@@ -46,6 +46,7 @@ class TerminalInput(inputStream: InputStream, juncture: Juncture) extends Runnab
       .getOrElse(Vector(8, 8))
     println(boardSizes)
 
-    Settings(startingRow, boardSizes:_*)
+    Try(Settings(startingRow, boardSizes: _*))
+      .fold(e => {println(e); None}, Option(_))
   }
 }
