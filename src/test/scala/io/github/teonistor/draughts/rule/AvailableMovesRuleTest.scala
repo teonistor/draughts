@@ -39,7 +39,7 @@ class AvailableMovesRuleTest extends Assertions {
     given(move1 execute startingState) willReturn valid(stateAfterMove1)
     given(move2 execute startingState) willReturn invalid("invalidity from move")
 
-    val actual = new AvailableMovesRule().computeAvailableMoves(startingState, Settings(8, 10, 3))
+    val actual = new AvailableMovesRule().computeAvailableMoves(startingState, Settings(3, 8, 10))
 
     assert(actual == Map(
       startingPosition -> Map (
@@ -64,7 +64,7 @@ class AvailableMovesRuleTest extends Assertions {
     given(move1 execute startingState) willReturn valid(stateAfterMove1)
     given(move2 execute startingState) willReturn invalid("invalidity from move")
 
-    val actual = new AvailableMovesRule().computeAvailableMoves(startingState, Settings(8, 10, 3))
+    val actual = new AvailableMovesRule().computeAvailableMoves(startingState, Settings(3, 8, 10))
 
     assert(actual == Map(
       startingPosition -> Map(

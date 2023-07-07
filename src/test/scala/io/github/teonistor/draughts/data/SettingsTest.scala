@@ -26,10 +26,10 @@ class SettingsTest extends AnyFunSuite {
   }
 
   test("startingRows must be less than half of boardHeight - legacy") {
-    assertThrows[IllegalArgumentException](Settings(4, 4, 2))
-    assertThrows[IllegalArgumentException](Settings(7, 7, 4))
+    assertThrows[IllegalArgumentException](Settings(2, 4, 4))
+    assertThrows[IllegalArgumentException](Settings(4, 7, 7))
 
-    Settings(4, 4, 1)
-    Settings(7, 7, 3)
+    Settings(1, 4, 4)
+    Settings(3, 7, 7)
   }
 }

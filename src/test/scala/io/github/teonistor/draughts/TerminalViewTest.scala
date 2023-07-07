@@ -10,7 +10,7 @@ class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
 
   test("3x3") {
     val game = new Game(null, null, null,
-      Settings(3, 3, 1),
+      Settings(1, 3, 3),
       GameState(Map(
         Vector(0, 0) -> Piece.whitePeon,
         Vector(0, 2) -> Piece.blackPeon,
@@ -85,7 +85,7 @@ class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
 
   test("8x8") {
     val game = new Game(null, null, null,
-      Settings(8, 8, 2),
+      Settings(2, 8, 8),
       GameState(Map(
         Vector(0, 0) -> Piece.whitePeon,
         Vector(0, 4) -> Piece.blackPeon,
@@ -122,7 +122,7 @@ class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
 
   test("12x12") {
     val game = new Game(null, null, null,
-      Settings(12,12,4),
+      Settings(4, 12, 12),
       GameState(Map(
         Vector(0, 2) -> Piece.blackPeon,
         Vector(8, 4) -> Piece.blackPeon,

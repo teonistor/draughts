@@ -16,11 +16,6 @@ case class Settings(startingRows: Int,
   if (startingRows * 2 >= boardSizes.last)
     throw new IllegalArgumentException(s"startingRows ($startingRows) must be less than half of last dimension (${boardSizes.last})")
 
-  @Deprecated // For backwards-comp. compil
-  def boardWidth = boardSizes.head
-  @Deprecated // For backwards-comp. compil
-  def boardHeight = boardSizes.last
-
 /* Clarifications for multidimensional draughts
  * - Pieces can move in all directions in all but one dimension (the "original forward") - which will be the last one in the vector
  * - This special dimension is the only one where startingRows applies
@@ -44,12 +39,4 @@ case class Settings(startingRows: Int,
 
 * */
 
-}
-
-object Settings {
-
-  @Deprecated // For backwards-comp. compil
-  def apply(boardWidth: Int,
-            boardHeight: Int,
-            startingRows: Int): Settings = Settings(startingRows, Seq(boardWidth, boardHeight): _*)
 }

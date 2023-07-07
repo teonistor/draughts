@@ -28,7 +28,7 @@ class TerminalInputTest extends AnyFunSuiteLike with IdiomaticMockito {
   test("new game with defaults") {
     val juncture = mock[Juncture]
 
-    willDoNothing().given(juncture).start(Settings(2, Seq(8, 8):_*))
+    willDoNothing().given(juncture).start(Settings(2, 8, 8))
 
     new TerminalInput(new ByteArrayInputStream(lines("new game", " ", "")), juncture).run()
   }

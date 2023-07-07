@@ -7,7 +7,7 @@ class InitialBoardProviderTest extends AnyFunSuite {
 
   test("8x8 standard") {
     assert(new InitialBoardProvider().createBoard(
-        Settings(8, 8, 2)) == Map(
+        Settings(2, 8, 8)) == Map(
       Vector(0,0) -> Piece.whitePeon,
       Vector(2,0) -> Piece.whitePeon,
       Vector(4,0) -> Piece.whitePeon,
@@ -29,7 +29,7 @@ class InitialBoardProviderTest extends AnyFunSuite {
 
   test("8x8 deep") {
     assert(new InitialBoardProvider().createBoard(
-        Settings(8, 8, 3)) == Map(
+        Settings(3, 8, 8)) == Map(
       Vector(0,0) -> Piece.whitePeon,
       Vector(2,0) -> Piece.whitePeon,
       Vector(4,0) -> Piece.whitePeon,
@@ -59,7 +59,7 @@ class InitialBoardProviderTest extends AnyFunSuite {
 
   test("3x3") {
     assert(new InitialBoardProvider().createBoard(
-        Settings(3, 3, 1)) == Map(
+        Settings(1, 3, 3)) == Map(
       Vector(0,0) -> Piece.whitePeon,
       Vector(2,0) -> Piece.whitePeon,
       Vector(0,2) -> Piece.blackPeon,
