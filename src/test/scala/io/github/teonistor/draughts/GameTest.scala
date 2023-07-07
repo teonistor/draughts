@@ -54,12 +54,12 @@ class GameTest extends Assertions {
 
     @Test
     def cannotMoveFromWhereYouDontHaveAPiece(): Unit = {
-      assert(game.move(nil, good).getError == "You don't have a piece at Position(1,2)")
+      assert(game.move(nil, good).getError == "You don't have a piece at (1,2)")
     }
 
     @Test
     def cannotMoveToWhereYouCantReach(): Unit = {
-      assert(game.move(from, nil).getError == "Your piece from Position(2,3) cannot reach Position(1,2)")
+      assert(game.move(from, nil).getError == "Your piece from (2,3) cannot reach (1,2)")
     }
 
     @Test
