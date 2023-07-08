@@ -3,6 +3,9 @@ name: Maven Verify
 on:
   - push
   - pull_request
+permissions:
+  contents: read
+  packages: read
 
 jobs:
   build:
@@ -19,3 +22,5 @@ jobs:
           distribution: 'adopt'
       - name: Build with Maven
         run: mvn -B verify --file pom.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_READ_TOKEN }}
