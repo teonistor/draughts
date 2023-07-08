@@ -1,11 +1,12 @@
 package io.github.teonistor.draughts
 
+import java.io.PrintStream
 import java.lang.Math.max
 
-class TerminalView extends View {
+class TerminalView(printStream: PrintStream) extends View {
 
-  override def announce(message: String): Unit = println(message)
-  override def display(game: Game): Unit = announce(display0(game))
+  override def announce(message: String): Unit = printStream.println(message)
+  override def display(game: Game): Unit = printStream.println(display0(game))
 
   private def display0(game: Game): String = {
     val width = game.settings.boardSizes(game.settings.boardSizes.size - 2)

@@ -6,9 +6,19 @@ import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuite
 import org.springframework.test.util.ReflectionTestUtils.setField
 
+import java.io.PrintStream
+
 class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
 
-  test("3x3") {
+  test("Announce message") {
+    val printStream = mock[PrintStream]
+
+    new TerminalView(printStream).announce("Banana")
+
+    verify(printStream).println("Banana")
+  }
+
+  test("Display 3x3 game") {
     val game = new Game(null, null, null,
       Settings(1, 3, 3),
       GameState(Map(
@@ -35,7 +45,7 @@ class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
         |""".stripMargin)
   }
 
-  test("3x2x3") {
+  test("Display 3x2x3 game") {
     val game = new Game(null, null, null,
       Settings(1, 3, 2, 3),
       GameState(Map(
@@ -83,7 +93,7 @@ class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
         |""".stripMargin)
   }
 
-  test("8x8") {
+  test("Display 8x8 game") {
     val game = new Game(null, null, null,
       Settings(2, 8, 8),
       GameState(Map(
@@ -120,7 +130,7 @@ class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
         |""".stripMargin)
   }
 
-  test("12x12") {
+  test("Display 12x12 game") {
     val game = new Game(null, null, null,
       Settings(4, 12, 12),
       GameState(Map(
@@ -168,9 +178,8 @@ class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
   }
 
   private def assertStringification(game: Game, expectedStringifiedGame: String): Unit = {
-    val terminalView = spy(new TerminalView())  // Ah the joys of real I/O
-    terminalView.display(game)
-    verify(terminalView).display(game) // No shit Sherlock!
-    verify(terminalView).announce(expectedStringifiedGame)
+    val printStream = mock[PrintStream]
+    new TerminalView(printStream).display(game)
+    verify(printStream).println(expectedStringifiedGame)
   }
 }

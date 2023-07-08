@@ -7,7 +7,7 @@ import org.scalatest.funsuite.AnyFunSuite
 object EvolvingIT extends AnyFunSuite{
 
   def main(arg: Array[String]): Unit =
-    new TerminalInput(System.in, new Juncture(createGame, new TerminalView)).run()
+    new TerminalInput(System.in, new Juncture(createGame, new TerminalView(System.out))).run()
 
   // TODO Make this an InitialGameProvider
   private def createGame(settings: Settings) =
