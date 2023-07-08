@@ -1,21 +1,27 @@
 package io.github.teonistor.draughts
 
-import io.github.teonistor.draughts.data.Position
-
+import java.io.PrintStream
 import java.lang.Math.max
 
-class TerminalView {
-  def display(game: Game): String = {
-    val gutter = max(2, (game.settings.boardHeight - 1).toString.length)
+class TerminalView(printStream: PrintStream) extends View {
 
-    val bar = Array.fill(game.settings.boardWidth)("───")
+  override def announce(message: String): Unit = printStream.println(message)
+  override def display(game: Game): Unit = printStream.println(display0(game))
+
+  private def display0(game: Game): String = {
+    val width = game.settings.boardSizes(game.settings.boardSizes.size - 2)
+    val height = game.settings.boardSizes.last
+    val gutter = max(2, (height - 1).toString.length)
+
+    val bar = Array.fill(width)("───")
     val top = bar.mkString(" " * gutter + " ╭", "┬", "╮\n")
     val sep = bar.mkString(" " * gutter + " ├", "┼", "┤\n")
     val bot = bar.mkString(" " * gutter + " ╰", "┴", "╯\n")
 
-    (0 until game.settings.boardHeight).reverse.map(y =>
-      (0 until game.settings.boardWidth).map(x =>
-        game.gameState.board.get(Position(x,y)).map {
+    def displayOnePlane(higherCoords: Vector[Int]) =
+      (0 until height).reverse.map(y =>
+        (0 until width).map(x =>
+          game.gameState.board.get(higherCoords ++ Vector(x, y)).map {
           case Piece.blackKing => " B "
           case Piece.blackPeon => " b "
           case Piece.whiteKing => " W "
@@ -25,15 +31,26 @@ class TerminalView {
         .mkString("%%%dd │" format gutter format y, "│", "│"))
       .map(_+ "\n")
       .mkString(top, sep, bot) +
-      (0 until game.settings.boardWidth)
+        (0 until width)
         .map("%3d" format _)
-        .mkString("   ", " ", "\n") +
-      (if (game.isGameOver)
+        .mkString("   ", " ", "\n")
+
+    def displayOnePlaneWithHeader(higherCoords: Vector[Int]) =
+      higherCoords.mkString("Board plane (", ", ", ", x, y)\n") + displayOnePlane(higherCoords)
+
+    val footer =
+      if (game.isGameOver)
         "Game over!\n"
       else game.gameState.ongoingJump
-        .map("continue jumping from " +_+ " (or pass)")
+        .map(_.mkString("continue jumping from (", ", ", ") (or pass)"))
         .orElse(Some("move"))
         .map(game.gameState.currentPlayer + " to " +_+ ".\n")
-        .get)
+        .get
+
+    val higherDimensions = HDUtils.cartesianProduct(Vector.tabulate(game.settings.boardSizes.size - 2)(0 until game.settings.boardSizes(_)))
+    if(higherDimensions.size == 1)
+      displayOnePlane(higherDimensions.head) + footer
+    else
+      higherDimensions.map(displayOnePlaneWithHeader).mkString + footer
   }
 }

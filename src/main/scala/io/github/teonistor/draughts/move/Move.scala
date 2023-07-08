@@ -1,7 +1,7 @@
 package io.github.teonistor.draughts.move
 
-import io.github.teonistor.draughts.data.{GameState, Position}
-import io.github.teonistor.draughts.{Piece, Player}
+import io.github.teonistor.draughts.data.GameState
+import io.github.teonistor.draughts.{Piece, Player, VectorHasToFriendlyString}
 import io.vavr.control.Validation
 import io.vavr.control.Validation.{invalid, valid}
 
@@ -11,7 +11,7 @@ sealed trait Move {
 
 object Move {
 
-  case class Sliding(from: Position, to: Position) extends Move {
+  case class Sliding(from: Vector[Int], to: Vector[Int]) extends Move {
     override def execute(gameState: GameState): Validation[String, GameState] =
       validateDestination(gameState, to, valid(GameState(
         gameState.board.updated(to, gameState.board(from)).removed(from),
@@ -19,7 +19,7 @@ object Move {
         None)))
   }
 
-  case class Jumping(from: Position, over: Position, to: Position) extends Move {
+  case class Jumping(from: Vector[Int], over: Vector[Int], to: Vector[Int]) extends Move {
     override def execute(gameState: GameState): Validation[String, GameState] =
       validateDestination(gameState, to,
 
@@ -27,14 +27,14 @@ object Move {
           valid(GameState(gameState.board.updated(to, gameState.board(from)).removedAll(List(from, over)), gameState.currentPlayer, Some(to)))
 
         else
-          invalid(s"$over is not occupied by your opponent"))
+          invalid(s"${over.toFriendlyString} is not occupied by your opponent"))
 
-    private def capturable(board: Map[Position, Piece]) =
+    private def capturable(board: Map[Vector[Int], Piece]) =
       board.get(over).exists(Player.white.isMyPiece(_) != Player.white.isMyPiece(board(from)))
   }
 
-  private def validateDestination(gameState: GameState, to: Position, validCase: => Validation[String,GameState]): Validation[String,GameState] =
+  private def validateDestination(gameState: GameState, to: Vector[Int], validCase: => Validation[String,GameState]): Validation[String,GameState] =
     if (gameState.board contains to)
-      invalid(s"$to is occupied")
+      invalid(s"${to.toFriendlyString} is occupied")
     else validCase
 }

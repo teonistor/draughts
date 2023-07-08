@@ -1,6 +1,6 @@
 package io.github.teonistor.draughts
 
-import io.github.teonistor.draughts.data.{GameState, Position, Settings}
+import io.github.teonistor.draughts.data.{GameState, Settings}
 import io.github.teonistor.draughts.rule.{AvailableMoves, AvailableMovesRule, GameOverChecker, PromotionRule}
 import io.vavr.control.Validation.{invalid, valid}
 import org.junit.jupiter.api.{BeforeEach, Nested, Test}
@@ -31,14 +31,14 @@ class GameTest extends Assertions {
 
   @Nested
   class Move {
-    private val nil  = Position(1,2)
-    private val from = Position(2,3)
-    private val good = Position(3,4)
-    private val bad  = Position(4,5)
+    private val nil  = Vector(1,2)
+    private val from = Vector(2,3)
+    private val good = Vector(3,4)
+    private val bad  = Vector(4,5)
 
     @Mock private var promotionRule: PromotionRule =_
-    @Mock private var boardAfterMove: Map[Position,Piece] =_
-    @Mock private var boardAfterPromotion: Map[Position,Piece] =_
+    @Mock private var boardAfterMove: Map[Vector[Int],Piece] =_
+    @Mock private var boardAfterPromotion: Map[Vector[Int],Piece] =_
     private var game: Game =_
 
     @BeforeEach
@@ -54,12 +54,12 @@ class GameTest extends Assertions {
 
     @Test
     def cannotMoveFromWhereYouDontHaveAPiece(): Unit = {
-      assert(game.move(nil, good).getError == "You don't have a piece at Position(1,2)")
+      assert(game.move(nil, good).getError == "You don't have a piece at (1,2)")
     }
 
     @Test
     def cannotMoveToWhereYouCantReach(): Unit = {
-      assert(game.move(from, nil).getError == "Your piece from Position(2,3) cannot reach Position(1,2)")
+      assert(game.move(from, nil).getError == "Your piece from (2,3) cannot reach (1,2)")
     }
 
     @Test
