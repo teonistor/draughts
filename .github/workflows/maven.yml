@@ -15,7 +15,11 @@ jobs:
         with:
           java-version: 11
           distribution: 'adopt'
+          server-id: github-misc-libs
+          server-username: GITHUB_USER
+          server-password: GITHUB_TOKEN
       - name: Build with Maven
         run: mvn -B verify
         env:
+          GITHUB_USER: teonistor
           GITHUB_TOKEN: ${{ secrets.PACKAGE_READ_TOKEN }}
