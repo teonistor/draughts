@@ -10,7 +10,8 @@
           <board3D :depth="3"
                    :width="4"
                    :height="5"
-                   :data="section(partialIndex)" />
+                   :data="section(partialIndex)"
+                   :parity="parityAt(partialIndex)" />
 
         </v-col>
       </v-row>
@@ -45,10 +46,17 @@
             data[kv[0].slice(partialIndex.length).join(',')] = kv[1];
         });
         return data;
+      },
+
+      parityAt (partialIndex) {
+        if (!this.board.length)
+          return -1;
+        else
+          return this.board[0][0].slice(partialIndex.length).reduce((a,b) => a + b) % 2;
       }
     },
 
-    mounted (partialIndex) {
+    mounted () {
 
     }
   }

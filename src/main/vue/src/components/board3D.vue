@@ -1,7 +1,8 @@
 <!--suppress HtmlUnknownTag, CheckEmptyScriptTag, HtmlUnknownAttribute -->
 <template>
   <svg :height="height * boxSize + 4"
-       :width="width * boxSize + 4" >
+       :width="width * boxSize + 4"
+       style="/*transform:scale(0.5)*/" >
 
     <g v-for="(ignore1,y) in height"  >
       <g v-for="(ignore2,x) in width">
@@ -25,7 +26,7 @@
 <script>
   export default {
     name: 'board3D',
-    props: ['depth', 'width', 'height', 'data'],
+    props: ['depth', 'width', 'height', 'data', 'parity'],
 
     data: () => ({
       hStart: 5,
@@ -51,6 +52,9 @@
 
     methods: {
       styleAt (z,x,y) {
+        if ((z+x+y + this.parity) % 2)
+          return 'unreachable';
+
         const piece = this.data[[z,x,y].join(',')];
         if (!piece)
           return 'hoverable';
@@ -67,6 +71,11 @@
   }
 </script>
 <style>
+  .unreachable {
+    stroke-width:3;
+    stroke:rgba(150,150,150,0.3);
+    fill: rgb(150,150,150);
+  }
   .hoverable {
     stroke-width:3;
     stroke:rgb(200,200,200);
