@@ -24,6 +24,12 @@
   </svg>
 </template>
 <script>
+  const pieceToStyle = {
+    'BK': 'hoverable black king',
+    'BP': 'hoverable black peon',
+    'WK': 'hoverable white king',
+    'WP': 'hoverable white peon'};
+
   export default {
     name: 'board3D',
     props: ['depth', 'width', 'height', 'data', 'parity'],
@@ -56,12 +62,7 @@
           return 'unreachable';
 
         const piece = this.data[[z,x,y].join(',')];
-        if (!piece)
-          return 'hoverable';
-        else if (piece[0] === 'B')
-          return 'hoverable black';
-        else
-          return 'hoverable white';
+        return piece && pieceToStyle[piece] || 'hoverable';
       }
     },
 
@@ -78,7 +79,6 @@
   }
   .hoverable {
     stroke-width:3;
-    stroke:rgb(200,200,200);
     cursor:pointer;
     fill: blue;
   }
@@ -87,6 +87,12 @@
   }
   .hoverable.white {
     fill: white;
+  }
+  .hoverable.king {
+    stroke:rgb(255,150,10);
+  }
+  .hoverable.peon {
+    stroke:rgb(200,200,200);
   }
   .hoverable:hover, .hoverable.black:hover, .hoverable.white:hover {
     fill: red;
