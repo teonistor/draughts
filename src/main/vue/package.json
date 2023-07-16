@@ -12,6 +12,8 @@
     "core-js": "^3.25.2",
     "opencollective": "*",
     "roboto-fontface": "*",
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3",
     "vue": "^2.7.10",
     "vue-cookies": "^1.8.1",
     "vuetify": "^2.6.10"
