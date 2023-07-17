@@ -59,6 +59,9 @@
       startingRowsInput: '',
       boardSizesInput: '',
 
+      // Gameplay
+      selected: null,
+
       // Other...
       stompClient: null
     }),
@@ -115,6 +118,12 @@
         else
           // Parity tied to arbitrary choice in InitialBoardProvider
           return partialIndex.reduce((a,b) => a + b, 0) % 2;
+      },
+
+      selectedAt (partialIndex) {
+        return (this.selected && (JSON.stringify(this.selected[0]) === JSON.stringify(partialIndex)))
+            && this.selected.slice(1)
+            || null;
       },
 
 

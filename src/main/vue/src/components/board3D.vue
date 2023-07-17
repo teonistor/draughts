@@ -32,7 +32,7 @@
 
   export default {
     name: 'board3D',
-    props: ['depth', 'width', 'height', 'data', 'parity'],
+    props: ['depth', 'width', 'height', 'data', 'parity', 'selected'],
 
     data: () => ({
       hStart: 5,
@@ -58,11 +58,15 @@
 
     methods: {
       styleAt (z,x,y) {
+        const maybeSelected = this.selected && this.selected[0] === z && this.selected[1] === x && this.selected[2] === y
+                           && ' selected'
+                           || '';
+
         if ((z+x+y + this.parity) % 2)
-          return 'unreachable';
+          return 'unreachable' + maybeSelected;
 
         const piece = this.data[[z,x,y].join(',')];
-        return piece && pieceToStyle[piece] || 'hoverable';
+        return (piece && pieceToStyle[piece] || 'hoverable') + maybeSelected;
       }
     },
 
@@ -96,5 +100,8 @@
   }
   .hoverable:hover, .hoverable.black:hover, .hoverable.white:hover {
     fill: red;
+  }
+  .hoverable.selected, .unreachable.selected {
+    stroke-width: 7;
   }
 </style>
