@@ -158,7 +158,10 @@
           this.selected = null;
 
         else {
-          console.log('Here be send')
+          const from = [].concat(this.selected[0]).concat([this.selected[1], this.selected[2], this.selected[3]]);
+          const to = [].concat(partialIndex).concat([z, x, y]);
+
+          this.stompClient.send("/draughts/click", {}, JSON.stringify([from, to]));
           this.selected = null;
 
         }
