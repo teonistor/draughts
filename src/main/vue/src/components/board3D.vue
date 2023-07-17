@@ -17,7 +17,8 @@
               :x="2 + x * boxSize + hStart + z * hGap"
               :y="2 + y * boxSize + vStart - z * vGap"
               rx="20" ry="20"
-              height="40" width="40" />
+              height="40" width="40"
+              @click="$emit('select', z,x,y)" />
 
       </g>
     </g>

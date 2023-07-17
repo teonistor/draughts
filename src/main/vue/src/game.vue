@@ -22,7 +22,9 @@
                    :width="last3D.width"
                    :height="last3D.height"
                    :data="section(partialIndex)"
-                   :parity="parityAt(partialIndex)" />
+                   :parity="parityAt(partialIndex)"
+                   :selected="selectedAt(partialIndex)"
+                   @select="onClick(partialIndex, ...arguments)" />
 
         </v-col>
       </v-row>
@@ -68,12 +70,6 @@
 
     computed: {
 
-    },
-
-    watch: {
-      partialIndices (valu) {
-        console.log(valu)
-      }
     },
 
     methods: {
@@ -152,6 +148,20 @@
 
       receiveMessage (message) {
         this.message = message;
+      },
+
+      onClick (partialIndex, z, x, y) {
+        if (!this.selected)
+          this.selected = [partialIndex, z, x, y];
+
+        else if (JSON.stringify(this.selected) === JSON.stringify([partialIndex, z, x, y]))
+          this.selected = null;
+
+        else {
+          console.log('Here be send')
+          this.selected = null;
+
+        }
       }
     },
 
