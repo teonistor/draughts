@@ -4,18 +4,23 @@
     <v-container>
       <v-row>
         <v-col md="4">
+          <p v-if="!currentPlayer">No active game</p>
+          <p v-else>{{ situation }}</p>
+          <p>{{ message }}</p>
 
-          <v-text-field /> <v-text-field />
-          <v-btn @click="newGame">New game</v-btn>
+          <!-- TODO make this a component to hold the add/remove dimensions aspect separate -->
+          <v-btn @click="newGame">New game</v-btn> with the following settings:
+          <v-text-field v-model="startingRowsInput" label="Starting rows" />
+          <v-text-field v-model="boardSizesInput" label="Sizes" />
 
         </v-col>
 
         <v-col md="4" v-for="partialIndex in partialIndices">
           <p>Board at ({{ partialIndex.join(', ') }}, z, x, y)</p>
 
-          <board3D :depth="3"
-                   :width="4"
-                   :height="5"
+          <board3D :depth="last3D.depth"
+                   :width="last3D.width"
+                   :height="last3D.height"
                    :data="section(partialIndex)"
                    :parity="parityAt(partialIndex)" />
 
@@ -31,23 +36,28 @@
 
   import board3D from './components/board3D.vue';
 
-  const testBoard = '[[[1,2,3,4],"BP"],[[0,1,0,3],"BP"],[[0,0,2,4],"BP"],[[1,0,0,3],"BK"],[[1,2,0,3],"BP"],[[0,0,3,3],"BP"],[[1,1,3,3],"BP"],[[1,0,3,4],"BP"],[[1,2,3,0],"WP"],[[1,1,3,1],"WK"],[[0,0,1,1],"WP"],[[0,1,2,3],"BP"],[[1,1,2,4],"BP"],[[1,1,0,4],"BP"],[[0,2,2,4],"BP"],[[0,0,1,3],"BP"],[[1,0,1,4],"BP"],[[1,1,0,0],"WP"],[[0,2,2,0],"WP"],[[1,0,1,0],"WP"],[[0,1,1,4],"BP"],[[0,0,0,4],"BP"],[[0,1,3,0],"WP"],[[0,0,0,0],"WP"],[[0,2,0,0],"WP"],[[0,2,0,4],"BP"],[[1,2,2,3],"BP"],[[1,2,1,4],"BP"],[[1,0,2,3],"BP"],[[1,2,0,1],"WP"],[[0,2,1,1],"WP"],[[0,0,3,1],"WP"],[[0,1,1,0],"WP"],[[1,0,2,1],"WP"],[[1,0,0,1],"WP"],[[0,0,2,0],"WP"],[[0,1,3,4],"BP"],[[1,1,1,1],"WP"],[[1,0,3,0],"WP"],[[0,2,3,1],"WP"],[[0,2,3,3],"BP"],[[1,2,1,0],"WP"],[[1,2,2,1],"WP"],[[1,1,1,3],"BP"],[[1,1,2,0],"WP"],[[0,2,1,3],"BP"],[[0,1,2,1],"WP"],[[0,1,0,1],"WP"]]';
-  const testDimensions = [2, 3, 4, 5];
-
   export default {
     name: 'game',
     components: {board3D},
 
     data: () => ({
-      // From settings
-      boardSizes: [],
-      partialIndices: [[0], [1]],
-
       // From state
-      board: JSON.parse(testBoard),
+      board: [],
       currentPlayer: null,
       ongoingJump: null,
-      isGameOver: false,
+      situation: "",
+
+      // From settings
+      boardSizes: [],
+      partialIndices: [],
+      last3D: {depth: 1, width: 1, height: 1},
+
+      // From messaging
+      message: '',
+
+      // New game inputs
+      startingRowsInput: '',
+      boardSizesInput: '',
 
       // Other...
       stompClient: null
@@ -55,6 +65,12 @@
 
     computed: {
 
+    },
+
+    watch: {
+      partialIndices (valu) {
+        console.log(valu)
+      }
     },
 
     methods: {
@@ -78,11 +94,18 @@
 
 
       section (partialIndex) {
+
+        function localDebug(u) {
+          console.log('u', u)
+          return u;
+        }
+
         const data = {};
         this.board.forEach(kv => {
-          if (partialIndex.map((d,i) => kv[0][i] === d).reduce((a,b) => a && b))
-            data[kv[0].slice(partialIndex.length).join(',')] = kv[1];
+          if (partialIndex.map((d,i) => localDebug(kv[0][i]) === localDebug(d)).reduce((a,b) => a && b, true))
+            data[kv[1].join(',')] = kv[2];
         });
+        console.log('Data section', data)
         return data;
       },
 
@@ -90,14 +113,15 @@
         if (!this.board.length)
           return -1;
         else
-          return this.board[0][0].slice(partialIndex.length).reduce((a,b) => a + b) % 2;
+          // Parity tied to arbitrary choice in InitialBoardProvider
+          return partialIndex.reduce((a,b) => a + b, 0) % 2;
       },
 
 
       newGame () {
         this.stompClient.send("/draughts/new-game", {}, JSON.stringify({
-          startingRows: 2,
-          boardSizes: [5, 5, 5]
+          startingRows: parseInt(this.startingRowsInput),
+          boardSizes: this.boardSizesInput.split(" ").map(e => parseInt(e))
         }));
       },
 
@@ -107,17 +131,18 @@
         this.board = state.board;
         this.currentPlayer = state.currentPlayer;
         this.ongoingJump = state.ongoingJump;
-        this.isGameOver = state.isGameOver;
+        this.situation = state.situation;
       },
 
       receiveSettings (message) {
         const settings = JSON.parse(message.body);
         this.boardSizes = settings.boardSizes;
         this.partialIndices = settings.partialIndices;
+        this.last3D = settings.last3D;
       },
 
       receiveMessage (message) {
-
+        this.message = message;
       }
     },
 

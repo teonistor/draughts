@@ -28,7 +28,13 @@ class Ctrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory: View=>J
       game.gameState.board.to(LazyList).map { case (position,piece) => val (a,b) = position.splitAt(position.size - 3); (a, b, piece) },
       game.gameState.currentPlayer,
       game.gameState.ongoingJump,
-      game.isGameOver)
+      if (game.isGameOver)
+        "Game over!\n"
+      else game.gameState.ongoingJump
+        .map(_.mkString("continue jumping from (", ", ", ") (or pass)"))
+        .orElse(Some("move"))
+        .map(game.gameState.currentPlayer + " to " +_+ ".\n")
+        .get)
     ws.convertAndSend("/draughts/draughts-state", lastState)
   }
 
@@ -45,7 +51,11 @@ class Ctrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory: View=>J
     juncture.start(settings)
     lastSettings = SendableSettings(
       settings.boardSizes,
-      HDUtils.cartesianProduct(settings.boardSizes.take(settings.boardSizes.size - 3).to(Vector).map(0 until settings.boardSizes(_))))
+      HDUtils.cartesianProduct(settings.boardSizes.take(settings.boardSizes.size - 3).to(Vector).map(0 until _)),
+      SendableLast3D(
+        settings.boardSizes.lift(settings.boardSizes.size - 3).getOrElse(1),
+        settings.boardSizes(settings.boardSizes.size - 2),  // Last 2 are guaranteed to exist due to Settings preconditions
+        settings.boardSizes.last))
     ws.convertAndSend("/draughts/draughts-settings", lastSettings)
   }
 
@@ -57,10 +67,13 @@ class Ctrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory: View=>J
 
 
   case class SendableSettings(boardSizes:Seq[Int],
-                              partialIndices:Seq[Vector[Int]])
+                              partialIndices:Seq[Vector[Int]],
+                              last3D: SendableLast3D)
+
+  case class SendableLast3D(depth: Int, width: Int, height: Int)
 
   case class SendableState(board: LazyList[(Vector[Int], Vector[Int], Piece)],
                            currentPlayer: Player,
                            ongoingJump: Option[Vector[Int]],
-                           isGameOver: Boolean)
+                           situation: String)
 }
