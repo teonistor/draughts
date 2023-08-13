@@ -5,7 +5,10 @@
       <v-row>
         <v-col md="4">
           <p v-if="!currentPlayer">No active game</p>
-          <p v-else>{{ situation }}</p>
+          <p v-else>{{ situation }}
+            <v-btn v-if="situation.indexOf('(or pass)') > -1" @click="pass">Pass</v-btn>
+          </p>
+
           <p>{{ message }}</p>
 
           <!-- TODO make this a component to hold the add/remove dimensions aspect separate -->
@@ -94,17 +97,11 @@
 
       section (partialIndex) {
 
-        function localDebug(u) {
-          console.log('u', u)
-          return u;
-        }
-
         const data = {};
         this.board.forEach(kv => {
-          if (partialIndex.map((d,i) => localDebug(kv[0][i]) === localDebug(d)).reduce((a,b) => a && b, true))
+          if (partialIndex.map((d,i) => kv[0][i] === d).reduce((a,b) => a && b, true))
             data[kv[1].join(',')] = kv[2];
         });
-        console.log('Data section', data)
         return data;
       },
 
@@ -122,6 +119,10 @@
             || null;
       },
 
+
+      pass () {
+        this.stompClient.send("/draughts/pass", {}, '');
+      },
 
       newGame () {
         this.stompClient.send("/draughts/new-game", {}, JSON.stringify({
@@ -147,7 +148,7 @@
       },
 
       receiveMessage (message) {
-        this.message = message;
+        this.message = message.body;
       },
 
       onClick (partialIndex, z, x, y) {

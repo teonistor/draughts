@@ -43,7 +43,7 @@ class Ctrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory: View=>J
       juncture.progress(game => game.move _ tupled message)
 
   @MessageMapping(Array("/pass"))
-  def receive(message: String): Unit =
+  def receive(): Unit =
     juncture.progress(_.pass())
 
   @MessageMapping(Array("/new-game"))

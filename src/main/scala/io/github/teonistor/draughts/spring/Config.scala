@@ -36,7 +36,6 @@ class Config extends WebSocketMessageBrokerConfigurer {
     registry.addEndpoint("/draughts-subscribe")
       .setAllowedOrigins("http://localhost:8080", "http://192.168.1.88:8080", "https://teodor.nistor.uk", "https://teonistor.github.io")
       .withSockJS
-      // .setSupressCors(true)  /// Use this if CORS problems perhaps
 
 //  @Bean
 //  def webMvcConfigurer = new WebMvcConfigurer() {
