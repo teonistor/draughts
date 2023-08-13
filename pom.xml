@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.github.teonistor</groupId>
         <artifactId>usual-libs-scalatest</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.2</version>
     </parent>
 
     <artifactId>draughts</artifactId>
@@ -36,4 +36,11 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>github-misc-libs</id>
+            <url>https://maven.pkg.github.com/teonistor/misc-libs</url>
+        </repository>
+    </repositories>
 </project>

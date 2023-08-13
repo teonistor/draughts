@@ -1,6 +1,6 @@
 package io.github.teonistor.draughts
 
-import io.github.teonistor.draughts.data.{GameState, Position, Settings}
+import io.github.teonistor.draughts.data.{GameState, Settings}
 import io.github.teonistor.draughts.rule.{AvailableMoves, AvailableMovesRule, GameOverChecker, PromotionRule}
 import io.vavr.control.Validation
 import io.vavr.control.Validation.{invalid, valid}
@@ -13,7 +13,7 @@ class Game(val availableMovesRule: AvailableMovesRule,
   lazy val availableMoves: AvailableMoves = availableMovesRule.computeAvailableMoves(gameState, settings)
   lazy val isGameOver: Boolean = gameOverChecker.isGameOver(gameState, availableMoves)
 
-  def move(from: Position, to: Position): Validation[String,Game] = {
+  def move(from: Vector[Int], to: Vector[Int]): Validation[String,Game] = {
    /* Caution! Visitor pattern looming as always!
     * Also, there's the whole Game State faff...
     *
@@ -23,8 +23,8 @@ class Game(val availableMovesRule: AvailableMovesRule,
 
     availableMoves
       .get(from)
-      .map(_.getOrElse(to, invalid(s"Your piece from $from cannot reach $to")))
-      .getOrElse(invalid(s"You don't have a piece at $from"))
+      .map(_.getOrElse(to, invalid(s"Your piece from ${from.toFriendlyString} cannot reach ${to.toFriendlyString}")))
+      .getOrElse(invalid(s"You don't have a piece at ${from.toFriendlyString}"))
       .map(state => state.copy(board=promotionRule.promoteAsNeeded(state.board)))
       .map(newState => new Game(availableMovesRule, promotionRule, gameOverChecker, settings, newState))
   }

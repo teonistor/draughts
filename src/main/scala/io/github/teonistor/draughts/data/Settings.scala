@@ -1,12 +1,28 @@
 package io.github.teonistor.draughts.data
 
-case class Settings(boardWidth: Int,
-                    boardHeight: Int,
-                    startingRows: Int) {
-  if (startingRows * 2 >= boardHeight) throw new IllegalArgumentException(s"startingRows ($startingRows) must be less than half of boardHeight ($boardHeight)")
+case class Settings(startingRows: Int,
+                    boardSizes: Int*) {
+  if (boardSizes.size < 2)
+    throw new IllegalArgumentException(s"It is not possible to play ${boardSizes.size}-dimensional Draughts")
 
+  boardSizes.filter(_ < 2)
+    .map(_.toString)
+    .reduceOption(_+ ", " +_)
+    .foreach(invalid => throw new IllegalArgumentException(s"All dimensions must be greater than 1 but found $invalid"))
 
+  if (startingRows < 1)
+    throw new IllegalArgumentException("It would be very boring to play Draughts with no pieces")
 
+  if (startingRows * 2 >= boardSizes.last)
+    throw new IllegalArgumentException(s"startingRows ($startingRows) must be less than half of last dimension (${boardSizes.last})")
+
+/* Clarifications for multidimensional draughts
+ * - Pieces can move in all directions in all but one dimension (the "original forward") - which will be the last one in the vector
+ * - This special dimension is the only one where startingRows applies
+ *
+ * Future ideas:
+ * - Customise how many dimensions are forward-restricted (and therefore startingRows applying to them... possibly with different values???)
+ */
 
 /* Excerpts from official rules
 *
