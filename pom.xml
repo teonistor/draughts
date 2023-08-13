@@ -46,6 +46,41 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>npm-build</id>
+                        <phase>compile</phase>
+                        <configuration>
+                            <executable>sh</executable>
+                            <arguments>
+                                <argument>-c</argument>
+                                <argument>
+                                    set -xe
+                                    cd src/main/vue
+                                    npm run build
+
+                                    cd ../../../target/classes/static
+                                    mkdir draughts
+                                    mv index.html draughts/
+                                    rm service-worker.js
+                                </argument>
+                            </arguments>
+                        </configuration>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <repositories>
         <repository>
             <id>github-misc-libs</id>
