@@ -16,6 +16,14 @@
           <v-text-field v-model="startingRowsInput" label="Starting rows" />
           <v-text-field v-model="boardSizesInput" label="Sizes" />
 
+          <hr>
+
+          <p>
+            Black on top &ensp;
+            <v-switch v-model="whiteOnTop" style="display: inline-block; transform: translateY(5px)"/>
+            &ensp;White on top
+          </p>
+
         </v-col>
 
         <v-col md="4" v-for="partialIndex in partialIndices">
@@ -27,6 +35,7 @@
                    :data="section(partialIndex)"
                    :parity="parityAt(partialIndex)"
                    :selected="selectedAt(partialIndex)"
+                   :whiteOnTop="whiteOnTop"
                    @select="onClick(partialIndex, ...arguments)" />
 
         </v-col>
@@ -66,6 +75,9 @@
 
       // Gameplay
       selected: null,
+
+      // UI
+      whiteOnTop: false,
 
       // Other...
       stompClient: null

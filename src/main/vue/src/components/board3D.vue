@@ -2,7 +2,7 @@
 <template>
   <svg :height="height * boxSize + 4"
        :width="width * boxSize + 4"
-       style="/*transform:scale(0.5)*/" >
+       :style="{transform: whiteOnTop && 'scaleX(-1)' || 'scaleY(-1)'}" >
 
     <g v-for="(ignore1,y) in height"  >
       <g v-for="(ignore2,x) in width">
@@ -15,7 +15,7 @@
         <rect v-for="(ignore3,z) in depth"
               :class="styleAt(z,x,y)"
               :x="2 + x * boxSize + hStart + z * hGap"
-              :y="2 + y * boxSize + vStart - z * vGap"
+              :y="2 + y * boxSize + vStart + z * vGap"
               rx="20" ry="20"
               height="40" width="40"
               @click="$emit('select', z,x,y)" />
@@ -33,7 +33,7 @@
 
   export default {
     name: 'board3D',
-    props: ['depth', 'width', 'height', 'data', 'parity', 'selected'],
+    props: ['depth', 'width', 'height', 'data', 'parity', 'selected', 'whiteOnTop'],
 
     data: () => ({
       hStart: 5,
@@ -53,7 +53,7 @@
       },
 
       vStart () {
-        return (this.boxSize + (this.depth - 1) * this.vGap) / 2 - 20;
+        return (this.boxSize - (this.depth - 1) * this.vGap) / 2 - 20;
       }
     },
 

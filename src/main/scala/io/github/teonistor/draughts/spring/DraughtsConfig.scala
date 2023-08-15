@@ -17,7 +17,6 @@ class DraughtsConfig {
     - Highlight possible moves (of piece when selected and pieces themselves unselected when it's not all maybe)
     - Don't take stupid clicks
     - Spectator page
-    - Correct board orientation (and option to ratate - not flip!)
     - (in the future) Rotate anything
 
     TODO General
