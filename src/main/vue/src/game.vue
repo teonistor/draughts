@@ -18,6 +18,8 @@
 
           <hr>
 
+          Connection: {{ stompClient && '✅' || '❌' }}
+
           <p>
             Black on top &ensp;
             <v-switch v-model="whiteOnTop" style="display: inline-block; transform: translateY(5px)"/>
