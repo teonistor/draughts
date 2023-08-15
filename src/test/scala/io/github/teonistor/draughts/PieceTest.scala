@@ -90,11 +90,11 @@ class PieceTest extends AnyFunSuite {
       assert(piece.promote == piece))
   }
 
-  test("black peon promotea to black king") {
+  test("black peon promotes to black king") {
     assert(Piece.blackPeon.promote == Piece.blackKing)
   }
 
-  test("white peon promotea to white king") {
+  test("white peon promotes to white king") {
     assert(Piece.whitePeon.promote == Piece.whiteKing)
   }
 }
