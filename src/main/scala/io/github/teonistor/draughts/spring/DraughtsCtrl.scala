@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.{RequestMapping, RestController}
 @Lazy
 @RestController
 @RequestMapping(Array("draughts-api"))
-class Ctrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) extends View {
+class DraughtsCtrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) extends View {
 
   private lazy val juncture = junctureFactory(this)
 
