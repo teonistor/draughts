@@ -12,15 +12,21 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 class DraughtsConfig {
 
   /* TODO UI
-    - Hover to see coord
-    - Highlight last move
-    - Highlight possible moves (of piece when selected and pieces themselves unselected when it's not all maybe)
-    - Don't take stupid clicks
-    - Spectator page
-    - (in the future) Rotate anything
+    * Hover to see coord
+    * Highlight last move
+    * Highlight possible moves (of piece when selected and pieces themselves unselected when it's not all maybe)
+    * Don't take unhighlighted clicks
+    * Spectator page
+    * (in the future) Rotate in any way
 
-    TODO General
-    - Forced take rule
+    TODO Engine
+    * Forced take rule
+
+    Ideas
+    * (for all games)
+      * Add a link to Github for the respective repos ("Raise an issue if found" etc)
+      * Notification when your go (once player assigned and it knows it's you and you weren't paying attention)
+      * Full lobby implem, obvs
    */
 
   @Bean
