@@ -33,7 +33,7 @@
 
   export default {
     name: 'board3D',
-    props: ['depth', 'width', 'height', 'data', 'parity', 'selected', 'whiteOnTop'],
+    props: ['depth', 'width', 'height', 'data', 'parity', 'selected', 'highlighted', 'whiteOnTop'],
 
     data: () => ({
       hStart: 5,
@@ -63,11 +63,15 @@
                            && ' selected'
                            || '';
 
+        const maybeHighlight = this.highlighted && this.highlighted.filter(u => u[0] === z && u[1] === x && u[2] === y).length
+                            && ' highlight'
+                            || '';
+
         if ((z+x+y + this.parity) % 2)
-          return 'unreachable' + maybeSelected;
+          return 'unreachable' + maybeSelected + maybeHighlight;
 
         const piece = this.data[[z,x,y].join(',')];
-        return (piece && pieceToStyle[piece] || 'hoverable') + maybeSelected;
+        return (piece && pieceToStyle[piece] || 'hoverable') + maybeSelected + maybeHighlight;
       }
     },
 
@@ -87,6 +91,9 @@
     cursor:pointer;
     fill: blue;
   }
+  .hoverable.highlight {
+    fill: cyan;
+  }
   .hoverable.black {
     fill: black;
   }
@@ -98,6 +105,12 @@
   }
   .hoverable.peon {
     stroke:rgb(200,200,200);
+  }
+  .hoverable.black.highlight {
+    fill: #003311;
+  }
+  .hoverable.white.highlight {
+    fill: #ccffdd;
   }
   .hoverable:hover, .hoverable.black:hover, .hoverable.white:hover {
     fill: red;

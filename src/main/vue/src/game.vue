@@ -37,12 +37,12 @@
                    :data="section(partialIndex)"
                    :parity="parityAt(partialIndex)"
                    :selected="selectedAt(partialIndex)"
+                   :highlighted="highlightAt(partialIndex)"
                    :whiteOnTop="whiteOnTop"
                    @select="onClick(partialIndex, ...arguments)" />
 
         </v-col>
       </v-row>
-
     </v-container>
   </v-app>
 </template>
@@ -60,8 +60,9 @@
       // From state
       board: [],
       currentPlayer: null,
+      availableMoves: [],
       ongoingJump: null,
-      situation: "",
+      situation: '',
 
       // From settings
       boardSizes: [],
@@ -119,6 +120,31 @@
         return data;
       },
 
+      highlightAt (partialIndex) {
+        if (!this.availableMoves)
+          return [];
+
+        if (this.selected) {
+          return this.availableMoves.filter(move => JSON.stringify(this.selected[0]) === JSON.stringify(move[0])
+                                                 && JSON.stringify([this.selected[1], this.selected[2], this.selected[3]]) === JSON.stringify(move[1])
+                                                 && JSON.stringify(partialIndex) === JSON.stringify(move[2]))
+                                    .map(move => move[3]);
+
+        } else {
+          return this.availableMoves.filter(move => JSON.stringify(partialIndex) === JSON.stringify(move[0]))
+                                    .map(move => move[1]);
+
+        }
+
+
+        const data = {};
+        this.board.forEach(kv => {
+          if (partialIndex.map((d,i) => kv[0][i] === d).reduce((a,b) => a && b, true))
+            data[kv[1].join(',')] = kv[2];
+        });
+        return data;
+      },
+
       parityAt (partialIndex) {
         if (!this.board.length)
           return -1;
@@ -150,6 +176,7 @@
         const state = JSON.parse(message.body);
         this.board = state.board;
         this.currentPlayer = state.currentPlayer;
+        this.availableMoves = state.availableMoves;
         this.ongoingJump = state.ongoingJump;
         this.situation = state.situation;
       },
