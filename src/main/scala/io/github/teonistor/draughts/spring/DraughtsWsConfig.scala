@@ -16,6 +16,6 @@ class DraughtsWsConfig extends WebSocketMessageBrokerConfigurer {
 
   override def registerStompEndpoints(registry: StompEndpointRegistry): Unit =
     registry.addEndpoint("/draughts-subscribe")
-      .setAllowedOrigins("http://localhost:8080", "http://192.168.1.88:8080", "https://teodor.nistor.uk", "https://teonistor.github.io")
+      .setAllowedOrigins("http://localhost:8080", "http://192.168.1.217:8080", "http://192.168.1.88:8080", "https://teodor.nistor.uk", "https://teonistor.github.io")
       .withSockJS
 }

@@ -1,6 +1,5 @@
 package io.github.teonistor.draughts.spring
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.teonistor.draughts.data.Settings
 import io.github.teonistor.draughts.{Game, HDUtils, Juncture, Piece, Player, View}
 import org.springframework.context.annotation.Lazy
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.{RequestMapping, RestController}
 @Lazy
 @RestController
 @RequestMapping(Array("draughts-api"))
-class DraughtsCtrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) extends View {
+class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) extends View {
 
   private lazy val juncture = junctureFactory(this)
 
@@ -24,16 +23,35 @@ class DraughtsCtrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory:
     ws.convertAndSend("/draughts/draughts-message", message)
 
   override def display(game: Game): Unit = {
+    val thing = game.availableMoves
+      .flatMap(kv => {
+        val (one, two, three) = layStrings1(kv._1)
+        kv._2.filter(_._2.isValid).keys.map(t => {
+          val (four, five, six) = layStrings1(t)
+          (one, two, three, four, five, six)
+        })
+      })
+      .groupBy(_._1).view
+      .mapValues(_.groupBy(_._2).view
+        .mapValues(_.groupBy(_._3).view
+          .mapValues(_.groupBy(_._4).view
+            .mapValues(_.groupMap(_._5)(iiiiik => (iiiiik._6, true)).view
+              .mapValues(_.toMap).toMap).toMap).toMap).toMap).toMap
+
     lastState = SendableState(
-      game.gameState.board.to(LazyList).map { case (position,piece) => val (a,b) = position.splitAt(position.size - 3); (a, b, piece) },
+      game.gameState.board
+        .map((layStrings _).tupled)
+        .groupBy(_._1).view
+        .mapValues(_.groupMap(_._2)(iikv => (iikv._3, iikv._4)).view
+          .mapValues(_.toMap).toMap).toMap,
       game.gameState.currentPlayer,
-      game.gameState.ongoingJump,
+      thing,
       if (game.isGameOver)
-        "Game over!\n"
+        "Game over!"
       else game.gameState.ongoingJump
         .map(_.mkString("continue jumping from (", ", ", ") (or pass)"))
         .orElse(Some("move"))
-        .map(game.gameState.currentPlayer + " to " +_+ ".\n")
+        .map(game.gameState.currentPlayer + " to " +_+ ".")
         .get)
     ws.convertAndSend("/draughts/draughts-state", lastState)
   }
@@ -53,7 +71,7 @@ class DraughtsCtrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory:
       settings.boardSizes,
       HDUtils.cartesianProduct(settings.boardSizes.take(settings.boardSizes.size - 3).to(Vector).map(0 until _)),
       SendableLast3D(
-        settings.boardSizes.lift(settings.boardSizes.size - 3).getOrElse(1),
+        settings.boardSizes.lift(settings.boardSizes.size - 3).getOrElse(1),  // <- This causes the issue in 2D. Solve it, then solve it for "boards of boards"
         settings.boardSizes(settings.boardSizes.size - 2),  // Last 2 are guaranteed to exist due to Settings preconditions
         settings.boardSizes.last))
     ws.convertAndSend("/draughts/draughts-settings", lastSettings)
@@ -66,14 +84,30 @@ class DraughtsCtrl(om: ObjectMapper, ws: SimpMessagingTemplate, junctureFactory:
   def onSubscribeSettings = lastSettings
 
 
+  private def threeWaySplit(coord: Vector[Int], default: Int) = {
+    val (first, middleLast) = coord.splitAt(coord.size - 5)
+    val (middle, last) = middleLast.prependedAll(List.fill(5-middleLast.size)(default)).splitAt(2)
+    (first, middle, last)
+  }
+
+  private def layStrings1(k: Vector[Int]) = {
+    val (first, middle, last) = threeWaySplit(k, 0)
+    (first.mkString(","), middle.mkString(","), last.mkString(","))
+  }
+
+  private def layStrings(k: Vector[Int], v: Piece) = {
+    val (first, middle, last) = threeWaySplit(k, 0)
+    (first.mkString(","), middle.mkString(","), last.mkString(","), v)
+  }
+
   case class SendableSettings(boardSizes:Seq[Int],
                               partialIndices:Seq[Vector[Int]],
                               last3D: SendableLast3D)
 
   case class SendableLast3D(depth: Int, width: Int, height: Int)
 
-  case class SendableState(board: LazyList[(Vector[Int], Vector[Int], Piece)],
+  case class SendableState(board: Map[String, Map[String, Map[String, Piece]]],
                            currentPlayer: Player,
-                           ongoingJump: Option[Vector[Int]],
+                           availableMoves: Map[String, Map[String, Map[String, Map[String, Map[String, Map[String, Boolean]]]]]],
                            situation: String)
 }

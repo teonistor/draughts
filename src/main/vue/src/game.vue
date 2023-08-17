@@ -61,7 +61,6 @@
       board: [],
       currentPlayer: null,
       availableMoves: [],
-      ongoingJump: null,
       situation: '',
 
       // From settings
@@ -177,7 +176,6 @@
         this.board = state.board;
         this.currentPlayer = state.currentPlayer;
         this.availableMoves = state.availableMoves;
-        this.ongoingJump = state.ongoingJump;
         this.situation = state.situation;
       },
 
