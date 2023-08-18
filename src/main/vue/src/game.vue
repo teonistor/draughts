@@ -28,7 +28,7 @@
 
         </v-col>
 
-        <v-col md="4" v-for="partialIndex in partialIndices">
+        <v-col md="4" v-for="partialIndex in higherIndices">
           <p>Board at ({{ partialIndex.join(', ') }}, z, x, y)</p>
 
           <board3D :depth="last3D.depth"
@@ -64,9 +64,13 @@
       situation: '',
 
       // From settings
-      boardSizes: [],
-      partialIndices: [],
-      last3D: {depth: 1, width: 1, height: 1},
+      startingRows: 0,
+      higherIndices: [],
+      metaWidth: 1,
+      metaHeight: 1,
+      boardDepth: 1,
+      boardWidth: 1,
+      boardHeight: 1,
 
       // From messaging
       message: '',
@@ -173,17 +177,21 @@
 
       receiveState (message) {
         const state = JSON.parse(message.body);
-        this.board = state.board;
-        this.currentPlayer = state.currentPlayer;
+        this.board          = state.board;
+        this.currentPlayer  = state.currentPlayer;
         this.availableMoves = state.availableMoves;
-        this.situation = state.situation;
+        this.situation      = state.situation;
       },
 
       receiveSettings (message) {
         const settings = JSON.parse(message.body);
-        this.boardSizes = settings.boardSizes;
-        this.partialIndices = settings.partialIndices;
-        this.last3D = settings.last3D;
+        this.startingRows  = settings.startingRows;
+        this.higherIndices = settings.higherIndices;
+        this.metaWidth     = settings.metaWidth;
+        this.metaHeight    = settings.metaHeight;
+        this.boardDepth    = settings.boardDepth;
+        this.boardWidth    = settings.boardWidth;
+        this.boardHeight   = settings.boardHeight;
       },
 
       receiveMessage (message) {

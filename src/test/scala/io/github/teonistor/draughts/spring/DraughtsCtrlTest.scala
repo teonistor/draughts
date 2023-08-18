@@ -1,7 +1,7 @@
 package io.github.teonistor.draughts.spring
 
-import io.github.teonistor.draughts.data.GameState
-import io.github.teonistor.draughts.{Game, Piece, Player}
+import io.github.teonistor.draughts.data.{GameState, Settings}
+import io.github.teonistor.draughts.{Game, Juncture, Piece, Player, View}
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.BDDMockito.`given`
 import org.mockito.MockitoSugar
@@ -89,6 +89,36 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
   }
 
   test("Send settings with 4 dimensions") {
-    assert(false)
+    val ws = mock[SimpMessagingTemplate]
+    val jf = mock[View => Juncture]
+    val juncture = mock[Juncture]
+    val ctrl = new DraughtsCtrl(ws, jf)
+
+    val input = Settings(2, 4, 5, 6, 7)
+
+    given(jf(ctrl)) willReturn juncture
+    ctrl.receive(input)
+
+    verify(juncture) start input
+    verify(ws).convertAndSend("/draughts/draughts-settings", ctrl.SendableSettings(
+      2, Vector(Vector.empty), 1, 4, 5, 6, 7))
+  }
+
+  test("Send settings with 7 dimensions") {
+    val ws = mock[SimpMessagingTemplate]
+    val jf = mock[View => Juncture]
+    val juncture = mock[Juncture]
+    val ctrl = new DraughtsCtrl(ws, jf)
+
+    val input = Settings(3, 2, 3, 4, 5, 6, 7, 8)
+
+    given(jf(ctrl)) willReturn juncture
+    ctrl.receive(input)
+
+    verify(juncture) start input
+    verify(ws).convertAndSend("/draughts/draughts-settings", ctrl.SendableSettings(
+      3,
+      Vector(Vector(0,0), Vector(0,1), Vector(0,2), Vector(1,0), Vector(1,1), Vector(1,2)),
+      4, 5, 6, 7, 8))
   }
 }

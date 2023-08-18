@@ -68,12 +68,13 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) e
   def receive(settings: Settings): Unit = {
     juncture.start(settings)
     lastSettings = SendableSettings(
-      settings.boardSizes,
-      HDUtils.cartesianProduct(settings.boardSizes.take(settings.boardSizes.size - 3).to(Vector).map(0 until _)),
-      SendableLast3D(
-        settings.boardSizes.lift(settings.boardSizes.size - 3).getOrElse(1),  // <- This causes the issue in 2D. Solve it, then solve it for "boards of boards"
-        settings.boardSizes(settings.boardSizes.size - 2),  // Last 2 are guaranteed to exist due to Settings preconditions
-        settings.boardSizes.last))
+      settings.startingRows,
+      HDUtils.cartesianProduct(settings.boardSizes.take(settings.boardSizes.size - 5).to(Vector).map(0 until _)),
+      settings.boardSizes.lift(settings.boardSizes.size - 5).getOrElse(1),
+      settings.boardSizes.lift(settings.boardSizes.size - 4).getOrElse(1),
+      settings.boardSizes.lift(settings.boardSizes.size - 3).getOrElse(1),
+      settings.boardSizes(settings.boardSizes.size - 2),  // Last 2 are guaranteed to exist thanks to Settings preconditions
+      settings.boardSizes.last)
     ws.convertAndSend("/draughts/draughts-settings", lastSettings)
   }
 
@@ -100,14 +101,16 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) e
     (first.mkString(","), middle.mkString(","), last.mkString(","), v)
   }
 
-  case class SendableSettings(boardSizes:Seq[Int],
-                              partialIndices:Seq[Vector[Int]],
-                              last3D: SendableLast3D)
+  case class SendableSettings(startingRows : Int,
+                              higherIndices: Seq[Vector[Int]],
+                              metaWidth    : Int,
+                              metaHeight   : Int,
+                              boardDepth   : Int,
+                              boardWidth   : Int,
+                              boardHeight  : Int)
 
-  case class SendableLast3D(depth: Int, width: Int, height: Int)
-
-  case class SendableState(board: Map[String, Map[String, Map[String, Piece]]],
-                           currentPlayer: Player,
+  case class SendableState(board         : Map[String, Map[String, Map[String, Piece]]],
+                           currentPlayer : Player,
                            availableMoves: Map[String, Map[String, Map[String, Map[String, Map[String, Map[String, Boolean]]]]]],
-                           situation: String)
+                           situation     : String)
 }
