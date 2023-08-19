@@ -42,7 +42,7 @@
                    :boardHeight="boardHeight"
                    :data="board[index]"
                    :parity="parityAt(index)"
-                   :selected="{}"
+                   :selected="selectedAt(index)"
                    :highlighted="highlighted[index] || {}"
                    :whiteOnTop="whiteOnTop"
                    @select="onSelect(index, ...arguments)" />
@@ -181,10 +181,13 @@
                        || 0;
       },
 
-      selectedAt (partialIndex) {
-        return (this.selected && (JSON.stringify(this.selected[0]) === JSON.stringify(partialIndex)))
-            && this.selected.slice(1)
-            || null;
+      selectedAt (index) {
+        if (this.selected && this.selected[0] === index) {
+          const result = {};
+          result[this.selected[1]] = this.selected[2];
+          return result;
+        }
+        return {};
       },
 
 

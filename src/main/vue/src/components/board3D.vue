@@ -66,26 +66,15 @@
     },
 
     methods: {
-
-      debug() {
-        console.log('B', arguments);
-        return 2;
-      },
-
       styleAt (z,x,y) {
-        const maybeSelected = /*this.selected && this.selected[0] === z && this.selected[1] === x && this.selected[2] === y
-                           && ' selected'
-                           || */'';
-
-        const maybeHighlight =/* this.highlighted && this.highlighted.filter(u => u[0] === z && u[1] === x && u[2] === y).length
-                            && ' highlight'
-                            || */'';
-
         if ((z+x+y + this.parity) % 2)
-          return 'unreachable' + maybeSelected + maybeHighlight;
+          return 'unreachable';
 
-        const piece = this.data[[z,x,y].join(',')];
-        console.log('C', this.data, [z,x,y].join(','))
+        const zxy = [z,x,y].join(',');
+        const maybeSelected  = this.selected === zxy && ' selected' || '';
+        const maybeHighlight = this.highlighted[zxy] && ' highlight' || '';
+
+        const piece = this.data[zxy];
         return (piece && pieceToStyle[piece] || 'hoverable') + maybeSelected + maybeHighlight;
       }
     },

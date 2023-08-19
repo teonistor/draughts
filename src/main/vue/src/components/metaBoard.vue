@@ -9,10 +9,9 @@
                  :height="boardHeight"
                  :data="data[x + ',' + (metaHeight - y)]"
                  :parity="(parity + x + metaHeight - y) % 2"
-                 :selected="selected[x + ',' + (metaHeight - y)] || {}"
+                 :selected="selected[x + ',' + (metaHeight - y)] || null"
                  :highlighted="highlighted[x + ',' + (metaHeight - y)] || {}"
                  :whiteOnTop="whiteOnTop"
-                 :noprop="debug(x + ',' + (metaHeight - y))"
                  @selectOnBoard="onSelect(x, (metaHeight - y), ...arguments)"
                  @pixelWidth="pixelWidth = arguments[0]"
                  @pixelHeight="pixelHeight = arguments[0]" />
@@ -46,11 +45,6 @@
     },
 
     methods: {
-      debug() {
-        console.log('A', arguments);
-        return 2;
-      },
-
       onSelect(mx, my, bd, bx, by) {
         this.$emit('select', mx, my, bd, bx, by);
       }
