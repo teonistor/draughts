@@ -2,35 +2,31 @@
 <template>
   <v-app>
     <v-container fluid>
-<!--      <v-row>-->
-<!--        <v-col md="4">-->
-          <p v-if="!currentPlayer">No active game</p>
-          <p v-else>{{ situation }}
-            <v-btn v-if="situation.indexOf('(or pass)') > -1" @click="pass">Pass</v-btn>
-          </p>
+      <p v-if="!currentPlayer">No active game</p>
+      <p v-else>{{ situation }}
+        <v-btn v-if="situation.indexOf('(or pass)') > -1" @click="pass">Pass</v-btn>
+      </p>
 
-          <p>{{ message }}</p>
+      <p>{{ message }}</p>
 
-          <!-- TODO make this a component to hold the add/remove dimensions aspect separate -->
-          <v-btn @click="newGame">New game</v-btn> with the following settings:
-          <v-text-field v-model="startingRowsInput" label="Starting rows" />
-          <v-text-field v-model="boardSizesInput" label="Sizes" />
+      <!-- TODO make this a component to hold the add/remove dimensions aspect separate -->
+      <v-btn @click="newGame">New game</v-btn>
+      with the following settings:
+      <v-text-field v-model="startingRowsInput" label="Starting rows"/>
+      <v-text-field v-model="boardSizesInput" label="Sizes"/>
 
-          <hr>
+      <hr>
 
-          Selected: {{ selected }}
-          <br>
-          Connection: {{ stompClient && '✅' || '❌' }}
+      Selected: {{ selected }}
+      <br>
+      Connection: {{ stompClient && '✅' || '❌' }}
 
-          <p>
-            Black on top &ensp;
-            <v-switch v-model="whiteOnTop" style="display: inline-block; transform: translateY(5px)"/>
-            &ensp;White on top
-          </p>
+      <p>
+        Black on top &ensp;
+        <v-switch v-model="whiteOnTop" style="display: inline-block; transform: translateY(5px)"/>
+        &ensp;White on top
+      </p>
 
-<!--        </v-col>-->
-
-<!--        <v-col md="4" v-for="partialIndex in higherIndices">-->
       <div style="overflow-x: auto">
 
         <metaBoard v-if="!!board"
@@ -48,21 +44,6 @@
                    @select="onSelect(index, ...arguments)" />
         <br>
       </div>
-
-<!--          <p>Board at ({{ partialIndex.join(', ') }}, z, x, y)</p>-->
-
-<!--          <board3D :depth="last3D.depth"-->
-<!--                   :width="last3D.width"-->
-<!--                   :height="last3D.height"-->
-<!--                   :data="section(partialIndex)"-->
-<!--                   :parity="parityAt(partialIndex)"-->
-<!--                   :selected="selectedAt(partialIndex)"-->
-<!--                   :highlighted="highlightAt(partialIndex)"-->
-<!--                   :whiteOnTop="whiteOnTop"-->
-<!--                   @select="onClick(partialIndex, ...arguments)" />-->
-
-<!--        </v-col>-->
-<!--      </v-row>-->
     </v-container>
   </v-app>
 </template>
