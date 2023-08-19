@@ -16,6 +16,7 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) e
   private lazy val juncture = junctureFactory(this)
 
   // Intermediate UI cache, so that a client joining midway sees the state right away
+  private var lastDimensionCount: Int =_
   private var lastState: SendableState =_
   private var lastSettings: SendableSettings =_
 
@@ -58,7 +59,7 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) e
 
   @MessageMapping(Array("/click"))
   def receive(message: (Vector[Int],Vector[Int])): Unit =
-      juncture.progress(game => game.move _ tupled message)
+      juncture.progress(game => game.move(truncateExcessDimensions(message._1), truncateExcessDimensions(message._2)))
 
   @MessageMapping(Array("/pass"))
   def receive(): Unit =
@@ -67,9 +68,10 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) e
   @MessageMapping(Array("/new-game"))
   def receive(settings: Settings): Unit = {
     juncture.start(settings)
+    lastDimensionCount = settings.boardSizes.size
     lastSettings = SendableSettings(
       settings.startingRows,
-      HDUtils.cartesianProduct(settings.boardSizes.take(settings.boardSizes.size - 5).to(Vector).map(0 until _)),
+      HDUtils.cartesianProduct(settings.boardSizes.take(settings.boardSizes.size - 5).to(Vector).map(0 until _)).map(_.mkString(",")),
       settings.boardSizes.lift(settings.boardSizes.size - 5).getOrElse(1),
       settings.boardSizes.lift(settings.boardSizes.size - 4).getOrElse(1),
       settings.boardSizes.lift(settings.boardSizes.size - 3).getOrElse(1),
@@ -101,8 +103,11 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) e
     (first.mkString(","), middle.mkString(","), last.mkString(","), v)
   }
 
+  private def truncateExcessDimensions(coord: Vector[Int]) =
+    if (coord.size > lastDimensionCount) coord.drop(coord.size - lastDimensionCount) else coord
+
   case class SendableSettings(startingRows : Int,
-                              higherIndices: Seq[Vector[Int]],
+                              higherIndices: Seq[String],
                               metaWidth    : Int,
                               metaHeight   : Int,
                               boardDepth   : Int,

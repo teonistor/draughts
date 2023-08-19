@@ -1,7 +1,7 @@
 <!--suppress HtmlUnknownTag, CheckEmptyScriptTag, HtmlUnknownAttribute -->
 <template>
-  <svg :height="height * boxSize + 4"
-       :width="width * boxSize + 4"
+  <svg :height="pixelHeight"
+       :width="pixelWidth"
        :style="{transform: whiteOnTop && 'scaleX(-1)' || 'scaleY(-1)'}" >
 
     <g v-for="(ignore1,y) in height"  >
@@ -18,7 +18,7 @@
               :y="2 + y * boxSize + vStart + z * vGap"
               rx="20" ry="20"
               height="40" width="40"
-              @click="$emit('select', z,x,y)" />
+              @click="$emit('selectOnBoard', z,x,y)" />
 
       </g>
     </g>
@@ -40,6 +40,14 @@
     }),
 
     computed: {
+      pixelHeight () {
+        return this.height * this.boxSize + 10;
+      },
+
+      pixelWidth () {
+        return this.width * this.boxSize + 10;
+      },
+
       boxSize () {
         return (this.depth < 7) && 100 || (40 + this.depth * 10);
       },
@@ -58,25 +66,46 @@
     },
 
     methods: {
-      styleAt (z,x,y) {
-        const maybeSelected = this.selected && this.selected[0] === z && this.selected[1] === x && this.selected[2] === y
-                           && ' selected'
-                           || '';
 
-        const maybeHighlight = this.highlighted && this.highlighted.filter(u => u[0] === z && u[1] === x && u[2] === y).length
+      debug() {
+        console.log('B', arguments);
+        return 2;
+      },
+
+      styleAt (z,x,y) {
+        const maybeSelected = /*this.selected && this.selected[0] === z && this.selected[1] === x && this.selected[2] === y
+                           && ' selected'
+                           || */'';
+
+        const maybeHighlight =/* this.highlighted && this.highlighted.filter(u => u[0] === z && u[1] === x && u[2] === y).length
                             && ' highlight'
-                            || '';
+                            || */'';
 
         if ((z+x+y + this.parity) % 2)
           return 'unreachable' + maybeSelected + maybeHighlight;
 
         const piece = this.data[[z,x,y].join(',')];
+        console.log('C', this.data, [z,x,y].join(','))
         return (piece && pieceToStyle[piece] || 'hoverable') + maybeSelected + maybeHighlight;
       }
     },
 
-    mounted () {
+    watch: {
+      pixelHeight (value) {
+        this.$emit('pixelHeight', value);
+      },
 
+      pixelWidth (value) {
+        this.$emit('pixelWidth', value);
+      }
+    },
+
+    mounted () {
+      // The very first values on object creation don't get emitted
+      setTimeout(() => {
+        this.$emit('pixelHeight', this.pixelHeight);
+        this.$emit('pixelWidth', this.pixelWidth);
+      }, 500);
     }
   }
 </script>

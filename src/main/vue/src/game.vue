@@ -1,9 +1,9 @@
 <!--suppress HtmlUnknownTag, HtmlUnknownAttribute, CheckEmptyScriptTag -->
 <template>
   <v-app>
-    <v-container>
-      <v-row>
-        <v-col md="4">
+    <v-container fluid>
+<!--      <v-row>-->
+<!--        <v-col md="4">-->
           <p v-if="!currentPlayer">No active game</p>
           <p v-else>{{ situation }}
             <v-btn v-if="situation.indexOf('(or pass)') > -1" @click="pass">Pass</v-btn>
@@ -18,6 +18,8 @@
 
           <hr>
 
+          Selected: {{ selected }}
+          <br>
           Connection: {{ stompClient && '✅' || '❌' }}
 
           <p>
@@ -26,23 +28,41 @@
             &ensp;White on top
           </p>
 
-        </v-col>
+<!--        </v-col>-->
 
-        <v-col md="4" v-for="partialIndex in higherIndices">
-          <p>Board at ({{ partialIndex.join(', ') }}, z, x, y)</p>
+<!--        <v-col md="4" v-for="partialIndex in higherIndices">-->
+      <div style="overflow-x: auto">
 
-          <board3D :depth="last3D.depth"
-                   :width="last3D.width"
-                   :height="last3D.height"
-                   :data="section(partialIndex)"
-                   :parity="parityAt(partialIndex)"
-                   :selected="selectedAt(partialIndex)"
-                   :highlighted="highlightAt(partialIndex)"
+        <metaBoard v-if="!!board"
+                   v-for="index in higherIndices"
+                   :metaWidth="metaWidth"
+                   :metaHeight="metaHeight"
+                   :boardDepth="boardDepth"
+                   :boardWidth="boardWidth"
+                   :boardHeight="boardHeight"
+                   :data="board[index]"
+                   :parity="parityAt(index)"
+                   :selected="{}"
+                   :highlighted="highlighted[index] || {}"
                    :whiteOnTop="whiteOnTop"
-                   @select="onClick(partialIndex, ...arguments)" />
+                   @select="onSelect(index, ...arguments)" />
+        <br>
+      </div>
 
-        </v-col>
-      </v-row>
+<!--          <p>Board at ({{ partialIndex.join(', ') }}, z, x, y)</p>-->
+
+<!--          <board3D :depth="last3D.depth"-->
+<!--                   :width="last3D.width"-->
+<!--                   :height="last3D.height"-->
+<!--                   :data="section(partialIndex)"-->
+<!--                   :parity="parityAt(partialIndex)"-->
+<!--                   :selected="selectedAt(partialIndex)"-->
+<!--                   :highlighted="highlightAt(partialIndex)"-->
+<!--                   :whiteOnTop="whiteOnTop"-->
+<!--                   @select="onClick(partialIndex, ...arguments)" />-->
+
+<!--        </v-col>-->
+<!--      </v-row>-->
     </v-container>
   </v-app>
 </template>
@@ -50,17 +70,17 @@
   import SockJS from 'sockjs-client';
   import Stomp from 'stompjs';
 
-  import board3D from './components/board3D.vue';
+  import metaBoard from './components/metaBoard.vue';
 
   export default {
     name: 'game',
-    components: {board3D},
+    components: {metaBoard},
 
     data: () => ({
       // From state
-      board: [],
+      board: null,
       currentPlayer: null,
-      availableMoves: [],
+      availableMoves: {},
       situation: '',
 
       // From settings
@@ -90,7 +110,11 @@
     }),
 
     computed: {
-
+      highlighted () {
+        return this.selected
+            && ((((this.availableMoves || {})[this.selected[0]] || {})[this.selected[1]] || {})[this.selected[2]] || {})
+            || this.availableMoves;
+      }
     },
 
     methods: {
@@ -148,12 +172,13 @@
         return data;
       },
 
-      parityAt (partialIndex) {
-        if (!this.board.length)
+      parityAt (index) {
+        if (!this.board)
           return -1;
         else
           // Parity tied to arbitrary choice in InitialBoardProvider
-          return partialIndex.reduce((a,b) => a + b, 0) % 2;
+          return index && (index.split(',').map(e => parseInt(e)).reduce((a,b) => a + b, 0) % 2)
+                       || 0;
       },
 
       selectedAt (partialIndex) {
@@ -198,21 +223,33 @@
         this.message = message.body;
       },
 
-      onClick (partialIndex, z, x, y) {
-        if (!this.selected)
-          this.selected = [partialIndex, z, x, y];
+      onSelect (index, mx, my, bd, bx, by) {
+        // Dismiss clicks on grey
+        if ((this.parityAt(index) + mx + my + bd + bx + by) % 2)
+          return;
 
-        else if (JSON.stringify(this.selected) === JSON.stringify([partialIndex, z, x, y]))
-          this.selected = null;
+        const selection = [index, [mx, my].join(','), [bd, bx, by].join(',')];
 
-        else {
-          const from = [].concat(this.selected[0]).concat([this.selected[1], this.selected[2], this.selected[3]]);
-          const to = [].concat(partialIndex).concat([z, x, y]);
-
-          this.stompClient.send("/draughts/click", {}, JSON.stringify([from, to]));
-          this.selected = null;
-
+        if (!this.selected) {
+          this.selected = selection;
+          return;
         }
+
+        const oldSelectionStr = this.selected.join(',');
+        const newSelectionStr = selection.join(',');
+
+        if (oldSelectionStr === newSelectionStr) {
+          this.selected = null;
+          return;
+        }
+
+        function removeLeadingComma(s) {
+          return s.indexOf(',') === 0 && s.substring(1) || s;
+        }
+
+        // Because we're dealing with comma-separated chunks everywhere, which simplifies things everywhere else
+        this.stompClient.send('/draughts/click', {}, '[[' + removeLeadingComma(oldSelectionStr) + '],[' + removeLeadingComma(newSelectionStr) + ']]');
+        this.selected = null;
       }
     },
 

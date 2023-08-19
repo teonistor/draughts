@@ -101,7 +101,7 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
 
     verify(juncture) start input
     verify(ws).convertAndSend("/draughts/draughts-settings", ctrl.SendableSettings(
-      2, Vector(Vector.empty), 1, 4, 5, 6, 7))
+      2, Vector(""), 1, 4, 5, 6, 7))
   }
 
   test("Send settings with 7 dimensions") {
@@ -118,7 +118,7 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
     verify(juncture) start input
     verify(ws).convertAndSend("/draughts/draughts-settings", ctrl.SendableSettings(
       3,
-      Vector(Vector(0,0), Vector(0,1), Vector(0,2), Vector(1,0), Vector(1,1), Vector(1,2)),
+      Vector("0,0", "0,1", "0,2", "1,0", "1,1", "1,2"),
       4, 5, 6, 7, 8))
   }
 }
