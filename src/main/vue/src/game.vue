@@ -2,32 +2,29 @@
 <template>
   <v-app>
     <v-container fluid>
-      <p v-if="!currentPlayer">No active game</p>
-      <p v-else>{{ situation }}
-        <v-btn v-if="situation.indexOf('(or pass)') > -1" @click="pass">Pass</v-btn>
-      </p>
+      <newGameControls :stompClient="stompClient" />
 
-      <p>{{ message }}</p>
+      <v-row>
+        <v-col md="6">
+          Connection: {{ stompClient && '✅' || '❌' }}
+          <br>
+          Selected: {{ selected }}
+          <p v-if="!currentPlayer">No active game</p>
+          <p v-else>{{ situation }}
+            <v-btn v-if="situation.indexOf('(or pass)') > -1" @click="pass">Pass</v-btn>
+          </p>
 
-      <!-- TODO make this a component to hold the add/remove dimensions aspect separate -->
-      <v-btn @click="newGame">New game</v-btn>
-      with the following settings:
-      <v-text-field v-model="startingRowsInput" label="Starting rows"/>
-      <v-text-field v-model="boardSizesInput" label="Sizes"/>
+          <p>{{ message }}</p>
+        </v-col>
+        <v-col md="6">
+          Black on top &ensp;
+          <v-switch v-model="whiteOnTop" style="display: inline-block; transform: translateY(5px)"/>
+          &ensp;White on top
+        </v-col>
+      </v-row>
 
-      <hr>
 
-      Selected: {{ selected }}
-      <br>
-      Connection: {{ stompClient && '✅' || '❌' }}
-
-      <p>
-        Black on top &ensp;
-        <v-switch v-model="whiteOnTop" style="display: inline-block; transform: translateY(5px)"/>
-        &ensp;White on top
-      </p>
-
-      <div style="overflow-x: auto">
+      <div style="overflow-x: auto; text-align: center;">
 
         <metaBoard v-if="!!board"
                    v-for="index in higherIndices"
@@ -52,10 +49,11 @@
   import Stomp from 'stompjs';
 
   import metaBoard from './components/metaBoard.vue';
+  import newGameControls from './components/newGameControls.vue';
 
   export default {
     name: 'game',
-    components: {metaBoard},
+    components: {metaBoard, newGameControls},
 
     data: () => ({
       // From state
@@ -75,10 +73,6 @@
 
       // From messaging
       message: '',
-
-      // New game inputs
-      startingRowsInput: '',
-      boardSizesInput: '',
 
       // Gameplay
       selected: null,
@@ -174,13 +168,6 @@
 
       pass () {
         this.stompClient.send("/draughts/pass", {}, '');
-      },
-
-      newGame () {
-        this.stompClient.send("/draughts/new-game", {}, JSON.stringify({
-          startingRows: parseInt(this.startingRowsInput),
-          boardSizes: this.boardSizesInput.split(" ").map(e => parseInt(e))
-        }));
       },
 
 
