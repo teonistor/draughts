@@ -14,7 +14,6 @@ class DraughtsConfig {
   /* TODO UI
     * Hover to see coord
     * Highlight last move
-    * Highlight possible moves (of piece when selected and pieces themselves unselected when it's not all maybe)
     * Don't take unhighlighted clicks
     * Spectator page
     * (in the future) Rotate in any way

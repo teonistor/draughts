@@ -41,38 +41,57 @@ class GameTest extends Assertions {
     @Mock private var boardAfterPromotion: Map[Vector[Int],Piece] =_
     private var game: Game =_
 
-    @BeforeEach
-    def before(@Mock availableMovesRule: AvailableMovesRule, @Mock gameOverChecker: GameOverChecker, @Mock settings: Settings): Unit = {
+    @Nested
+    class WithoutOngoingJumpInResult {
+
+      @BeforeEach
+      def before(@Mock availableMovesRule: AvailableMovesRule, @Mock gameOverChecker: GameOverChecker, @Mock settings: Settings): Unit = {
+        val gameState = GameState(null, Player.black, None)
+        game = new Game(availableMovesRule, promotionRule, gameOverChecker, settings, gameState)
+
+        given(availableMovesRule.computeAvailableMoves(gameState, settings)) willReturn Map(
+          from -> Map(
+            good -> valid(GameState(boardAfterMove, Player.white, None)),
+            bad -> invalid("invalidity from computation")))
+      }
+
+      @Test
+      def cannotMoveFromWhereYouDontHaveAPiece(): Unit =
+        assert(game.move(nil, good).getError == "You don't have a piece at (1,2)")
+
+      @Test
+      def cannotMoveToWhereYouCantReach(): Unit =
+        assert(game.move(from, nil).getError == "Your piece from (2,3) cannot reach (1,2)")
+
+      @Test
+      def cannotMoveWhereTheMoveIsInvalid(): Unit =
+        assert(game.move(from, bad).getError == "invalidity from computation")
+
+      @Test
+      def moveSuccessfully(): Unit = {
+        given(promotionRule promoteAsNeeded boardAfterMove) willReturn boardAfterPromotion
+        val newState = game.move(from, good).get.gameState
+        assert(newState.board == boardAfterPromotion)
+        assert(newState.currentPlayer == Player.white)
+      }
+    }
+
+    @Test
+    def withOngoingJumpInResult(@Mock availableMovesRule: AvailableMovesRule, @Mock gameOverChecker: GameOverChecker, @Mock settings: Settings): Unit = {
       val gameState = GameState(null, Player.black, None)
-      this.game = new Game(availableMovesRule, promotionRule, gameOverChecker, settings, gameState)
+      val intermidState = GameState(boardAfterPromotion, Player.white, Some(nil))
+      game = new Game(availableMovesRule, promotionRule, gameOverChecker, settings, gameState)
 
       given(availableMovesRule.computeAvailableMoves(gameState, settings)) willReturn Map(
-        from -> Map(
-          good -> valid(GameState(boardAfterMove, Player.white, None)),
-          bad -> invalid("invalidity from computation")))
-    }
+        from -> Map(good -> valid(intermidState)))
+      given(availableMovesRule.computeAvailableMoves(intermidState, settings)) willReturn Map(
+        from -> Map(bad -> invalid("invalidity from computation")))
+      given(promotionRule promoteAsNeeded boardAfterPromotion) willReturn boardAfterPromotion
 
-    @Test
-    def cannotMoveFromWhereYouDontHaveAPiece(): Unit = {
-      assert(game.move(nil, good).getError == "You don't have a piece at (1,2)")
-    }
-
-    @Test
-    def cannotMoveToWhereYouCantReach(): Unit = {
-      assert(game.move(from, nil).getError == "Your piece from (2,3) cannot reach (1,2)")
-    }
-
-    @Test
-    def cannotMoveWhereTheMoveIsInvalid(): Unit = {
-      assert(game.move(from, bad).getError == "invalidity from computation")
-    }
-
-    @Test
-    def moveSuccessfully(): Unit = {
-      given(promotionRule promoteAsNeeded boardAfterMove) willReturn boardAfterPromotion
       val newState = game.move(from, good).get.gameState
       assert(newState.board == boardAfterPromotion)
-      assert(newState.currentPlayer == Player.white)
+      assert(newState.ongoingJump.isEmpty)
+      assert(newState.currentPlayer == Player.black)
     }
   }
 
@@ -82,7 +101,7 @@ class GameTest extends Assertions {
     @Test
     def yes(): Unit = {
       val in = new Game(null, null, null, null, GameState(null, Player.black, Some(null)))
-      val actual:Game = in.pass().get
+      val actual = in.pass().get
 
       assert(actual.gameState.currentPlayer == Player.white)
       assert(actual.gameState.ongoingJump.isEmpty)

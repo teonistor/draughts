@@ -13,7 +13,7 @@ class Game(val availableMovesRule: AvailableMovesRule,
   lazy val availableMoves: AvailableMoves = availableMovesRule.computeAvailableMoves(gameState, settings)
   lazy val isGameOver: Boolean = gameOverChecker.isGameOver(gameState, availableMoves)
 
-  def move(from: Vector[Int], to: Vector[Int]): Validation[String,Game] = {
+  def move(from: Vector[Int], to: Vector[Int]): Validation[String,Game] =
    /* Caution! Visitor pattern looming as always!
     * Also, there's the whole Game State faff...
     *
@@ -27,7 +27,10 @@ class Game(val availableMovesRule: AvailableMovesRule,
       .getOrElse(invalid(s"You don't have a piece at ${from.toFriendlyString}"))
       .map(state => state.copy(board=promotionRule.promoteAsNeeded(state.board)))
       .map(newState => new Game(availableMovesRule, promotionRule, gameOverChecker, settings, newState))
-  }
+      .flatMap(newGame => if (cannotContinue(newGame)) newGame.pass() else valid(newGame))
+
+  private def cannotContinue(newGame: Game) =
+    newGame.gameState.ongoingJump.isDefined && newGame.availableMoves.forall(_._2.forall(_._2.isInvalid))
 
   def pass(): Validation[String, Game] = gameState.ongoingJump
     .map(_ => valid[String, Game](new Game(availableMovesRule, promotionRule, gameOverChecker, settings, GameState(gameState.board, gameState.currentPlayer.next, None))))
