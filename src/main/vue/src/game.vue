@@ -41,6 +41,10 @@
                    @select="onSelect(index, ...arguments)" />
         <br>
       </div>
+
+      <div style="font-style: oblique; opacity: 0.8; text-align: center">
+        Found an issue? Curious about the code? <a href="https://github.com/teonistor/draughts/tree/gui/src">Find the repo on Github</a>.
+      </div>
     </v-container>
   </v-app>
 </template>
