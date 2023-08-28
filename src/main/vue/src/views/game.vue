@@ -1,59 +1,57 @@
 <!--suppress HtmlUnknownTag, HtmlUnknownAttribute, CheckEmptyScriptTag -->
 <template>
-  <v-app>
-    <v-container fluid>
-      <newGameControls :stompClient="stompClient" />
+  <span>
+    <newGameControls :stompClient="stompClient" />
 
-      <v-row>
-        <v-col md="6">
-          Connection: {{ stompClient && '✅' || '❌' }}
-          <br>
-          Selected: {{ selected }}
-          <p v-if="!currentPlayer">No active game</p>
-          <p v-else>{{ situation }}
-            <v-btn v-if="situation.indexOf('(or pass)') > -1" @click="pass">Pass</v-btn>
-          </p>
-
-          <p>{{ message }}</p>
-        </v-col>
-        <v-col md="6">
-          Black on top &ensp;
-          <v-switch v-model="whiteOnTop" style="display: inline-block; transform: translateY(5px)"/>
-          &ensp;White on top
-        </v-col>
-      </v-row>
-
-
-      <div style="overflow-x: auto; text-align: center;">
-
-        <metaBoard v-if="!!board"
-                   v-for="index in higherIndices"
-                   :metaWidth="metaWidth"
-                   :metaHeight="metaHeight"
-                   :boardDepth="boardDepth"
-                   :boardWidth="boardWidth"
-                   :boardHeight="boardHeight"
-                   :data="board[index]"
-                   :parity="parityAt(index)"
-                   :selected="selectedAt(index)"
-                   :highlighted="highlighted[index] || {}"
-                   :whiteOnTop="whiteOnTop"
-                   @select="onSelect(index, ...arguments)" />
+    <v-row>
+      <v-col md="6">
+        Connection: {{ stompClient && '✅' || '❌' }}
         <br>
-      </div>
+        Selected: {{ selected }}
+        <p v-if="!currentPlayer">No active game</p>
+        <p v-else>{{ situation }}
+          <v-btn v-if="situation.indexOf('(or pass)') > -1" @click="pass">Pass</v-btn>
+        </p>
 
-      <div style="font-style: oblique; opacity: 0.8; text-align: center">
-        Found an issue? Curious about the code? <a href="https://github.com/teonistor/draughts/tree/gui/src">Find the repo on Github</a>.
-      </div>
-    </v-container>
-  </v-app>
+        <p>{{ message }}</p>
+      </v-col>
+      <v-col md="6">
+        Black on top &ensp;
+        <v-switch v-model="whiteOnTop" style="display: inline-block; transform: translateY(5px)"/>
+        &ensp;White on top
+      </v-col>
+    </v-row>
+
+
+    <div style="overflow-x: auto; text-align: center;">
+
+      <metaBoard v-if="!!board"
+                 v-for="index in higherIndices"
+                 :metaWidth="metaWidth"
+                 :metaHeight="metaHeight"
+                 :boardDepth="boardDepth"
+                 :boardWidth="boardWidth"
+                 :boardHeight="boardHeight"
+                 :data="board[index]"
+                 :parity="parityAt(index)"
+                 :selected="selectedAt(index)"
+                 :highlighted="highlighted[index] || {}"
+                 :whiteOnTop="whiteOnTop"
+                 @select="onSelect(index, ...arguments)" />
+      <br>
+    </div>
+
+    <div style="font-style: oblique; opacity: 0.8; text-align: center">
+      Found an issue? Curious about the code? <a href="https://github.com/teonistor/draughts/tree/gui/src">Find the repo on Github</a>.
+    </div>
+  </span>
 </template>
 <script>
   import SockJS from 'sockjs-client';
   import Stomp from 'stompjs';
 
-  import metaBoard from './components/metaBoard.vue';
-  import newGameControls from './components/newGameControls.vue';
+  import metaBoard from '../components/metaBoard.vue';
+  import newGameControls from '../components/newGameControls.vue';
 
   export default {
     name: 'game',
