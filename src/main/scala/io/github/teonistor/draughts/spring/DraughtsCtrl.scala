@@ -2,15 +2,12 @@ package io.github.teonistor.draughts.spring
 
 import io.github.teonistor.draughts.data.Settings
 import io.github.teonistor.draughts.{Game, HDUtils, Juncture, Piece, Player, View}
-import org.springframework.context.annotation.Lazy
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
-import org.springframework.web.bind.annotation.{RequestMapping, RestController}
+import org.springframework.stereotype.Controller
 
-@Lazy
-@RestController
-@RequestMapping(Array("draughts-api"))
+@Controller
 class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) extends View {
 
   private lazy val juncture = junctureFactory(this)
