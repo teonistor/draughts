@@ -3,7 +3,7 @@ package io.github.teonistor.commongaming
 import io.vavr.control.Validation
 import io.vavr.control.Validation.invalid
 
-class InsecureLobby[SETTINGS, GAME](gameFactory: SETTINGS => GAME, hyperView: HyperView[GAME]) {
+class GamesHolder[SETTINGS, GAME](gameFactory: SETTINGS => GAME, hyperView: HyperView[GAME]) {
 
   private[this] var _games: Map[String, GAME] = Map.empty
 
