@@ -1,25 +1,10 @@
 package io.github.teonistor.commongaming
 
+import org.mockito.Mockito.verify
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.test.util.ReflectionTestUtils.{getField, setField}
-
-//@AutoConfigureMockMvc
-//@SpringBootTest(classes=Array(classOf[InsecureLobby]))
-//class InsecureLobbyTest {
-//
-//  @Autowired private val mockMvc: MockMvc = null
-//
-//  @MockBean private val ws: SimpMessagingTemplate = null
-//
-//  @Test
-//  def playerId(): Unit = {
-//    val string = mockMvc.perform(post("/api/lobby"))
-//      .andReturn().getResponse.getContentAsString
-//
-//    assert(string == "abc")
-//  }
-//}
 
 class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
@@ -32,11 +17,12 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("allocate to not unallocated player does nothing") {
     val lobby = new InsecureLobby(null)
-    setField(lobby, "allocations", Map(7 -> UserGameAllocation(7, null, Map("a" -> "y"), Set("b"))))
+    val allocations = Map(7 -> UserGameAllocation(7, null, Map("a" -> "y"), Set("b")))
+    setField(lobby, "allocations", allocations)
 
     lobby.allocate((7, "a", "x"))
 
-    assert(getField(lobby, "allocations") == Map(7 -> UserGameAllocation(7, null, Map("a" -> "y"), Set("b"))))
+    assert(getField(lobby, "allocations") == allocations)
   }
 
   test("allocate user already allocated to other game to unallocated player does nothing") {
@@ -52,12 +38,15 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("allocate user to unallocated player") {
-    val lobby = new InsecureLobby(null)
+    val ws = mock[SimpMessagingTemplate]
+    val lobby = new InsecureLobby(ws)
     setField(lobby, "allocations", Map(7 -> UserGameAllocation(7, null, Map("a" -> "x", "b" -> "y"), Set("c", "d"))))
 
     lobby.allocate((7, "c", "x"))
 
-    assert(getField(lobby, "allocations") == Map(7 -> UserGameAllocation(7, null, Map("a" -> "x", "b" -> "y", "c" -> "x"), Set("d"))))
+    val expected = Map(7 -> UserGameAllocation(7, null, Map("a" -> "x", "b" -> "y", "c" -> "x"), Set("d")))
+    assert(getField(lobby, "allocations") == expected)
+    verify(ws).convertAndSend("/lobby/lobby-state", expected)
   }
 
 
@@ -92,11 +81,14 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("deallocate") {
-    val lobby = new InsecureLobby(null)
+    val ws = mock[SimpMessagingTemplate]
+    val lobby = new InsecureLobby(ws)
     setField(lobby, "allocations", Map(7 -> UserGameAllocation(7, null, Map("a" -> "x", "b" -> "x"), Set("c"))))
 
     lobby.deallocate((7, "a", "x"))
 
-    assert(getField(lobby, "allocations") == Map(7 -> UserGameAllocation(7, null, Map("b" -> "x"), Set("a", "c"))))
+    val expected = Map(7 -> UserGameAllocation(7, null, Map("b" -> "x"), Set("a", "c")))
+    assert(getField(lobby, "allocations") == expected)
+    verify(ws).convertAndSend("/lobby/lobby-state", expected)
   }
 }
