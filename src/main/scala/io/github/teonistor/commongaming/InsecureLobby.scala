@@ -1,25 +1,39 @@
 package io.github.teonistor.commongaming
 
-import io.vavr.control.Validation
-import io.vavr.control.Validation.invalid
+import org.springframework.messaging.handler.annotation.MessageMapping
+import org.springframework.messaging.simp.SimpMessagingTemplate
+import org.springframework.web.bind.annotation.RestController
 
-class InsecureLobby[SETTINGS, GAME](gameFactory: SETTINGS => GAME, hyperView: HyperView[GAME]) {
+@RestController
+class InsecureLobby(ws: SimpMessagingTemplate) {
 
-  private[this] var _games: Map[String, GAME] = Map.empty
+  private var allocations: Map[Long, UserGameAllocation[_]] = Map.empty
 
-  def games = _games
-
-  def newGame(settings: SETTINGS): Unit = {
-    _games = _games + (System.currentTimeMillis().toString -> gameFactory(settings))
+  @MessageMapping(Array("/lobby/allocate"))
+  def allocate(message: (Long, String, String)): Unit = message match {
+    case (game, player, user) => allocations
+      .get(game).foreach(allocation => Option(player)
+        .filter(allocation.unallocated)
+        .map(player => Option(user)
+          .filter(userIsAllowed(game))
+          .map(user => allocations.updated(allocation.key, allocation.copy(
+            allocated = allocation.allocated.updated(player, user),
+            unallocated = allocation.unallocated.excl(player))))
+          .foreach(allocations = _)))
   }
 
-  def progress(key: String, function: GAME => Validation[String, GAME]): Unit =
-    _games.get(key)
-      .fold[Validation[String, GAME]](invalid("Nonexistent game " + key))(function)
-      .fold(hyperView.announce(key, _), displayAndAssign(key, _))
-
-  private def displayAndAssign(key: String, game: GAME): Unit = {
-    hyperView.display(key, game)
-    _games = _games.updated(key, game)
+  @MessageMapping(Array("/lobby/deallocate"))
+  def deallocate(message: (Long, String, String)): Unit = message match {
+    case (game, player, user) => allocations
+      .get(game).foreach(allocation => Option(player)
+        .filter(allocation.allocated.get(_).contains(user))
+        .map(player => allocations.updated(allocation.key, allocation.copy(
+          allocated = allocation.allocated.removed(player),
+          unallocated = allocation.unallocated.incl(player))))
+        .foreach(allocations = _))
   }
+
+  private def userIsAllowed(game: Long): String => Boolean =
+    user => allocations.valuesIterator.forall(alc => alc.key == game || !alc.allocated.valuesIterator.contains(user))
+
 }
