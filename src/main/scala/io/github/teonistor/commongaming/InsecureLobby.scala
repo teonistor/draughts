@@ -2,6 +2,7 @@ package io.github.teonistor.commongaming
 
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
+import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -10,7 +11,7 @@ class InsecureLobby(ws: SimpMessagingTemplate) {
   private var allocations: Map[Long, UserGameAllocation[_]] = Map.empty
 
   @MessageMapping(Array("/lobby/create"))
-  def create(message: Any): Unit = {
+  def create(message: String): Unit = {
     val now = System.currentTimeMillis()
     assignAndSend(allocations.updated(now, UserGameAllocation(now, null, Map.empty, Set("m", "n"))))
   }
@@ -38,6 +39,9 @@ class InsecureLobby(ws: SimpMessagingTemplate) {
           unallocated = allocation.unallocated.incl(player))))
         .foreach(assignAndSend))
   }
+
+  @SubscribeMapping(Array("/lobby-state"))
+  def onSubscribeState = allocations
 
   private def isUserAllowed(game: Long): String => Boolean =
     user => allocations.valuesIterator.forall(alc => alc.key == game || !alc.allocated.valuesIterator.contains(user))
