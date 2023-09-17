@@ -5,15 +5,19 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.web.bind.annotation.RestController
 
-@RestController
-class InsecureLobby(ws: SimpMessagingTemplate) {
+import java.util.{List => JuList}
+import scala.jdk.CollectionConverters.IterableHasAsScala
 
-  private var allocations: Map[Long, UserGameAllocation[_]] = Map.empty
+@RestController
+class InsecureLobby(ws: SimpMessagingTemplate, gameConfigurations: JuList[GameConfiguration]) {
+
+  private val configs = gameConfigurations.asScala.groupMapReduce(_.name)(identity)((_,_) => throw new IllegalArgumentException)
+  private var allocations: Map[Long, UserGameAllocation] = Map.empty
 
   @MessageMapping(Array("/lobby/create"))
   def create(message: String): Unit = {
     val now = System.currentTimeMillis()
-    assignAndSend(allocations.updated(now, UserGameAllocation(now, null, Map.empty, Set("m", "n"))))
+    assignAndSend(allocations.updated(now, UserGameAllocation(now, Map("m" -> "37", "o" -> "99"), Set("n"))))
   }
 
   @MessageMapping(Array("/lobby/allocate"))
@@ -46,8 +50,9 @@ class InsecureLobby(ws: SimpMessagingTemplate) {
   private def isUserAllowed(game: Long): String => Boolean =
     user => allocations.valuesIterator.forall(alc => alc.key == game || !alc.allocated.valuesIterator.contains(user))
 
-  private def assignAndSend(allocations: Map[Long, UserGameAllocation[_]]): Unit = {
+  private def assignAndSend(allocations: Map[Long, UserGameAllocation]): Unit = {
     this.allocations = allocations
+    println(allocations)
     ws.convertAndSend("/lobby/lobby-state", allocations)
   }
 }
