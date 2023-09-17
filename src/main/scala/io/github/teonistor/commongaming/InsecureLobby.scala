@@ -1,5 +1,6 @@
 package io.github.teonistor.commongaming
 
+import com.fasterxml.jackson.databind.JsonNode
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
@@ -15,9 +16,12 @@ class InsecureLobby(ws: SimpMessagingTemplate, gameConfigurations: JuList[GameCo
   private var allocations: Map[Long, UserGameAllocation] = Map.empty
 
   @MessageMapping(Array("/lobby/create"))
-  def create(message: String): Unit = {
-    val now = System.currentTimeMillis()
-    assignAndSend(allocations.updated(now, UserGameAllocation(now, Map("m" -> "37", "o" -> "99"), Set("n"))))
+  def create(message: (String, JsonNode)): Unit = {
+    configs.get(message._1).fold(())(config => {
+      val now = System.currentTimeMillis()
+      config.create(now, message._2)
+      assignAndSend(allocations.updated(now, UserGameAllocation(now, Map.empty, config.requiredPlayers)))
+    })
   }
 
   @MessageMapping(Array("/lobby/allocate"))

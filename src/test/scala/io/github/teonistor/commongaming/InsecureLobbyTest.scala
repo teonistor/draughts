@@ -1,6 +1,9 @@
 package io.github.teonistor.commongaming
 
+import com.fasterxml.jackson.databind.JsonNode
+import org.mockito.BDDMockito.`given`
 import org.mockito.Mockito.verify
+import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.springframework.messaging.simp.SimpMessagingTemplate
@@ -15,17 +18,46 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
       new SimpleGameConfiguration("banana", Set.empty, null, null),
       new SimpleGameConfiguration("banana", Set.empty, null, null))))
   }
-  
-  
+
+
+  test("create game of unknown name does nothing") {
+    val config1 = mock[GameConfiguration]
+    val config2 = mock[GameConfiguration]
+    given(config1.name) willReturn "apple"
+    given(config2.name) willReturn "banana"
+
+    new InsecureLobby(null, juList(config1, config2)).create(("cherry", null))
+  }
+
+  test("create game of known name") {
+    val ws = mock[SimpMessagingTemplate]
+    val config1 = mock[GameConfiguration]
+    val config2 = mock[GameConfiguration]
+    val settings = mock[JsonNode]
+    val now = ArgCaptor[Long]
+    given(config1.name) willReturn "apple"
+    given(config2.name) willReturn "banana"
+    given(config2.requiredPlayers) willReturn Set("x", "y")
+
+    val lobby = new InsecureLobby(ws, juList(config1, config2))
+    lobby.create(("banana", settings))
+
+    verify(config2).create(now.capture, same(settings))
+    val expected = Map(now.value -> UserGameAllocation(now.value, Map.empty, Set("x", "y")))
+    assert(getField(lobby, "allocations").asInstanceOf[Map[Long, UserGameAllocation]] == expected)
+    verify(ws).convertAndSend("/lobby/lobby-state", expected)
+  }
+
+
   test("allocate to nonexistent game does nothing") {
-    val lobby = new InsecureLobby(null,null)
+    val lobby = new InsecureLobby(null, juList())
     lobby.allocate((7, "a", "b"))
 
-    assert(getField(lobby, "allocations").asInstanceOf[Map[_,_]].isEmpty)
+    assert(getField(lobby, "allocations").asInstanceOf[Map[_, _]].isEmpty)
   }
 
   test("allocate to not unallocated player does nothing") {
-    val lobby = new InsecureLobby(null,null)
+    val lobby = new InsecureLobby(null, juList())
     val allocations = Map(7 -> UserGameAllocation(7, Map("a" -> "y"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -35,7 +67,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("allocate user already allocated to other game to unallocated player does nothing") {
-    val lobby = new InsecureLobby(null,null)
+    val lobby = new InsecureLobby(null, juList())
     val allocations = Map(
       7 -> UserGameAllocation(7, Map("a" -> "x", "b" -> "y"), Set("c", "d")),
       9 -> UserGameAllocation(9, Map("a" -> "z"), Set("b", "c")))
@@ -60,7 +92,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
 
   test("deallocate from nonexistent game does nothing") {
-    val lobby = new InsecureLobby(null,null)
+    val lobby = new InsecureLobby(null, juList())
     val allocations = Map(7 -> UserGameAllocation(7, Map("a" -> "x"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -70,7 +102,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("deallocate from not allocated player does nothing") {
-    val lobby = new InsecureLobby(null,null)
+    val lobby = new InsecureLobby(null, juList())
     val allocations = Map(7 -> UserGameAllocation(7, Map("a" -> "x"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -80,7 +112,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("deallocate not allocated user does nothing") {
-    val lobby = new InsecureLobby(null,null)
+    val lobby = new InsecureLobby(null, juList())
     val allocations = Map(7 -> UserGameAllocation(7, Map("a" -> "x"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -102,5 +134,4 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
 
-//  test()
 }
