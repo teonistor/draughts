@@ -9,7 +9,7 @@
 
     <v-row>
       <v-col cols md="6" v-for="game in games">
-        <v-card>
+        <v-card :style="{background: game.key === gameAboutToBegin && mineColor || undefined}" >
           <v-card-title>
             Game created at {{ game.key }}
 <!--            {{ new Date(game.key) }}-->
@@ -17,6 +17,7 @@
           <v-card-text>
             <span v-for="player in game.players">
               <v-btn v-if="player.state === 'mine'" outlined
+                     :style="{background: mineColor}"
                      @click="deallocate(game.key, player.key, user)" >
                 {{ player.key }}
               </v-btn>
@@ -59,6 +60,8 @@ export default {
   name: 'lobby',
 
   data: () => ({
+    mineColor: '#117744',
+
     games: []
   }),
 
@@ -104,13 +107,49 @@ export default {
 
     deallocate (game, player, user) {
       this.stompClient.send("/lobby/lobby/deallocate", {}, JSON.stringify([game, player, user]));
+    },
+
+    proceedToGame () {
+      if (this.gameAboutToBegin) {
+        alert('Would now go to game ' + this.gameAboutToBegin)
+      }
     }
   },
 
   computed: {
     user () {
       return uid;
+    },
+
+    gameAboutToBegin () {
+      function countPlayersWithState(game, state) {
+        return game.players.filter(player => player.state === state).length;
+      }
+
+      return this.games
+        .filter(game => countPlayersWithState(game, 'mine') > 0 && countPlayersWithState(game, 'available') === 0)
+        .map(game => game.key)[0];
     }
+  },
+
+  watch: {
+    gameAboutToBegin (value) {
+      if (this.gameAboutToBegin) {
+        setTimeout(this.proceedToGame, 3000);
+      }
+    }
+
+    //      function countPlayersWithState(game, state) {-->
+    //        const count = game.players.filter(player => player.state === state).length;-->
+    //        console.log(game.key, state, count)-->
+    //        return count;-->
+    //      }-->
+
+    //      value.filter(game => countPlayersWithState(game, 'mine') > 0 && countPlayersWithState(game, 'available') === 0)-->
+    //        .forEach(game => {-->
+    //          alert('Would now go to game ' + game.key);-->
+    //        });-->
+    //    }-->
   },
 
   mounted () {
