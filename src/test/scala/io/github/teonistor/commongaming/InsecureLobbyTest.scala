@@ -15,8 +15,8 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("Cannot construct with name-conflicting configurations") {
     assertThrows[IllegalArgumentException](new InsecureLobby(null, juList(
-      new SimpleGameConfiguration("banana", Set.empty, null, null),
-      new SimpleGameConfiguration("banana", Set.empty, null, null))))
+      new SimpleGameConfiguration("banana", Set.empty, null, null, null),
+      new SimpleGameConfiguration("banana", Set.empty, null, null, null))))
   }
 
 
