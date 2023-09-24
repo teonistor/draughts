@@ -37,13 +37,9 @@
 
     <v-row>
       <v-col cols md="12">
-        <v-btn @click="create">Create another</v-btn>
+        <v-btn @click="whichNewGameControls = 'draughts'">Create another</v-btn>
       </v-col>
     </v-row>
-
-    <p style="{}">
-      Debug: you are {{ user }}
-    </p>
 
     <p id="cookie-notice">
       <svg viewBox="0 0 24 24">
@@ -52,10 +48,20 @@
       Cookie notice: This part of the site will store one single solitary cookie in your browser so that it can actually remember what player you are. If you don't like that, delete it from your browser, close the page, and never come back.
     </p>
 
+    <p style="{font-size: small}">
+      Debug: you are {{ user }}
+    </p>
+
+    <v-overlay opacity="0.975" :value="whichNewGameControls === 'draughts'">
+      <newGameControls :stompClient="stompClient" />
+      <v-btn @click="whichNewGameControls = null">Cancel</v-btn>
+    </v-overlay>
+
   </v-container>
 </template>
 <script>
 import cookies from 'vue-cookies';
+import newGameControls from '../components/newGameControls.vue';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
@@ -71,11 +77,13 @@ const uid = (function () {
 
 export default {
   name: 'lobby',
+  components: {newGameControls},
 
   data: () => ({
+    games: [],
     mineColor: '#117744',
-
-    games: []
+    stompClient: null,
+    whichNewGameControls: null
   }),
 
   methods: {
