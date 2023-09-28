@@ -10,12 +10,12 @@ class DraughtsWsConfig extends WebSocketMessageBrokerConfigurer {
 
   // Below here reconsider universality
   override def configureMessageBroker(registry: MessageBrokerRegistry): Unit = {
-    registry.enableSimpleBroker("/draughts")
-    registry.setApplicationDestinationPrefixes("/draughts")
+    registry.enableSimpleBroker("/draughts", "/lobby")
+    registry.setApplicationDestinationPrefixes("/draughts", "/lobby")
   }
 
   override def registerStompEndpoints(registry: StompEndpointRegistry): Unit =
-    registry.addEndpoint("/draughts-subscribe")
+    registry.addEndpoint("/draughts-subscribe","/lobby-subscribe")
       .setAllowedOrigins("http://localhost:8080", "http://192.168.1.217:8080", "http://192.168.1.88:8080", "https://teodor.nistor.uk", "https://teonistor.github.io")
       .withSockJS
 }

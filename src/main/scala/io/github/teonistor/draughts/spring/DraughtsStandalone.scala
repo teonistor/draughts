@@ -1,9 +1,12 @@
 package io.github.teonistor.draughts.spring
 
+import io.github.teonistor.commongaming.InsecureLobby
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.context.annotation.Import
 
 @SpringBootApplication
+@Import(Array(classOf[InsecureLobby]))
 class DraughtsStandalone {}
 
 object DraughtsStandalone {
