@@ -20,6 +20,8 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) e
   override def announce(message: String): Unit =
     ws.convertAndSend("/draughts/draughts-message", message)
 
+  override def announce(player: String, message: String): Unit = ???
+
   override def display(game: Game): Unit = {
     val thing = game.availableMoves
       .flatMap(kv => {

@@ -18,6 +18,14 @@ class TerminalViewTest extends AnyFunSuite with IdiomaticMockito {
     verify(printStream).println("Banana")
   }
 
+  test("Announce message to specific player") {
+    val printStream = mock[PrintStream]
+
+    new TerminalView(printStream).announce("Bob", "Banana!")
+
+    verify(printStream).println("Bob, Banana!")
+  }
+
   test("Display 3x3 game") {
     val game = new Game(null, null, null,
       Settings(1, 3, 3),

@@ -6,6 +6,7 @@ import java.lang.Math.max
 class TerminalView(printStream: PrintStream) extends View {
 
   override def announce(message: String): Unit = printStream.println(message)
+  override def announce(player: String, message: String): Unit = printStream.println(player + ", " + message)
   override def display(game: Game): Unit = printStream.println(display0(game))
 
   private def display0(game: Game): String = {
