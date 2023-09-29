@@ -9,7 +9,7 @@ import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Controller
 
 @Controller
-class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View=>Juncture) extends View {
+class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Juncture) extends View[Game] {
 
   private lazy val juncture = junctureFactory(this)
 

@@ -4,7 +4,7 @@ import io.github.teonistor.commongaming.View
 import io.github.teonistor.draughts.data.Settings
 import io.vavr.control.Validation
 
-class Juncture(gameMaker: Settings=>Game, view: View) {
+class Juncture(gameMaker: Settings=>Game, view: View[Game]) {
 
   private var game: Game =_
 

@@ -91,7 +91,7 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
 
   test("Send settings with 4 dimensions") {
     val ws = mock[SimpMessagingTemplate]
-    val jf = mock[View => Juncture]
+    val jf = mock[View[Game] => Juncture]
     val juncture = mock[Juncture]
     val ctrl = new DraughtsCtrl(ws, jf)
 
@@ -107,7 +107,7 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
 
   test("Send settings with 7 dimensions") {
     val ws = mock[SimpMessagingTemplate]
-    val jf = mock[View => Juncture]
+    val jf = mock[View[Game] => Juncture]
     val juncture = mock[Juncture]
     val ctrl = new DraughtsCtrl(ws, jf)
 

@@ -11,7 +11,7 @@ import org.springframework.test.util.ReflectionTestUtils.{getField, setField}
 class JunctureTest extends AnyFunSuiteLike with IdiomaticMockito {
 
   test("start new game") {
-    val view = mock[View]
+    val view = mock[View[Game]]
     val settings = mock[Settings]
     val game = mock[Game]
 
@@ -26,14 +26,14 @@ class JunctureTest extends AnyFunSuiteLike with IdiomaticMockito {
   }
 
   test("progress when null") {
-    val view = mock[View]
+    val view = mock[View[Game]]
     new Juncture(null, view).progress(null)
 
     verify(view).announce("No game in progress")
   }
 
   test("progress when valid") {
-    val view = mock[View]
+    val view = mock[View[Game]]
     val expectedInput = mock[Game]
     val expectedOutput = mock[Game]
 
@@ -50,7 +50,7 @@ class JunctureTest extends AnyFunSuiteLike with IdiomaticMockito {
   }
 
   test("progress when invalid") {
-    val view = mock[View]
+    val view = mock[View[Game]]
     val unchanged = mock[Game]
 
     val juncture = new Juncture(null, view)

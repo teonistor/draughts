@@ -5,7 +5,7 @@ import io.github.teonistor.commongaming.View
 import java.io.PrintStream
 import java.lang.Math.max
 
-class TerminalView(printStream: PrintStream) extends View {
+class TerminalView(printStream: PrintStream) extends View[Game] {
 
   override def announce(message: String): Unit = printStream.println(message)
   override def announce(player: String, message: String): Unit = printStream.println(player + ", " + message)
