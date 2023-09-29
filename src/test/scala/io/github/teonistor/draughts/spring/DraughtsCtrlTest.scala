@@ -1,7 +1,8 @@
 package io.github.teonistor.draughts.spring
 
+import io.github.teonistor.commongaming.View
 import io.github.teonistor.draughts.data.{GameState, Settings}
-import io.github.teonistor.draughts.{Game, Juncture, Piece, Player, View}
+import io.github.teonistor.draughts.{Game, Juncture, Piece, Player}
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.BDDMockito.`given`
 import org.mockito.MockitoSugar

@@ -1,5 +1,6 @@
 package io.github.teonistor.draughts
 
+import io.github.teonistor.commongaming.View
 import io.github.teonistor.draughts.data.Settings
 import io.vavr.control.Validation
 

@@ -1,4 +1,6 @@
-package io.github.teonistor.draughts
+package io.github.teonistor.commongaming
+
+import io.github.teonistor.draughts.Game
 
 trait View {
   def announce(message: String): Unit

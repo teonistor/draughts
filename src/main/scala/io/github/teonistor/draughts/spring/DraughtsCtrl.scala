@@ -1,7 +1,8 @@
 package io.github.teonistor.draughts.spring
 
+import io.github.teonistor.commongaming.View
 import io.github.teonistor.draughts.data.Settings
-import io.github.teonistor.draughts.{Game, HDUtils, Juncture, Piece, Player, View}
+import io.github.teonistor.draughts.{Game, HDUtils, Juncture, Piece, Player}
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping

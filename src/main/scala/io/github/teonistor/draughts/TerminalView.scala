@@ -1,5 +1,7 @@
 package io.github.teonistor.draughts
 
+import io.github.teonistor.commongaming.View
+
 import java.io.PrintStream
 import java.lang.Math.max
 
