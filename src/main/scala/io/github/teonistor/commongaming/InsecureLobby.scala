@@ -48,7 +48,7 @@ class InsecureLobby(ws: SimpMessagingTemplate, gameConfigurations: JuList[GameCo
         .foreach(assignAndSend))
   }
 
-  @SubscribeMapping(Array("/lobby-state"))
+  @SubscribeMapping(Array("/lobby/state"))
   def onSubscribeState = allocations
 
   private def isUserAllowed(game: Long): String => Boolean =
@@ -57,6 +57,6 @@ class InsecureLobby(ws: SimpMessagingTemplate, gameConfigurations: JuList[GameCo
   private def assignAndSend(allocations: Map[Long, UserGameAllocation]): Unit = {
     this.allocations = allocations
     println(allocations)
-    ws.convertAndSend("/lobby/lobby-state", allocations)
+    ws.convertAndSend("/lobby/state", allocations)
   }
 }

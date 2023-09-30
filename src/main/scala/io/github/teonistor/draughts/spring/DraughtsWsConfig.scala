@@ -8,7 +8,7 @@ import org.springframework.web.socket.config.annotation.{EnableWebSocketMessageB
 class DraughtsWsConfig extends WebSocketMessageBrokerConfigurer {
 
   override def registerStompEndpoints(registry: StompEndpointRegistry): Unit =
-    registry.addEndpoint("/draughts-subscribe","/lobby-subscribe")
+    registry.addEndpoint("/stomp")
       .setAllowedOrigins("http://localhost:8080", "http://192.168.1.217:8080", "http://192.168.1.88:8080", "https://teodor.nistor.uk", "https://teonistor.github.io")
       .withSockJS
 }

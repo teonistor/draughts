@@ -89,10 +89,10 @@ export default {
   methods: {
 
     connect () {
-      let socket = new SockJS(this.$backendRoot + '/lobby-subscribe');
+      let socket = new SockJS(this.$backendRoot + '/stomp');
       this.stompClient = Stomp.over(socket);
       this.stompClient.connect({}, frame => {
-        this.stompClient.subscribe('/lobby/lobby-state', this.receiveState);
+        this.stompClient.subscribe('/lobby/state', this.receiveState);
       });
 
       // Poor man's callback chain
@@ -123,11 +123,11 @@ export default {
     },
 
     allocate (game, player, user) {
-      this.stompClient.send("/lobby/lobby/allocate", {}, JSON.stringify([game, player, user]));
+      this.stompClient.send("/lobby/allocate", {}, JSON.stringify([game, player, user]));
     },
 
     deallocate (game, player, user) {
-      this.stompClient.send("/lobby/lobby/deallocate", {}, JSON.stringify([game, player, user]));
+      this.stompClient.send("/lobby/deallocate", {}, JSON.stringify([game, player, user]));
     },
 
     proceedToGame () {

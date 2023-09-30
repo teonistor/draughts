@@ -97,7 +97,7 @@
     methods: {
 
       connect () {
-        let socket = new SockJS(this.$backendRoot + '/draughts-subscribe');
+        let socket = new SockJS(this.$backendRoot + '/stomp');
         this.stompClient = Stomp.over(socket);
         this.stompClient.connect({}, frame => {
           this.stompClient.subscribe('/draughts/state', this.receiveState);

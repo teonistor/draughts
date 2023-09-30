@@ -81,10 +81,10 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Junct
     ws.convertAndSend("/draughts/settings", lastSettings)
   }
 
-  @SubscribeMapping(Array("/draughts-state"))
+  @SubscribeMapping(Array("/draughts/state"))
   def onSubscribeState = lastState
 
-  @SubscribeMapping(Array("/draughts-settings"))
+  @SubscribeMapping(Array("/draughts/settings"))
   def onSubscribeSettings = lastSettings
 
 
