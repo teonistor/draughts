@@ -100,9 +100,9 @@
         let socket = new SockJS(this.$backendRoot + '/draughts-subscribe');
         this.stompClient = Stomp.over(socket);
         this.stompClient.connect({}, frame => {
-          this.stompClient.subscribe('/draughts/draughts-state', this.receiveState);
-          this.stompClient.subscribe('/draughts/draughts-settings', this.receiveSettings);
-          this.stompClient.subscribe('/draughts/draughts-message', this.receiveMessage);
+          this.stompClient.subscribe('/draughts/state', this.receiveState);
+          this.stompClient.subscribe('/draughts/settings', this.receiveSettings);
+          this.stompClient.subscribe('/draughts/message', this.receiveMessage);
         });
 
         // Poor man's callback chain

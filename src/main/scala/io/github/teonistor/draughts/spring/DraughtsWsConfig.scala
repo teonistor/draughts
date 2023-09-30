@@ -1,18 +1,11 @@
 package io.github.teonistor.draughts.spring
 
 import org.springframework.context.annotation.Configuration
-import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.web.socket.config.annotation.{EnableWebSocketMessageBroker, StompEndpointRegistry, WebSocketMessageBrokerConfigurer}
 
 @Configuration
 @EnableWebSocketMessageBroker
 class DraughtsWsConfig extends WebSocketMessageBrokerConfigurer {
-
-  // Below here reconsider universality
-  override def configureMessageBroker(registry: MessageBrokerRegistry): Unit = {
-    registry.enableSimpleBroker("/draughts", "/lobby")
-    registry.setApplicationDestinationPrefixes("/draughts", "/lobby")
-  }
 
   override def registerStompEndpoints(registry: StompEndpointRegistry): Unit =
     registry.addEndpoint("/draughts-subscribe","/lobby-subscribe")

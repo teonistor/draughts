@@ -7,6 +7,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.PathVariable
 
 @Controller
 class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Juncture) extends View[Game] {
@@ -19,7 +20,7 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Junct
   private var lastSettings: SendableSettings =_
 
   override def announce(message: String): Unit =
-    ws.convertAndSend("/draughts/draughts-message", message)
+    ws.convertAndSend("/draughts/message", message)
 
   override def announce(player: String, message: String): Unit = ???
 
@@ -54,7 +55,7 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Junct
         .orElse(Some("move"))
         .map(game.gameState.currentPlayer + " to " +_+ ".")
         .get)
-    ws.convertAndSend("/draughts/draughts-state", lastState)
+    ws.convertAndSend("/draughts/state", lastState)
   }
 
   @MessageMapping(Array("/click"))
@@ -65,7 +66,7 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Junct
   def receive(): Unit =
     juncture.progress(_.pass())
 
-  @MessageMapping(Array("/new-game"))
+  @MessageMapping(Array("/draughts/new-game"))
   def receive(settings: Settings): Unit = {
     juncture.start(settings)
     lastDimensionCount = settings.boardSizes.size
@@ -77,7 +78,7 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Junct
       settings.boardSizes.lift(settings.boardSizes.size - 3).getOrElse(1),
       settings.boardSizes(settings.boardSizes.size - 2),  // Last 2 are guaranteed to exist thanks to Settings preconditions
       settings.boardSizes.last)
-    ws.convertAndSend("/draughts/draughts-settings", lastSettings)
+    ws.convertAndSend("/draughts/settings", lastSettings)
   }
 
   @SubscribeMapping(Array("/draughts-state"))
