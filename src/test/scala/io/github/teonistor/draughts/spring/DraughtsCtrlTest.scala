@@ -1,8 +1,7 @@
 package io.github.teonistor.draughts.spring
 
-import io.github.teonistor.commongaming.View
 import io.github.teonistor.draughts.data.{GameState, Settings}
-import io.github.teonistor.draughts.{Game, Juncture, Piece, Player}
+import io.github.teonistor.draughts.{Game, Juncture, JunctureFactory, Piece, Player}
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.BDDMockito.`given`
 import org.mockito.MockitoSugar
@@ -10,6 +9,25 @@ import org.scalatest.funsuite.AnyFunSuiteLike
 import org.springframework.messaging.simp.SimpMessagingTemplate
 
 class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
+
+  test("Announce message") {
+    val ws = mock[SimpMessagingTemplate]
+    val ctrl = new DraughtsCtrl(ws, null)
+
+    ctrl.announce("id12", "Something happened")
+
+    verify(ws).convertAndSend("/draughts/id12/message", "Something happened")
+  }
+
+  test("Announce message to specific player") {
+    val ws = mock[SimpMessagingTemplate]
+    val ctrl = new DraughtsCtrl(ws, null)
+
+    ctrl.announce("id13", "bob", "Something specific happened")
+
+    verify(ws).convertAndSend("/draughts/id13/bob/message", "Something specific happened")
+  }
+
 
   test("Send game when no ongoing jump, not over, 4D-ish") {
     val ws = mock[SimpMessagingTemplate]
@@ -25,7 +43,7 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
       Vector(2,3,4,5) -> Map(Vector(6,7,8,9) -> valid(null), Vector(7,8,9,0) -> invalid("Busted"))))
     given(game.isGameOver) willReturn false
 
-    ctrl.display(game)
+    ctrl.display("id14", game)
 
     val expected = ctrl.SendableState(
       Map("" -> Map(
@@ -36,7 +54,7 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
         "0,1" -> Map("2,3,4" -> Map("" -> Map("0,5" -> Map("6,7,8" -> true), "0,6" -> Map("7,8,9" -> true)))),
         "0,2" -> Map("3,4,5" -> Map("" -> Map("0,6" -> Map("7,8,9" -> true)))))),
       "White to move.")
-    verify(ws).convertAndSend("/draughts/draughts-state", expected)
+    verify(ws).convertAndSend("/draughts/id14/state", expected)
   }
 
   test("Send game when ongoing jump exists, not over, 6D-ish") {
@@ -53,7 +71,7 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
       Vector(1, 2, 3, 5, 6, 7) -> Map(Vector(2, 3, 5, 6, 8, 9) -> valid(null))))
     given(game.isGameOver) willReturn false
 
-    ctrl.display(game)
+    ctrl.display("id15",game)
 
     val expected = ctrl.SendableState(
       Map("6" -> Map(
@@ -64,7 +82,7 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
         "4,5,6" -> Map("2" -> Map("3,5" -> Map("6,7,8" -> true, "6,7,9" -> true))),
         "5,6,7" -> Map("2" -> Map("3,5" -> Map("6,8,9" -> true)))))),
       "Black to continue jumping from (2, 7, 6, 4, 9) (or pass).")
-    verify(ws).convertAndSend("/draughts/draughts-state", expected)
+    verify(ws).convertAndSend("/draughts/id15/state", expected)
   }
 
   test("Send game when over") {
@@ -79,45 +97,45 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
     given(game.availableMoves) willReturn Map.empty
     given(game.isGameOver) willReturn true
 
-    ctrl.display(game)
+    ctrl.display("id16", game)
 
     val expected = ctrl.SendableState(
       Map.empty,
       Player.white,
       Map.empty,
       "Game over!")
-    verify(ws).convertAndSend("/draughts/draughts-state", expected)
+    verify(ws).convertAndSend("/draughts/id16/state", expected)
   }
 
   test("Send settings with 4 dimensions") {
     val ws = mock[SimpMessagingTemplate]
-    val jf = mock[View[Game] => Juncture]
+    val jf = mock[JunctureFactory]
     val juncture = mock[Juncture]
     val ctrl = new DraughtsCtrl(ws, jf)
 
     val input = Settings(2, 4, 5, 6, 7)
 
-    given(jf(ctrl)) willReturn juncture
+    given(jf("id17", ctrl)) willReturn juncture
     ctrl.receive(input)
 
     verify(juncture) start input
-    verify(ws).convertAndSend("/draughts/draughts-settings", ctrl.SendableSettings(
+    verify(ws).convertAndSend("/draughts/id17/settings", ctrl.SendableSettings(
       2, Vector(""), 1, 4, 5, 6, 7))
   }
 
   test("Send settings with 7 dimensions") {
     val ws = mock[SimpMessagingTemplate]
-    val jf = mock[View[Game] => Juncture]
+    val jf = mock[JunctureFactory]
     val juncture = mock[Juncture]
     val ctrl = new DraughtsCtrl(ws, jf)
 
     val input = Settings(3, 2, 3, 4, 5, 6, 7, 8)
 
-    given(jf(ctrl)) willReturn juncture
+    given(jf("id18", ctrl)) willReturn juncture
     ctrl.receive(input)
 
     verify(juncture) start input
-    verify(ws).convertAndSend("/draughts/draughts-settings", ctrl.SendableSettings(
+    verify(ws).convertAndSend("/draughts/id18/settings", ctrl.SendableSettings(
       3,
       Vector("0,0", "0,1", "0,2", "1,0", "1,1", "1,2"),
       4, 5, 6, 7, 8))

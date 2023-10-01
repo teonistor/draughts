@@ -1,9 +1,10 @@
 package io.github.teonistor.draughts.spring
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import io.github.teonistor.commongaming.HyperViewConnector
 import io.github.teonistor.draughts.rule.{AvailableMovesRule, GameOverChecker}
 import io.github.teonistor.draughts.srlz.{PieceModule, PlayerModule}
-import io.github.teonistor.draughts.{InitialBoardProvider, InitialGameProvider, Juncture}
+import io.github.teonistor.draughts.{InitialBoardProvider, InitialGameProvider, Juncture, JunctureFactory}
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 
@@ -39,6 +40,6 @@ class DraughtsConfig {
 
 
   @Bean
-  def junctureFactory() = new Juncture(
-    new InitialGameProvider(new AvailableMovesRule(), new GameOverChecker(), new InitialBoardProvider()).createGame, _)
+  def junctureFactory(): JunctureFactory = (key, hv) => new Juncture(
+    new InitialGameProvider(new AvailableMovesRule(), new GameOverChecker(), new InitialBoardProvider()).createGame, HyperViewConnector.connect(key, hv))
 }

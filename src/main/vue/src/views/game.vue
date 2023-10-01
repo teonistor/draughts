@@ -58,6 +58,8 @@
     components: {metaBoard, newGameControls},
 
     data: () => ({
+      gid: null,
+
       // From state
       board: null,
       currentPlayer: null,
@@ -100,9 +102,9 @@
         let socket = new SockJS(this.$backendRoot + '/stomp');
         this.stompClient = Stomp.over(socket);
         this.stompClient.connect({}, frame => {
-          this.stompClient.subscribe('/draughts/state', this.receiveState);
-          this.stompClient.subscribe('/draughts/settings', this.receiveSettings);
-          this.stompClient.subscribe('/draughts/message', this.receiveMessage);
+          this.stompClient.subscribe('/draughts/' + this.gid + '/state',    this.receiveState);
+          this.stompClient.subscribe('/draughts/' + this.gid + '/settings', this.receiveSettings);
+          this.stompClient.subscribe('/draughts/' + this.gid + '/message',  this.receiveMessage);
         });
 
         // Poor man's callback chain
@@ -160,12 +162,12 @@
         }
 
         // Because we're dealing with comma-separated chunks everywhere, which simplifies things everywhere else
-        this.stompClient.send('/draughts/click', {}, '[[' + removeLeadingComma(oldSelectionStr) + '],[' + removeLeadingComma(newSelectionStr) + ']]');
+        this.stompClient.send('/draughts/' + this.gid + '/click', {}, '[[' + removeLeadingComma(oldSelectionStr) + '],[' + removeLeadingComma(newSelectionStr) + ']]');
         this.selected = null;
       },
 
       pass () {
-        this.stompClient.send("/draughts/pass", {}, '');
+        this.stompClient.send("/draughts/' + this.gid + '/pass", {}, '');
       },
 
       /// Subscription callbacks (UI) ///
@@ -195,6 +197,7 @@
     },
 
     mounted () {
+      this.gid = this.$route.query && this.$route.query.gid;
       this.connect();
     }
   }

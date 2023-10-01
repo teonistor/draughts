@@ -1,8 +1,8 @@
 package io.github.teonistor.draughts.spring
 
-import io.github.teonistor.commongaming.View
+import io.github.teonistor.commongaming.HyperView
 import io.github.teonistor.draughts.data.Settings
-import io.github.teonistor.draughts.{Game, HDUtils, Juncture, Piece, Player}
+import io.github.teonistor.draughts.{Game, HDUtils, JunctureFactory, Piece, Player}
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
@@ -10,7 +10,9 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
 
 @Controller
-class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Juncture) extends View[Game] {
+class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: JunctureFactory) extends HyperView[Game] {
+
+  private lazy val juncture = junctureFactory("", this)
 
   private lazy val juncture = junctureFactory(this)
 
@@ -19,12 +21,13 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Junct
   private var lastState: SendableState =_
   private var lastSettings: SendableSettings =_
 
-  override def announce(message: String): Unit =
-    ws.convertAndSend("/draughts/message", message)
+  override def announce(key: String, message: String): Unit =
+    ws.convertAndSend(s"/draughts/$key/message", message)
 
-  override def announce(player: String, message: String): Unit = ???
+  override def announce(key: String, player: String, message: String): Unit =
+    ws.convertAndSend(s"/draughts/$key/$player/message", message)
 
-  override def display(game: Game): Unit = {
+  override def display(key: String, game: Game): Unit = {
     val thing = game.availableMoves
       .flatMap(kv => {
         val (one, two, three) = layStrings1(kv._1)
@@ -55,15 +58,15 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Junct
         .orElse(Some("move"))
         .map(game.gameState.currentPlayer + " to " +_+ ".")
         .get)
-    ws.convertAndSend("/draughts/state", lastState)
+    ws.convertAndSend(s"/draughts/$key/state", lastState)
   }
 
-  @MessageMapping(Array("/click"))
-  def receive(message: (Vector[Int],Vector[Int])): Unit =
+  @MessageMapping(Array("/draughts/{gid}/click"))
+  def receive(@PathVariable gid: String, message: (Vector[Int],Vector[Int])): Unit =
       juncture.progress(game => game.move(truncateExcessDimensions(message._1), truncateExcessDimensions(message._2)))
 
-  @MessageMapping(Array("/pass"))
-  def receive(): Unit =
+  @MessageMapping(Array("/draughts/{gid}/pass"))
+  def receive(@PathVariable gid: String): Unit =
     juncture.progress(_.pass())
 
   @MessageMapping(Array("/draughts/new-game"))
@@ -78,13 +81,15 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: View[Game]=>Junct
       settings.boardSizes.lift(settings.boardSizes.size - 3).getOrElse(1),
       settings.boardSizes(settings.boardSizes.size - 2),  // Last 2 are guaranteed to exist thanks to Settings preconditions
       settings.boardSizes.last)
+
+    // TODO Here
     ws.convertAndSend("/draughts/settings", lastSettings)
   }
 
-  @SubscribeMapping(Array("/draughts/state"))
+  @SubscribeMapping(Array("/draughts/{gid}/state"))
   def onSubscribeState = lastState
 
-  @SubscribeMapping(Array("/draughts/settings"))
+  @SubscribeMapping(Array("/draughts/{gid}/settings"))
   def onSubscribeSettings = lastSettings
 
 
