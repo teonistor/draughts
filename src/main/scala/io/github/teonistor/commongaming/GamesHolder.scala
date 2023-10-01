@@ -3,16 +3,17 @@ package io.github.teonistor.commongaming
 import io.vavr.control.Validation
 import io.vavr.control.Validation.invalid
 
-class GamesHolder[GAME](hyperView: HyperView[GAME]) {
+class GamesHolder[GAME,-SETTINGS](gameMaker: SETTINGS=>GAME, hyperView: HyperView[GAME]) {
 
   private[this] var _games: Map[String, GAME] = Map.empty
 
   def games = _games
 
-//  def newGame(settings: SETTINGS): Unit = {
-//    _games = _games + (System.currentTimeMillis().toString -> gameFactory(settings))
-//  }
-  def add(key: Long, game: GAME) = ???
+  def start(settings: SETTINGS): Unit = {
+    // TODO Also notify Lobby...
+
+    displayAndAssign(System.currentTimeMillis().toString, gameMaker(settings))
+  }
 
   def progress(key: String, function: GAME => Validation[String, GAME]): Unit =
     _games.get(key)
@@ -21,6 +22,8 @@ class GamesHolder[GAME](hyperView: HyperView[GAME]) {
 
   private def displayAndAssign(key: String, game: GAME): Unit = {
     hyperView.display(key, game)
+
+    // TODO Here - record when an assignment last happened, so that later we can "garbage-collect" dead games
     _games = _games.updated(key, game)
   }
 }

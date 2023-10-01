@@ -20,7 +20,8 @@ class Juncture(gameMaker: Settings=>Game, view: View[Game]) {
 
   private def displayAndAssign(game:Game): Unit ={
     view.display(game)
+
+    // TODO Here - record when an assignment last happened, so that later we can "garbage-collect" dead games
     this.game = game
   }
-
 }

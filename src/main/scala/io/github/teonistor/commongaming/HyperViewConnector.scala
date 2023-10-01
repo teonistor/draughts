@@ -1,5 +1,7 @@
 package io.github.teonistor.commongaming
 
+// If we squelch Juncture, we won't need this either.
+// Which is in fact good b/c not having Juncture means we move more into the base lib :)
 object HyperViewConnector {
 
   def connect[GAME](key: String, hyperView: HyperView[GAME]) = new View[GAME]() {

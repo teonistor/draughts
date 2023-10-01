@@ -57,6 +57,9 @@ class InsecureLobby(ws: SimpMessagingTemplate, gameConfigurations: JuList[GameCo
   private def assignAndSend(allocations: Map[Long, UserGameAllocation]): Unit = {
     this.allocations = allocations
     println(allocations)
-    ws.convertAndSend("/lobby/state", allocations)
+    send()
   }
+
+  private def send(): Unit =
+    ws.convertAndSend("/lobby/state", allocations)
 }
