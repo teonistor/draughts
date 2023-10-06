@@ -3,16 +3,20 @@ package io.github.teonistor.commongaming
 import io.vavr.control.Validation
 import io.vavr.control.Validation.invalid
 
-class GamesHolder[GAME,-SETTINGS](gameMaker: SETTINGS=>GAME, hyperView: HyperView[GAME]) {
+class GamesHolder[GAME,-SETTINGS](gameMaker: SETTINGS => GAME,
+                                  hyperView: HyperView[GAME],
+                                  gameConfiguration: GameConfiguration,
+                                  onStart: GameStartedCallback[GAME]) {
 
   private[this] var _games: Map[String, GAME] = Map.empty
 
   def games = _games
 
   def start(settings: SETTINGS): Unit = {
-    // TODO Also notify Lobby...
-
-    displayAndAssign(System.currentTimeMillis().toString, gameMaker(settings))
+    val generatedKey = System.currentTimeMillis().toString
+    val game = gameMaker(settings)
+    onStart(generatedKey, gameConfiguration, game)
+    displayAndAssign(generatedKey, game)
   }
 
   def progress(key: String, function: GAME => Validation[String, GAME]): Unit =
