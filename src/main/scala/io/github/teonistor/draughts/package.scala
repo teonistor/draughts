@@ -9,6 +9,5 @@ package object draughts {
     def toFriendlyString:String = vector.mkString("(",",",")")
   }
 
-  type JunctureFactory = (String, HyperView[Game]) => Juncture
   type GamesHolderFactory = HyperView[Game] => GamesHolder[Game,Settings]
 }

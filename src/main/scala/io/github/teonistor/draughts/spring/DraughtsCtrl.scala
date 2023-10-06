@@ -37,12 +37,9 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFac
 
   @MessageMapping(Array("/draughts/new-game"))
   def receive(settings: Settings): Unit = {
-    gamesHolder.start(settings)
-//    lastDimensionCounts = lastDimensionCounts.updated(key, settings.boardSizes.size)
+    val key = gamesHolder.start(settings)
     val lastSettings = convertSettings(settings)
-
-    // TODO Here
-    ws.convertAndSend("/draughts/"++"/settings", lastSettings)
+    ws.convertAndSend("/draughts/"+key+"/settings", lastSettings)
   }
 
 

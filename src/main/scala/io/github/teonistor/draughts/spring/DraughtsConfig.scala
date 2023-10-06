@@ -1,7 +1,7 @@
 package io.github.teonistor.draughts.spring
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import io.github.teonistor.commongaming.GamesHolder
+import io.github.teonistor.commongaming.{GameConfiguration, GamesHolder, Lobby}
 import io.github.teonistor.draughts.rule.{AvailableMovesRule, GameOverChecker}
 import io.github.teonistor.draughts.srlz.{PieceModule, PlayerModule}
 import io.github.teonistor.draughts.{GamesHolderFactory, InitialBoardProvider, InitialGameProvider}
@@ -39,8 +39,9 @@ class DraughtsConfig {
   def scalaModule() = DefaultScalaModule
 
   @Bean
-  def gamesHolderFactory(): GamesHolderFactory = {
+  def gamesHolderFactory(lobby: Lobby): GamesHolderFactory = {
     val initialGameProvider = new InitialGameProvider(new AvailableMovesRule(), new GameOverChecker(), new InitialBoardProvider())
-    hyperView => new GamesHolder(initialGameProvider.createGame, hyperView)
+    val gameOfDraughts = GameConfiguration("Draughts", Set("Black","White"))
+    hyperView => new GamesHolder(initialGameProvider.createGame, hyperView, key => lobby.create(key, gameOfDraughts))
   }
 }

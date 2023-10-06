@@ -6,7 +6,7 @@ import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class InsecureLobby(ws: SimpMessagingTemplate) {
+class InsecureLobby(ws: SimpMessagingTemplate) extends Lobby {
 
   private var allocations: Map[String, UserGameAllocation] = Map.empty
 

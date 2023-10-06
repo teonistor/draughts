@@ -117,9 +117,9 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
     val input = Settings(2, 4, 5, 6, 7)
 
     given(ghf(ctrl)) willReturn holder
+    given(holder.start(input)) willReturn "id17"
     ctrl.receive(input)
 
-    verify(holder) start input
     verify(ws).convertAndSend("/draughts/id17/settings", ctrl.SendableSettings(
       2, Vector(""), 1, 4, 5, 6, 7))
   }
@@ -133,9 +133,9 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
     val input = Settings(3, 2, 3, 4, 5, 6, 7, 8)
 
     given(ghf(ctrl)) willReturn holder
+    given(holder.start(input)) willReturn "id18"
     ctrl.receive(input)
 
-    verify(holder) start input
     verify(ws).convertAndSend("/draughts/id18/settings", ctrl.SendableSettings(
       3,
       Vector("0,0", "0,1", "0,2", "1,0", "1,1", "1,2"),
