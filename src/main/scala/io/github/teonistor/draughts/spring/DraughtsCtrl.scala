@@ -2,7 +2,7 @@ package io.github.teonistor.draughts.spring
 
 import io.github.teonistor.commongaming.HyperView
 import io.github.teonistor.draughts.data.Settings
-import io.github.teonistor.draughts.{Game, HDUtils, JunctureFactory, Piece, Player}
+import io.github.teonistor.draughts.{Game, GamesHolderFactory, HDUtils, Piece, Player}
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
@@ -10,13 +10,12 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
 
 @Controller
-class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: JunctureFactory) extends HyperView[Game] {
+class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFactory) extends HyperView[Game] {
 
-  private lazy val juncture = junctureFactory("", this)
-
-  private lazy val juncture = junctureFactory(this)
+  private lazy val gamesHolder = gamesHolderFactory(this)
 
   // Intermediate UI cache, so that a client joining midway sees the state right away
+  // TODO PROBLEM - now we need to cache per gid AND LOSE IT WHEN IT ENDS
   private var lastDimensionCount: Int =_
   private var lastState: SendableState =_
   private var lastSettings: SendableSettings =_
@@ -63,15 +62,15 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, junctureFactory: JunctureFactory) 
 
   @MessageMapping(Array("/draughts/{gid}/click"))
   def receive(@PathVariable gid: String, message: (Vector[Int],Vector[Int])): Unit =
-      juncture.progress(game => game.move(truncateExcessDimensions(message._1), truncateExcessDimensions(message._2)))
+    gamesHolder.progress(gid, game => game.move(truncateExcessDimensions(message._1), truncateExcessDimensions(message._2)))
 
   @MessageMapping(Array("/draughts/{gid}/pass"))
   def receive(@PathVariable gid: String): Unit =
-    juncture.progress(_.pass())
+    gamesHolder.progress(gid, _.pass())
 
   @MessageMapping(Array("/draughts/new-game"))
   def receive(settings: Settings): Unit = {
-    juncture.start(settings)
+    gamesHolder.start(settings)
     lastDimensionCount = settings.boardSizes.size
     lastSettings = SendableSettings(
       settings.startingRows,

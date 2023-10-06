@@ -19,14 +19,13 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
       new SimpleGameConfiguration("banana", Set.empty, null, null, null))))
   }
 
+  test("create") {
+    assert(false)
+  }
 
-  test("create game of unknown name does nothing") {
-    val config1 = mock[GameConfiguration]
-    val config2 = mock[GameConfiguration]
-    given(config1.name) willReturn "apple"
-    given(config2.name) willReturn "banana"
-
-    new InsecureLobby(null, juList(config1, config2)).create(("cherry", null))
+  test("remove") {
+    // meta-TODO Can we come up with a way for games not to have to deregister, but naturally "fall out of scope"? Like a WeakReference...
+    assert(false)
   }
 
   test("create game of known name") {
@@ -50,14 +49,14 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
 
   test("allocate to nonexistent game does nothing") {
-    val lobby = new InsecureLobby(null, juList())
+    val lobby = new InsecureLobby(null)
     lobby.allocate((7, "a", "b"))
 
     assert(getField(lobby, "allocations").asInstanceOf[Map[_, _]].isEmpty)
   }
 
   test("allocate to not unallocated player does nothing") {
-    val lobby = new InsecureLobby(null, juList())
+    val lobby = new InsecureLobby(null)
     val allocations = Map(7 -> UserGameAllocation(7, Map("a" -> "y"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -67,7 +66,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("allocate user already allocated to other game to unallocated player does nothing") {
-    val lobby = new InsecureLobby(null, juList())
+    val lobby = new InsecureLobby(null)
     val allocations = Map(
       7 -> UserGameAllocation(7, Map("a" -> "x", "b" -> "y"), Set("c", "d")),
       9 -> UserGameAllocation(9, Map("a" -> "z"), Set("b", "c")))
@@ -80,7 +79,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("allocate user to unallocated player") {
     val ws = mock[SimpMessagingTemplate]
-    val lobby = new InsecureLobby(ws, juList())
+    val lobby = new InsecureLobby(null)
     setField(lobby, "allocations", Map(7 -> UserGameAllocation(7, Map("a" -> "x", "b" -> "y"), Set("c", "d"))))
 
     lobby.allocate((7, "c", "x"))
@@ -92,7 +91,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
 
   test("deallocate from nonexistent game does nothing") {
-    val lobby = new InsecureLobby(null, juList())
+    val lobby = new InsecureLobby(null)
     val allocations = Map(7 -> UserGameAllocation(7, Map("a" -> "x"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -102,7 +101,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("deallocate from not allocated player does nothing") {
-    val lobby = new InsecureLobby(null, juList())
+    val lobby = new InsecureLobby(null)
     val allocations = Map(7 -> UserGameAllocation(7, Map("a" -> "x"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -112,7 +111,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("deallocate not allocated user does nothing") {
-    val lobby = new InsecureLobby(null, juList())
+    val lobby = new InsecureLobby(null)
     val allocations = Map(7 -> UserGameAllocation(7, Map("a" -> "x"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -123,7 +122,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("deallocate") {
     val ws = mock[SimpMessagingTemplate]
-    val lobby = new InsecureLobby(ws, juList())
+    val lobby = new InsecureLobby(null)
     setField(lobby, "allocations", Map(7 -> UserGameAllocation(7, Map("a" -> "x", "b" -> "x"), Set("c"))))
 
     lobby.deallocate((7, "a", "x"))

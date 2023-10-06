@@ -1,7 +1,8 @@
 package io.github.teonistor.draughts.spring
 
+import io.github.teonistor.commongaming.GamesHolder
 import io.github.teonistor.draughts.data.{GameState, Settings}
-import io.github.teonistor.draughts.{Game, Juncture, JunctureFactory, Piece, Player}
+import io.github.teonistor.draughts.{Game, GamesHolderFactory, Piece, Player}
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.BDDMockito.`given`
 import org.mockito.MockitoSugar
@@ -109,35 +110,48 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
 
   test("Send settings with 4 dimensions") {
     val ws = mock[SimpMessagingTemplate]
-    val jf = mock[JunctureFactory]
-    val juncture = mock[Juncture]
-    val ctrl = new DraughtsCtrl(ws, jf)
+    val ghf = mock[GamesHolderFactory]
+    val holder = mock[GamesHolder[Game,Settings]]
+    val ctrl = new DraughtsCtrl(ws, ghf)
 
     val input = Settings(2, 4, 5, 6, 7)
 
-    given(jf("id17", ctrl)) willReturn juncture
+    given(ghf(ctrl)) willReturn holder
     ctrl.receive(input)
 
-    verify(juncture) start input
+    verify(holder) start input
     verify(ws).convertAndSend("/draughts/id17/settings", ctrl.SendableSettings(
       2, Vector(""), 1, 4, 5, 6, 7))
   }
 
   test("Send settings with 7 dimensions") {
     val ws = mock[SimpMessagingTemplate]
-    val jf = mock[JunctureFactory]
-    val juncture = mock[Juncture]
-    val ctrl = new DraughtsCtrl(ws, jf)
+    val ghf = mock[GamesHolderFactory]
+    val holder = mock[GamesHolder[Game,Settings]]
+    val ctrl = new DraughtsCtrl(ws, ghf)
 
     val input = Settings(3, 2, 3, 4, 5, 6, 7, 8)
 
-    given(jf("id18", ctrl)) willReturn juncture
+    given(ghf(ctrl)) willReturn holder
     ctrl.receive(input)
 
-    verify(juncture) start input
+    verify(holder) start input
     verify(ws).convertAndSend("/draughts/id18/settings", ctrl.SendableSettings(
       3,
       Vector("0,0", "0,1", "0,2", "1,0", "1,1", "1,2"),
       4, 5, 6, 7, 8))
+  }
+
+  test("temp - do weak references work") {
+//    case class Wrapper(u: String) {}
+//
+//    val value = new WeakReference(Wrapper("42"))
+//    var data = List.empty[String]
+//
+//    while(true) {
+//      data = data.appendedAll(LazyList.continually("fff").take(25_000))
+//      println(s"List has ${data.size} elements. ${value.get}")
+//      Thread.sleep(500)
+//    }
   }
 }
