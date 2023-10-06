@@ -14,20 +14,55 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFac
 
   private lazy val gamesHolder = gamesHolderFactory(this)
 
-  // Intermediate UI cache, so that a client joining midway sees the state right away
-  // TODO PROBLEM - now we need to cache per gid AND LOSE IT WHEN IT ENDS
-  private var lastDimensionCount: Int =_
-  private var lastState: SendableState =_
-  private var lastSettings: SendableSettings =_
-
   override def announce(key: String, message: String): Unit =
     ws.convertAndSend(s"/draughts/$key/message", message)
 
   override def announce(key: String, player: String, message: String): Unit =
     ws.convertAndSend(s"/draughts/$key/$player/message", message)
 
-  override def display(key: String, game: Game): Unit = {
-    val thing = game.availableMoves
+  override def display(key: String, game: Game): Unit =
+    ws.convertAndSend(s"/draughts/$key/state", convertState(game))
+
+
+  @MessageMapping(Array("/draughts/{gid}/click"))
+  def receive(@PathVariable gid: String, message: (Vector[Int],Vector[Int])): Unit =
+    gamesHolder.games.get(gid)
+      .map(_.settings.boardSizes.size)
+      .map(dimensionCount => (game:Game) => game.move(truncateExcessDimensions(message._1, dimensionCount), truncateExcessDimensions(message._2, dimensionCount)))
+      .fold(())(gamesHolder.progress(gid, _))
+
+  @MessageMapping(Array("/draughts/{gid}/pass"))
+  def receive(@PathVariable gid: String): Unit =
+    gamesHolder.progress(gid, _.pass())
+
+  @MessageMapping(Array("/draughts/new-game"))
+  def receive(settings: Settings): Unit = {
+    gamesHolder.start(settings)
+//    lastDimensionCounts = lastDimensionCounts.updated(key, settings.boardSizes.size)
+    val lastSettings = convertSettings(settings)
+
+    // TODO Here
+    ws.convertAndSend("/draughts/"++"/settings", lastSettings)
+  }
+
+
+  @SubscribeMapping(Array("/draughts/{gid}/state"))
+  def onSubscribeState(gid: String) =
+    gamesHolder.games.get(gid).map(convertState).orNull
+
+  @SubscribeMapping(Array("/draughts/{gid}/settings"))
+  def onSubscribeSettings(gid: String) =
+    gamesHolder.games.get(gid).map(_.settings).map(convertSettings).orNull
+
+
+  private def convertState(game: Game) = SendableState(
+    game.gameState.board
+      .map((layStrings _).tupled)
+      .groupBy(_._1).view
+      .mapValues(_.groupMap(_._2)(iikv => (iikv._3, iikv._4)).view
+        .mapValues(_.toMap).toMap).toMap,
+    game.gameState.currentPlayer,
+    game.availableMoves
       .flatMap(kv => {
         val (one, two, three) = layStrings1(kv._1)
         kv._2.filter(_._2.isValid).keys.map(t => {
@@ -40,16 +75,7 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFac
         .mapValues(_.groupBy(_._3).view
           .mapValues(_.groupBy(_._4).view
             .mapValues(_.groupMap(_._5)(iiiiik => (iiiiik._6, true)).view
-              .mapValues(_.toMap).toMap).toMap).toMap).toMap).toMap
-
-    lastState = SendableState(
-      game.gameState.board
-        .map((layStrings _).tupled)
-        .groupBy(_._1).view
-        .mapValues(_.groupMap(_._2)(iikv => (iikv._3, iikv._4)).view
-          .mapValues(_.toMap).toMap).toMap,
-      game.gameState.currentPlayer,
-      thing,
+              .mapValues(_.toMap).toMap).toMap).toMap).toMap).toMap,
       if (game.isGameOver)
         "Game over!"
       else game.gameState.ongoingJump
@@ -57,22 +83,9 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFac
         .orElse(Some("move"))
         .map(game.gameState.currentPlayer + " to " +_+ ".")
         .get)
-    ws.convertAndSend(s"/draughts/$key/state", lastState)
-  }
 
-  @MessageMapping(Array("/draughts/{gid}/click"))
-  def receive(@PathVariable gid: String, message: (Vector[Int],Vector[Int])): Unit =
-    gamesHolder.progress(gid, game => game.move(truncateExcessDimensions(message._1), truncateExcessDimensions(message._2)))
-
-  @MessageMapping(Array("/draughts/{gid}/pass"))
-  def receive(@PathVariable gid: String): Unit =
-    gamesHolder.progress(gid, _.pass())
-
-  @MessageMapping(Array("/draughts/new-game"))
-  def receive(settings: Settings): Unit = {
-    gamesHolder.start(settings)
-    lastDimensionCount = settings.boardSizes.size
-    lastSettings = SendableSettings(
+  private def convertSettings(settings: Settings) =
+    SendableSettings(
       settings.startingRows,
       HDUtils.cartesianProduct(settings.boardSizes.take(settings.boardSizes.size - 5).to(Vector).map(0 until _)).map(_.mkString(",")),
       settings.boardSizes.lift(settings.boardSizes.size - 5).getOrElse(1),
@@ -80,17 +93,6 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFac
       settings.boardSizes.lift(settings.boardSizes.size - 3).getOrElse(1),
       settings.boardSizes(settings.boardSizes.size - 2),  // Last 2 are guaranteed to exist thanks to Settings preconditions
       settings.boardSizes.last)
-
-    // TODO Here
-    ws.convertAndSend("/draughts/settings", lastSettings)
-  }
-
-  @SubscribeMapping(Array("/draughts/{gid}/state"))
-  def onSubscribeState = lastState
-
-  @SubscribeMapping(Array("/draughts/{gid}/settings"))
-  def onSubscribeSettings = lastSettings
-
 
   private def threeWaySplit(coord: Vector[Int], default: Int) = {
     val (first, middleLast) = coord.splitAt(coord.size - 5)
@@ -108,8 +110,8 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFac
     (first.mkString(","), middle.mkString(","), last.mkString(","), v)
   }
 
-  private def truncateExcessDimensions(coord: Vector[Int]) =
-    if (coord.size > lastDimensionCount) coord.drop(coord.size - lastDimensionCount) else coord
+  private def truncateExcessDimensions(coord: Vector[Int], dimensionCount: Int) =
+    if (coord.size > dimensionCount) coord.drop(coord.size - dimensionCount) else coord
 
   case class SendableSettings(startingRows : Int,
                               higherIndices: Seq[String],
