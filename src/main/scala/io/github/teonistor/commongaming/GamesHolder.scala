@@ -5,18 +5,17 @@ import io.vavr.control.Validation.invalid
 
 class GamesHolder[GAME,-SETTINGS](gameMaker: SETTINGS => GAME,
                                   hyperView: HyperView[GAME],
-                                  gameConfiguration: GameConfiguration,
-                                  onStart: GameStartedCallback[GAME]) {
+                                  onStart: String => Unit) {
 
   private[this] var _games: Map[String, GAME] = Map.empty
 
   def games = _games
 
-  def start(settings: SETTINGS): Unit = {
+  def start(settings: SETTINGS): String = {
     val generatedKey = System.currentTimeMillis().toString
-    val game = gameMaker(settings)
-    onStart(generatedKey, gameConfiguration, game)
-    displayAndAssign(generatedKey, game)
+    onStart(generatedKey)
+    displayAndAssign(generatedKey, gameMaker(settings))
+    generatedKey
   }
 
   def progress(key: String, function: GAME => Validation[String, GAME]): Unit =

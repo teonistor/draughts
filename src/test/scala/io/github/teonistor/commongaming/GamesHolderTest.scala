@@ -3,7 +3,6 @@ package io.github.teonistor.commongaming
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.BDDMockito.`given`
 import org.mockito.Mockito.verify
-import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.springframework.test.util.ReflectionTestUtils.setField
@@ -11,7 +10,7 @@ import org.springframework.test.util.ReflectionTestUtils.setField
 class GamesHolderTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("Create empty") {
-    val holder = new GamesHolder[Nothing, Nothing](null, null, null, null)
+    val holder = new GamesHolder[Nothing, Nothing](null, null, null)
 
     assert(holder.games.isEmpty)
   }
@@ -19,18 +18,15 @@ class GamesHolderTest extends IdiomaticMockito with AnyFunSuiteLike {
   test("Start new game") {
     val gameFactory = mock[TestSettings => TestGame]
     val view = mock[HyperView[TestGame]]
-    val onStart = mock[GameStartedCallback[TestGame]]
-    val keyFromDisplay = ArgCaptor[String]
-    val keyFromCallback = ArgCaptor[String]
+    val onStart = mock[String => Unit]
     given(gameFactory(TestSettings())) willReturn TestGame()
 
-    val conf = GameConfiguration("Doom", Set("Left", "Right"))
-    val holder = new GamesHolder(gameFactory, view, conf, onStart)
-    holder.start(TestSettings())
+    val holder = new GamesHolder(gameFactory, view, onStart)
+    val key = holder.start(TestSettings())
 
     assert(holder.games.values.toList == List(TestGame()))
-    verify(view).display(keyFromDisplay.capture, eqTo(TestGame()))
-    verify(onStart)(keyFromCallback.capture, eqTo(conf), eqTo(TestGame()))
+    verify(view).display(key, TestGame())
+    verify(onStart)(key)
   }
 
   test("Progress when valid") {
@@ -38,7 +34,7 @@ class GamesHolderTest extends IdiomaticMockito with AnyFunSuiteLike {
     val expectedInput = mock[TestGame]
     val expectedOutput = mock[TestGame]
 
-    val holder = new GamesHolder[TestGame, TestSettings](null, view, null, null)
+    val holder = new GamesHolder[TestGame, TestSettings](null, view, null)
     setField(holder, "_games", Map("1234" -> expectedInput))
 
     holder.progress("1234", actualInput => {
@@ -54,7 +50,7 @@ class GamesHolderTest extends IdiomaticMockito with AnyFunSuiteLike {
     val view = mock[HyperView[TestGame]]
     val unchanged = mock[TestGame]
 
-    val holder = new GamesHolder[TestGame, TestSettings](null, view, null, null)
+    val holder = new GamesHolder[TestGame, TestSettings](null, view, null)
     setField(holder, "_games", Map("1234" -> unchanged))
 
     holder.progress("1234", actualInput => {
@@ -70,7 +66,7 @@ class GamesHolderTest extends IdiomaticMockito with AnyFunSuiteLike {
     val view = mock[HyperView[TestGame]]
     val unchanged = mock[TestGame]
 
-    val holder = new GamesHolder[TestGame, TestSettings](null, view, null, null)
+    val holder = new GamesHolder[TestGame, TestSettings](null, view, null)
     setField(holder, "_games", Map("1234" -> unchanged))
 
     holder.progress("5678", null)
