@@ -1,31 +1,21 @@
 package io.github.teonistor.commongaming
 
-import com.fasterxml.jackson.databind.JsonNode
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.web.bind.annotation.RestController
 
-import java.util.{List => JuList}
-import scala.jdk.CollectionConverters.IterableHasAsScala
-
 @RestController
-class InsecureLobby(ws: SimpMessagingTemplate, gameConfigurations: JuList[GameConfiguration]) {
+class InsecureLobby(ws: SimpMessagingTemplate) {
 
-  private val configs = gameConfigurations.asScala.groupMapReduce(_.name)(identity)((_,_) => throw new IllegalArgumentException)
-  private var allocations: Map[Long, UserGameAllocation] = Map.empty
+  private var allocations: Map[String, UserGameAllocation] = Map.empty
 
-  @MessageMapping(Array("/lobby/create"))
-  def create(message: (String, JsonNode)): Unit = {
-    configs.get(message._1).fold(())(config => {
-      val now = System.currentTimeMillis()
-      config.create(now, message._2)
-      assignAndSend(allocations.updated(now, UserGameAllocation(now, Map.empty, config.requiredPlayers)))
-    })
+  def create(key:String, gameConfiguration:GameConfiguration): Unit = {
+    assignAndSend(allocations.updated(key, UserGameAllocation(key, gameConfiguration.name, Map.empty, gameConfiguration.requiredPlayers)))
   }
 
   @MessageMapping(Array("/lobby/allocate"))
-  def allocate(message: (Long, String, String)): Unit = message match {
+  def allocate(message: (String, String, String)): Unit = message match {
     case (game, player, user) => allocations
       .get(game).foreach(allocation => Option(player)
         .filter(allocation.unallocated)
@@ -38,7 +28,7 @@ class InsecureLobby(ws: SimpMessagingTemplate, gameConfigurations: JuList[GameCo
   }
 
   @MessageMapping(Array("/lobby/deallocate"))
-  def deallocate(message: (Long, String, String)): Unit = message match {
+  def deallocate(message: (String, String, String)): Unit = message match {
     case (game, player, user) => allocations
       .get(game).foreach(allocation => Option(player)
         .filter(allocation.allocated.get(_).contains(user))
@@ -51,10 +41,10 @@ class InsecureLobby(ws: SimpMessagingTemplate, gameConfigurations: JuList[GameCo
   @SubscribeMapping(Array("/lobby/state"))
   def onSubscribeState = allocations
 
-  private def isUserAllowed(game: Long): String => Boolean =
+  private def isUserAllowed(game: String): String => Boolean =
     user => allocations.valuesIterator.forall(alc => alc.key == game || !alc.allocated.valuesIterator.contains(user))
 
-  private def assignAndSend(allocations: Map[Long, UserGameAllocation]): Unit = {
+  private def assignAndSend(allocations: Map[String, UserGameAllocation]): Unit = {
     this.allocations = allocations
     println(allocations)
     send()
