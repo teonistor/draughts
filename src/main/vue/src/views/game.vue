@@ -56,9 +56,9 @@
   export default {
     name: 'game',
     components: {metaBoard, newGameControls},
+    props: ['gid'],
 
     data: () => ({
-      gid: null,
 
       // From state
       board: null,
@@ -197,7 +197,6 @@
     },
 
     mounted () {
-      this.gid = this.$route.query && this.$route.query.gid;
       this.connect();
     }
   }

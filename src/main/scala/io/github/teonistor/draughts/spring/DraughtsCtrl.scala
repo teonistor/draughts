@@ -3,11 +3,10 @@ package io.github.teonistor.draughts.spring
 import io.github.teonistor.commongaming.HyperView
 import io.github.teonistor.draughts.data.Settings
 import io.github.teonistor.draughts.{Game, GamesHolderFactory, HDUtils, Piece, Player}
-import org.springframework.messaging.handler.annotation.MessageMapping
+import org.springframework.messaging.handler.annotation.{DestinationVariable, MessageMapping}
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.PathVariable
 
 @Controller
 class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFactory) extends HyperView[Game] {
@@ -25,30 +24,30 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFac
 
 
   @MessageMapping(Array("/draughts/{gid}/click"))
-  def receive(@PathVariable gid: String, message: (Vector[Int],Vector[Int])): Unit =
+  def receive(@DestinationVariable gid: String, message: (Vector[Int],Vector[Int])): Unit =
     gamesHolder.games.get(gid)
       .map(_.settings.boardSizes.size)
       .map(dimensionCount => (game:Game) => game.move(truncateExcessDimensions(message._1, dimensionCount), truncateExcessDimensions(message._2, dimensionCount)))
       .fold(())(gamesHolder.progress(gid, _))
 
   @MessageMapping(Array("/draughts/{gid}/pass"))
-  def receive(@PathVariable gid: String): Unit =
+  def receive(@DestinationVariable gid: String): Unit =
     gamesHolder.progress(gid, _.pass())
 
   @MessageMapping(Array("/draughts/new-game"))
   def receive(settings: Settings): Unit = {
     val key = gamesHolder.start(settings)
     val lastSettings = convertSettings(settings)
-    ws.convertAndSend("/draughts/"+key+"/settings", lastSettings)
+    ws.convertAndSend(s"/draughts/$key/settings", lastSettings)
   }
 
 
   @SubscribeMapping(Array("/draughts/{gid}/state"))
-  def onSubscribeState(gid: String) =
+  def onSubscribeState(@DestinationVariable gid: String) =
     gamesHolder.games.get(gid).map(convertState).orNull
 
   @SubscribeMapping(Array("/draughts/{gid}/settings"))
-  def onSubscribeSettings(gid: String) =
+  def onSubscribeSettings(@DestinationVariable gid: String) =
     gamesHolder.games.get(gid).map(_.settings).map(convertSettings).orNull
 
 

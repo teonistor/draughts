@@ -2,6 +2,7 @@ const localDevelopmentPort = '8090';
 const ipV4Address = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
 
 import Vue from 'vue';
+import VueRouter from 'vue-router';
 import vuetify from './plugins/vuetify';
 import 'roboto-fontface/css/roboto/roboto-fontface.css';
 import '@mdi/font/css/materialdesignicons.css';
@@ -27,7 +28,9 @@ if (location.hostname === 'localhost') {
 
 Vue.prototype.$localDevelopmentPort = localDevelopmentPort
 
+Vue.use(VueRouter)
 new Vue({
+  router: new VueRouter(),
   vuetify,
   render: h => h(main)
 }).$mount('#app')
