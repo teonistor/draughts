@@ -2,8 +2,18 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col cols md="12">
+      <v-col cols md="6">
         <h2>Select player(s) or create game</h2>
+        <p>How it works</p>
+        <ul>
+          <li>You can assign yourself to multiple players in a game (for hotseat) but not to multiple games</li>
+          <li>Once all players in a game are assigned (and you are one of them) you can navigate to it</li>
+          <li>However, correct turn order based on player assignment is not currently enforced because I am yet to program for it</li>
+          <li>(WIP) You can spectate any game</li>
+          <li>At most 10 games can exist at a time. I might modify this limit often</li>
+          <li>(WIP) If nothing happens in a game for 10 minutes (including after it is over) it will disappear and make more
+              room in the list</li>
+        </ul>
       </v-col>
     </v-row>
 
@@ -11,7 +21,7 @@
       <v-col cols md="6" v-for="game in games">
         <v-card>
           <v-card-title>
-            Game created at {{ game.key }}
+            Game of {{ game.name }} created at {{ game.key }}
           </v-card-title>
           <v-card-text>
             <span v-for="player in game.players">
@@ -115,6 +125,7 @@ export default {
           const allocation = state[k];
           return {
             key: allocation.key,
+            name: allocation.name,
             players: Object.keys(allocation.allocated).concat(allocation.unallocated)
               .sort()
               .map(key => ({key, state: allocation.allocated[key] === uid && 'mine' || allocation.allocated[key] && 'blocked' || 'available' }))
