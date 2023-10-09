@@ -19,6 +19,26 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
     verify(ws).convertAndSend("/lobby/state", expected)
   }
 
+  test("Cannot create if limit reached") {
+    val ws = mock[SimpMessagingTemplate]
+    val lobby = new InsecureLobby(ws)
+    val pog = GameConfiguration("Pog", Set("Pogger", "Poggee"))
+    setField(lobby, "allocations", ('a' to 'j').groupMapReduce(_.toString * 3)(_=>pog)((l,_)=>l))
+
+    assert(intercept[IllegalStateException](lobby.create("zzz", pog)).getMessage == "Maximum number of games (10) reached")
+    assert(getField(lobby, "allocations").asInstanceOf[Iterable[_]].size == 10)
+  }
+
+  test("Cannot create with repeated key") {
+    val ws = mock[SimpMessagingTemplate]
+    val lobby = new InsecureLobby(ws)
+    val pog = GameConfiguration("Pog", Set("Pogger", "Poggee"))
+    setField(lobby, "allocations", Map("pog" -> pog))
+
+    assert(intercept[IllegalArgumentException](lobby.create("pog", pog)).getMessage == "Key 'pog' already in use")
+    assert(getField(lobby, "allocations").asInstanceOf[Iterable[_]].size == 1)
+  }
+
   test("remove") {
     // meta-TODO Can we come up with a way for games not to have to deregister, but naturally "fall out of scope"? Like a WeakReference...
     assert(false)
