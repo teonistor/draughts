@@ -5,20 +5,20 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.web.bind.annotation.RestController
 
+import java.util.{Set => JuSet}
+
 @RestController
-class InsecureLobby(ws: SimpMessagingTemplate) extends Lobby {
+class InsecureLobby(ws: SimpMessagingTemplate, gamesHolderGetter: JuSet[() => GamesHolder[_,_]]) extends Lobby {
   private val maxGames = 10
 
   private var allocations: Map[String, UserGameAllocation] = Map.empty
 
   def create(key:String, gameConfiguration:GameConfiguration): Unit =
-    Some(allocations)
-      .filter(_.size < maxGames)
-      .fold(throw new IllegalStateException(s"Maximum number of games ($maxGames) reached"))(_
-      .get(key))
-      .fold(assignAndSend(allocations.updated(key,
-        UserGameAllocation(key, gameConfiguration.name, Map.empty, gameConfiguration.requiredPlayers))))(
-        throw new IllegalArgumentException(s"Key '$key' already in use"))
+    Right(allocations)
+      .filterOrElse(_.size < maxGames, new IllegalStateException(s"Maximum number of games ($maxGames) reached"))
+      .filterOrElse(!_.contains(key), new IllegalArgumentException(s"Key '$key' already in use"))
+      .fold(throw _, allocations => assignAndSend(allocations.updated(key,
+        UserGameAllocation(key, gameConfiguration.name, Map.empty, gameConfiguration.requiredPlayers))))
 
   @MessageMapping(Array("/lobby/allocate"))
   def allocate(message: (String, String, String)): Unit = message match {

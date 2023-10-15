@@ -1,10 +1,12 @@
 package io.github.teonistor.draughts.spring
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import io.github.teonistor.commongaming.{GameConfiguration, GamesHolder, Lobby}
+import io.github.teonistor.commongaming.{GameConfiguration, GamesHolder, HyperView, Lobby}
+import io.github.teonistor.draughts.data.Settings
 import io.github.teonistor.draughts.rule.{AvailableMovesRule, GameOverChecker}
 import io.github.teonistor.draughts.srlz.{PieceModule, PlayerModule}
-import io.github.teonistor.draughts.{GamesHolderFactory, InitialBoardProvider, InitialGameProvider}
+import io.github.teonistor.draughts.{Game, InitialBoardProvider, InitialGameProvider}
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 
@@ -39,9 +41,14 @@ class DraughtsConfig {
   def scalaModule() = DefaultScalaModule
 
   @Bean
-  def gamesHolderFactory(lobby: Lobby): GamesHolderFactory = {
+  def gamesHolder(hyperView: HyperView[Game], lobby: Lobby) = {
     val initialGameProvider = new InitialGameProvider(new AvailableMovesRule(), new GameOverChecker(), new InitialBoardProvider())
     val gameOfDraughts = GameConfiguration("Draughts", Set("Black","White"))
-    hyperView => new GamesHolder(initialGameProvider.createGame, hyperView, key => lobby.create(key, gameOfDraughts))
+    new GamesHolder(initialGameProvider.createGame, hyperView, key => lobby.create(key, gameOfDraughts))
   }
+
+  // Some lazy something needed to break circular dependency...
+  @Bean
+  def gamesHolderGetter(applicationContext: ApplicationContext) =
+    () => applicationContext.getBean("gamesHolder", classOf[GamesHolder[Game,Settings]])
 }

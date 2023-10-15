@@ -10,7 +10,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("create") {
     val ws = mock[SimpMessagingTemplate]
-    val lobby = new InsecureLobby(ws)
+    val lobby = new InsecureLobby(ws, null)
 
     lobby.create("aaa", GameConfiguration("Pog", Set("Pogger", "Poggee")))
 
@@ -21,7 +21,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("Cannot create if limit reached") {
     val ws = mock[SimpMessagingTemplate]
-    val lobby = new InsecureLobby(ws)
+    val lobby = new InsecureLobby(ws, null)
     val pog = GameConfiguration("Pog", Set("Pogger", "Poggee"))
     setField(lobby, "allocations", ('a' to 'j').groupMapReduce(_.toString * 3)(_=>pog)((l,_)=>l))
 
@@ -31,7 +31,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("Cannot create with repeated key") {
     val ws = mock[SimpMessagingTemplate]
-    val lobby = new InsecureLobby(ws)
+    val lobby = new InsecureLobby(ws, null)
     val pog = GameConfiguration("Pog", Set("Pogger", "Poggee"))
     setField(lobby, "allocations", Map("pog" -> pog))
 
@@ -45,14 +45,14 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("allocate to nonexistent game does nothing") {
-    val lobby = new InsecureLobby(null)
+    val lobby = new InsecureLobby(null, null)
     lobby.allocate(("7", "a", "b"))
 
     assert(getField(lobby, "allocations").asInstanceOf[Map[_, _]].isEmpty)
   }
 
   test("allocate to not unallocated player does nothing") {
-    val lobby = new InsecureLobby(null)
+    val lobby = new InsecureLobby(null, null)
     val allocations = Map("7" -> UserGameAllocation("7", "Zilch", Map("a" -> "y"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -62,7 +62,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("allocate user already allocated to other game to unallocated player does nothing") {
-    val lobby = new InsecureLobby(null)
+    val lobby = new InsecureLobby(null, null)
     val allocations = Map(
       "7" -> UserGameAllocation("7", "Zilch", Map("a" -> "x", "b" -> "y"), Set("c", "d")),
       "9" -> UserGameAllocation("9", "Zorch", Map("a" -> "z"), Set("b", "c")))
@@ -75,7 +75,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("allocate user to unallocated player") {
     val ws = mock[SimpMessagingTemplate]
-    val lobby = new InsecureLobby(ws)
+    val lobby = new InsecureLobby(ws, null)
     setField(lobby, "allocations", Map("7" -> UserGameAllocation("7", "Zilch", Map("a" -> "x", "b" -> "y"), Set("c", "d"))))
 
     lobby.allocate(("7", "c", "x"))
@@ -87,7 +87,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
 
   test("deallocate from nonexistent game does nothing") {
-    val lobby = new InsecureLobby(null)
+    val lobby = new InsecureLobby(null, null)
     val allocations = Map(7 -> UserGameAllocation("7", "Zilch", Map("a" -> "x"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -97,7 +97,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("deallocate from not allocated player does nothing") {
-    val lobby = new InsecureLobby(null)
+    val lobby = new InsecureLobby(null, null)
     val allocations = Map(7 -> UserGameAllocation("7", "Zorch", Map("a" -> "x"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -107,7 +107,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
   }
 
   test("deallocate not allocated user does nothing") {
-    val lobby = new InsecureLobby(null)
+    val lobby = new InsecureLobby(null, null)
     val allocations = Map(7 -> UserGameAllocation("7", "Zilch", Map("a" -> "x"), Set("b")))
     setField(lobby, "allocations", allocations)
 
@@ -118,7 +118,7 @@ class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("deallocate") {
     val ws = mock[SimpMessagingTemplate]
-    val lobby = new InsecureLobby(ws)
+    val lobby = new InsecureLobby(ws, null)
     setField(lobby, "allocations", Map("7" -> UserGameAllocation("7", "Zilch", Map("a" -> "x", "b" -> "x"), Set("c"))))
 
     lobby.deallocate(("7", "a", "x"))

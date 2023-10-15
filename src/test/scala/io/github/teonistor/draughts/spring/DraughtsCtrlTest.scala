@@ -2,7 +2,7 @@ package io.github.teonistor.draughts.spring
 
 import io.github.teonistor.commongaming.GamesHolder
 import io.github.teonistor.draughts.data.{GameState, Settings}
-import io.github.teonistor.draughts.{Game, GamesHolderFactory, Piece, Player}
+import io.github.teonistor.draughts.{Game, Piece, Player}
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.BDDMockito.`given`
 import org.mockito.MockitoSugar
@@ -110,13 +110,11 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
 
   test("Send settings with 4 dimensions") {
     val ws = mock[SimpMessagingTemplate]
-    val ghf = mock[GamesHolderFactory]
     val holder = mock[GamesHolder[Game,Settings]]
-    val ctrl = new DraughtsCtrl(ws, ghf)
+    val ctrl = new DraughtsCtrl(ws, holder)
 
     val input = Settings(2, 4, 5, 6, 7)
 
-    given(ghf(ctrl)) willReturn holder
     given(holder.start(input)) willReturn "id17"
     ctrl.receive(input)
 
@@ -126,13 +124,11 @@ class DraughtsCtrlTest extends AnyFunSuiteLike with MockitoSugar {
 
   test("Send settings with 7 dimensions") {
     val ws = mock[SimpMessagingTemplate]
-    val ghf = mock[GamesHolderFactory]
     val holder = mock[GamesHolder[Game,Settings]]
-    val ctrl = new DraughtsCtrl(ws, ghf)
+    val ctrl = new DraughtsCtrl(ws, holder)
 
     val input = Settings(3, 2, 3, 4, 5, 6, 7, 8)
 
-    given(ghf(ctrl)) willReturn holder
     given(holder.start(input)) willReturn "id18"
     ctrl.receive(input)
 

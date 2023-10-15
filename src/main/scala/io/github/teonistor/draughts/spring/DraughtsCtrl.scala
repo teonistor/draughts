@@ -1,17 +1,17 @@
 package io.github.teonistor.draughts.spring
 
-import io.github.teonistor.commongaming.HyperView
+import io.github.teonistor.commongaming.{GamesHolder, HyperView}
 import io.github.teonistor.draughts.data.Settings
-import io.github.teonistor.draughts.{Game, GamesHolderFactory, HDUtils, Piece, Player}
+import io.github.teonistor.draughts.{Game, HDUtils, Piece, Player}
 import org.springframework.messaging.handler.annotation.{DestinationVariable, MessageMapping}
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Controller
 
 @Controller
-class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderFactory: GamesHolderFactory) extends HyperView[Game] {
+class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderGetter: => GamesHolder[Game, Settings]) extends HyperView[Game] {
 
-  private lazy val gamesHolder = gamesHolderFactory(this)
+  private lazy val gamesHolder = gamesHolderGetter
 
   override def announce(key: String, message: String): Unit =
     ws.convertAndSend(s"/draughts/$key/message", message)
