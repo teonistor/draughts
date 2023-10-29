@@ -15,8 +15,6 @@
 
     <properties>
         <java.version>13</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
     </properties>
 
     <dependencies>
@@ -63,6 +61,7 @@
                                 <argument>
                                     set -xe
                                     cd src/main/vue
+                                    npm install
                                     npm run build
 
                                     cd ../../../target/classes/static
@@ -83,8 +82,23 @@
 
     <repositories>
         <repository>
+            <id>github-draughts</id>
+            <url>https://maven.pkg.github.com/teonistor/draughts</url>
+        </repository>
+        <repository>
             <id>github-misc-libs</id>
             <url>https://maven.pkg.github.com/teonistor/misc-libs</url>
         </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/teonistor/draughts</url>
+        </repository>
+    </distributionManagement>
+    <scm>
+        <developerConnection>scm:git:https://github.com/teonistor/draughts</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 </project>
