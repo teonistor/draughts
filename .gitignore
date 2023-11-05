@@ -6,6 +6,9 @@ pom.xml.next
 release.properties
 dependency-reduced-pom.xml
 
+node_modules
+package-lock.json
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
