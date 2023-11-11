@@ -9,6 +9,7 @@ import io.github.teonistor.draughts.{Game, InitialBoardProvider, InitialGameProv
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
+import java.util.concurrent.TimeUnit.MINUTES
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -44,7 +45,7 @@ class DraughtsConfig {
   def gamesHolder(hyperView: HyperView[Game], lobby: Lobby) = {
     val initialGameProvider = new InitialGameProvider(new AvailableMovesRule(), new GameOverChecker(), new InitialBoardProvider())
     val gameOfDraughts = GameConfiguration("Draughts", Set("Black","White"))
-    new GamesHolder(initialGameProvider.createGame, hyperView, key => lobby.create(key, gameOfDraughts))
+    new GamesHolder(initialGameProvider.createGame, (10, MINUTES), hyperView, key => lobby.create(key, gameOfDraughts))
   }
 
   // Some lazy something needed to break circular dependency...

@@ -25,7 +25,7 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderGetter: => GamesHolder[
 
   @MessageMapping(Array("/draughts/{gid}/click"))
   def receive(@DestinationVariable gid: String, message: (Vector[Int],Vector[Int])): Unit =
-    gamesHolder.games.get(gid)
+    gamesHolder.getGame(gid)
       .map(_.settings.boardSizes.size)
       .map(dimensionCount => (game:Game) => game.move(truncateExcessDimensions(message._1, dimensionCount), truncateExcessDimensions(message._2, dimensionCount)))
       .fold(())(gamesHolder.progress(gid, _))
@@ -44,11 +44,11 @@ class DraughtsCtrl(ws: SimpMessagingTemplate, gamesHolderGetter: => GamesHolder[
 
   @SubscribeMapping(Array("/draughts/{gid}/state"))
   def onSubscribeState(@DestinationVariable gid: String) =
-    gamesHolder.games.get(gid).map(convertState).orNull
+    gamesHolder.getGame(gid).map(convertState).orNull
 
   @SubscribeMapping(Array("/draughts/{gid}/settings"))
   def onSubscribeSettings(@DestinationVariable gid: String) =
-    gamesHolder.games.get(gid).map(_.settings).map(convertSettings).orNull
+    gamesHolder.getGame(gid).map(_.settings).map(convertSettings).orNull
 
 
   private def convertState(game: Game) = SendableState(

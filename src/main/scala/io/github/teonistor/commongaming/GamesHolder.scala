@@ -2,14 +2,18 @@ package io.github.teonistor.commongaming
 
 import io.vavr.control.Validation
 import io.vavr.control.Validation.invalid
+import org.apache.commons.collections4.map.PassiveExpiringMap
+import java.util.concurrent.TimeUnit
+import scala.jdk.CollectionConverters.MapHasAsScala
 
 class GamesHolder[GAME,-SETTINGS](gameMaker: SETTINGS => GAME,
+                                  gameIdleTime: (Int, TimeUnit),
                                   hyperView: HyperView[GAME],
                                   onStart: String => Unit) {
 
-  private[this] var _games: Map[String, GAME] = Map.empty
+  private[this] val _games = new PassiveExpiringMap[String,GAME](gameIdleTime._1, gameIdleTime._2).asScala
 
-  def games = _games
+  def getGame(gid:String): Option[GAME] = _games.get(gid)
 
   def start(settings: SETTINGS): String = {
     val generatedKey = System.currentTimeMillis().toString
@@ -25,8 +29,6 @@ class GamesHolder[GAME,-SETTINGS](gameMaker: SETTINGS => GAME,
 
   private def displayAndAssign(key: String, game: GAME): Unit = {
     hyperView.display(key, game)
-
-    // TODO Here - record when an assignment last happened, so that later we can "garbage-collect" dead games
-    _games = _games.updated(key, game)
+    _games.put(key, game)
   }
 }
