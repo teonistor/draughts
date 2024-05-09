@@ -4,7 +4,7 @@ import io.github.teonistor.connectn.data.{GameOverChecker, GameSettings, GameSta
 import io.vavr.control.Validation
 import io.vavr.control.Validation.{valid=>Valid, invalid=>Invalid}
 
-class Game(settings: GameSettings, history: List[GameState]) {
+class Game(val settings: GameSettings,val history: List[GameState]) {
   if (history.isEmpty)
     throw new IllegalArgumentException("Cannot create game without a starting state")
 
