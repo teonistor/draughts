@@ -4,13 +4,13 @@ import scala.annotation.tailrec
 
 object HDUtils {
 
-  def cartesianProduct(movements:IndexedSeq[Iterable[Int]]): Vector[Vector[Int]] =
-    cartesianProduct0(Vector(Vector.fill(movements.size)(0)), movements, 0)
+  def cartesianProduct[T](movements:IndexedSeq[Iterable[T]]): Vector[Vector[T]] =
+    cartesianProduct0(Vector(Vector.fill(movements.size)(null.asInstanceOf[T])), movements, 0)
 
   @tailrec
-  private def cartesianProduct0(accum: Vector[Vector[Int]], movements: IndexedSeq[Iterable[Int]], i: Int): Vector[Vector[Int]] =
+  private def cartesianProduct0[T](accum: Vector[Vector[T]], movements: IndexedSeq[Iterable[T]], i: Int): Vector[Vector[T]] =
     if (i >= movements.size)
       accum
     else
-      cartesianProduct0(accum.flatMap(v => movements(i).map(d => v.updated(i, v(i) + d))), movements, i + 1)
+      cartesianProduct0(accum.flatMap(v => movements(i).map(d => v.updated(i, d))), movements, i + 1)
 }
