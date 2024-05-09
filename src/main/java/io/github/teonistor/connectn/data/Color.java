@@ -1,4 +1,4 @@
-package io.github.teonistor.conectn.data;
+package io.github.teonistor.connectn.data;
 
 public enum Color {
     Red, Yellow;
