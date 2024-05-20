@@ -2,9 +2,10 @@ package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.Settings
 import io.vavr.control.Validation
+import org.mockito.ArgumentMatchers.any
 import org.mockito.BDDMockito.{willDoNothing, willReturn, willThrow}
+import org.mockito.IdiomaticMockito
 import org.mockito.captor.ArgCaptor
-import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 import java.io.{ByteArrayInputStream, PrintStream}

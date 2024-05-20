@@ -1,0 +1,51 @@
+<html>
+<head>
+    <title>Endless TTT</title>
+    <link rel="stylesheet" href="main.css" />
+</head>
+
+<body>
+
+<div id="app">
+
+    <h2>Endless TTT</h2>
+
+    <div class="play-area-outer">
+    <div class="play-area-inner">
+        <div v-for="row,i in rows">
+            <button class="cell"
+                    v-for="cell,j in row"
+                    :disabled="cell !== ' ' || !stompClient || !!winner"
+                    :class="{enabled: cell === ' ' && !!stompClient && !winner}"
+                    @click="send(i,j)">
+                {{ cell }}
+            </button>
+        </div>
+    </div>
+    </div>
+
+    <div v-if="!!stompClient" class="margin-top-20">
+        {{ player }}'s turn
+    </div>
+    <div v-if="!!winner" class="margin-top-20">
+        {{ winner }} wins
+    </div>
+
+    <div v-if="!stompClient" class="margin-top-20">
+        Lost connection?
+        <button @click="connect()">Reconnect</button>
+    </div>
+
+    <div v-if="!!stompClient" class="margin-top-20">
+        <button :disabled="!stompClient"
+                @click="restart()">New Game</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="stomp.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<script src="main.js"></script>
+
+</body>
+</html>

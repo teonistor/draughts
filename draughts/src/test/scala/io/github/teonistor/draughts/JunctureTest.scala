@@ -2,8 +2,8 @@ package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.Settings
 import io.vavr.control.Validation.{invalid, valid}
+import org.mockito.IdiomaticMockito
 import org.mockito.Mockito.verify
-import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.springframework.test.util.ReflectionTestUtils.{getField, setField}
 

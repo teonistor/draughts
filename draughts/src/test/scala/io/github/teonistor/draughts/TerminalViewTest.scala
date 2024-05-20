@@ -1,8 +1,8 @@
 package io.github.teonistor.draughts
 
 import io.github.teonistor.draughts.data.{GameState, Settings}
+import org.mockito.IdiomaticMockito
 import org.mockito.Mockito.verify
-import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuite
 import org.springframework.test.util.ReflectionTestUtils.setField
 

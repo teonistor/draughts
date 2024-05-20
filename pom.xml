@@ -16,7 +16,9 @@
 
     <modules>
         <module>common</module>
+        <module>chess</module>
         <module>draughts</module>
+        <module>ttt</module>
     </modules>
 
     <dependencyManagement>

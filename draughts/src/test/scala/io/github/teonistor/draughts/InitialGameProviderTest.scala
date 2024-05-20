@@ -3,7 +3,7 @@ package io.github.teonistor.draughts
 import io.github.teonistor.draughts.data.{GameState, Settings}
 import io.github.teonistor.draughts.rule.{AvailableMovesRule, GameOverChecker}
 import org.mockito.BDDMockito.`given`
-import org.mockito.scalatest.IdiomaticMockito
+import org.mockito.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuite
 import org.springframework.test.util.ReflectionTestUtils.getField
 
