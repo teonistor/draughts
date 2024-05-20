@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.teonistor</groupId>
+        <artifactId>usual-libs-scalatest</artifactId>
+        <version>1.0.6-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>katagames</artifactId>
+    <version>3.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>common</module>
+        <module>draughts</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.teonistor</groupId>
+                <artifactId>katagames.common</artifactId>
+                <version>3.0-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>github-draughts</id>
+            <url>https://maven.pkg.github.com/teonistor/draughts</url>
+        </repository>
+        <repository>
+            <id>github-misc-libs</id>
+            <url>https://maven.pkg.github.com/teonistor/misc-libs</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/teonistor/draughts</url>
+        </repository>
+    </distributionManagement>
+    <scm>
+        <developerConnection>scm:git:https://github.com/teonistor/draughts</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+</project>

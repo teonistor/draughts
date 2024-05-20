@@ -6,16 +6,11 @@
 
     <parent>
         <groupId>io.github.teonistor</groupId>
-        <artifactId>usual-libs-scalatest</artifactId>
-        <version>1.0.2</version>
+        <artifactId>katagames</artifactId>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>draughts</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <properties>
-        <java.version>13</java.version>
-    </properties>
+    <artifactId>katagames.draughts</artifactId>
 
     <dependencies>
         <dependency>
@@ -36,12 +31,12 @@
             <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-scala-scalatest_2.13</artifactId>
-            <version>${mockito-scala.version}</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.mockito</groupId>-->
+<!--            <artifactId>mockito-scala-scalatest_2.13</artifactId>-->
+<!--            <version>${mockito-scala.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -79,26 +74,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>github-draughts</id>
-            <url>https://maven.pkg.github.com/teonistor/draughts</url>
-        </repository>
-        <repository>
-            <id>github-misc-libs</id>
-            <url>https://maven.pkg.github.com/teonistor/misc-libs</url>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/teonistor/draughts</url>
-        </repository>
-    </distributionManagement>
-    <scm>
-        <developerConnection>scm:git:https://github.com/teonistor/draughts</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
 </project>
