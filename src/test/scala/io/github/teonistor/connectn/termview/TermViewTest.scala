@@ -1,13 +1,11 @@
 package io.github.teonistor.connectn.termview
 
 import io.github.teonistor.connectn.Game
-import io.github.teonistor.connectn.data.{Color, GameSettings, GameState}
-import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream
+import io.github.teonistor.connectn.data.{Color, GameOverChecker, GameSettings, GameState}
+import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 
-import java.io.OutputStream
-
-class TermViewTest extends AnyFunSuiteLike {
+class TermViewTest extends IdiomaticMockito with AnyFunSuiteLike {
 
   test("Cannot do higher dimensions (yet)") {
     assert(intercept[UnsupportedOperationException](TermView.display(new Game(
@@ -18,6 +16,12 @@ class TermViewTest extends AnyFunSuiteLike {
   }
 
   test("Basic") {
+
+
+
+
+
+
     val result = TermView.display(new Game(
       GameSettings(Vector(7), 6, 4),
       GameState(Map(
@@ -37,5 +41,21 @@ class TermViewTest extends AnyFunSuiteLike {
          | R     R      |
          | 0 1 2 3 4 5 6
          | Red to move""".stripMargin.replace("|", ""))
+  }
+
+  private def stubRegularGame(board: (Int, List[Color])*)(currentPlayer: Color, isGameOver: Boolean = false, winner: Option[Color] = None) = {
+    val game = new Game(
+      GameSettings(Vector(7), 6, 4),
+      GameState(
+        board.map(kv => (Vector(kv._1), kv._2)).toMap,
+        currentPlayer))
+
+    withObjectMocked[GameOverChecker.type] {
+      GameOverChecker.isGameOver(game).returns((isGameOver, winner))
+      // Pin lazy values so they can be accessed outside the GameOverChecker stub
+      game.isGameOver.toString
+      game.winner.toString
+    }
+    game
   }
 }

@@ -2,7 +2,7 @@ package io.github.teonistor.connectn
 
 import io.github.teonistor.connectn.data.{GameOverChecker, GameSettings, GameState}
 import io.vavr.control.Validation
-import io.vavr.control.Validation.{valid=>Valid, invalid=>Invalid}
+import io.vavr.control.Validation.{invalid => Invalid, valid => Valid}
 
 class Game(val settings: GameSettings,val history: List[GameState]) {
   if (history.isEmpty)
@@ -11,7 +11,7 @@ class Game(val settings: GameSettings,val history: List[GameState]) {
   def this(settings: GameSettings, state: GameState) =
     this(settings, List(state))
 
-  private lazy val (isGameOver, winner) = GameOverChecker.isGameOver(this)
+  lazy val (isGameOver, winner) = GameOverChecker.isGameOver(this)
 
   def placePieceAt(column: Vector[Int]): Validation[String, Game] = {
 

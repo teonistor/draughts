@@ -2,8 +2,6 @@ package io.github.teonistor.connectn.termview
 
 import io.github.teonistor.connectn.Game
 
-import java.io.OutputStream
-
 object TermView {
 
   def display[T](game: Game, continuation: String => T = println): T = {
