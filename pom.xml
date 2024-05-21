@@ -7,84 +7,43 @@
     <parent>
         <groupId>io.github.teonistor</groupId>
         <artifactId>usual-libs-scalatest</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.7</version>
     </parent>
 
-    <artifactId>draughts</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <artifactId>katagames</artifactId>
+    <version>3.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>4.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.13</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.vavr</groupId>
-            <artifactId>vavr</artifactId>
-        </dependency>
+    <modules>
+        <module>common</module>
+        <module>chess</module>
+        <module>connectn</module>
+        <module>draughts</module>
+        <module>ttt</module>
+    </modules>
 
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-scala-scalatest_2.13</artifactId>
-            <version>${mockito-scala.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <properties>
+        <mockito.version>4.8.1</mockito.version>
+    </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>npm-build</id>
-                        <phase>compile</phase>
-                        <configuration>
-                            <executable>sh</executable>
-                            <arguments>
-                                <argument>-c</argument>
-                                <argument>
-                                    set -xe
-                                    cd src/main/vue
-                                    npm install
-                                    npm run build
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.teonistor</groupId>
+                <artifactId>katagames.common</artifactId>
+                <version>3.0-SNAPSHOT</version>
+            </dependency>
 
-                                    cd ../../../target/classes/static
-                                    mkdir draughts
-                                    mv index.html draughts/
-                                    rm service-worker.js
-                                </argument>
-                            </arguments>
-                        </configuration>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+            <!-- TODO Move to base -->
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-bom</artifactId>
+                <version>4.8.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <repositories>
         <repository>
