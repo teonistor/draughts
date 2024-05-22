@@ -1,12 +1,11 @@
 package io.github.teonistor.commongaming
 
-import org.mockito.Mockito.verify
-import org.mockito.scalatest.IdiomaticMockito
+import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.test.util.ReflectionTestUtils.{getField, setField}
 
-class InsecureLobbyTest extends IdiomaticMockito with AnyFunSuiteLike {
+class InsecureLobbyTest extends MockitoSugar with AnyFunSuiteLike {
 
   // How to test websocket servers, or something
   // https://github.com/rstoyanchev/spring-websocket-portfolio/tree/main/src/test/java/org/springframework/samples/portfolio/web

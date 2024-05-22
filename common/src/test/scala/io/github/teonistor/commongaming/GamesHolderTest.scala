@@ -2,8 +2,7 @@ package io.github.teonistor.commongaming
 
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.BDDMockito.`given`
-import org.mockito.Mockito.verify
-import org.mockito.scalatest.IdiomaticMockito
+import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.springframework.test.util.ReflectionTestUtils.setField
 
@@ -12,7 +11,7 @@ import java.util.concurrent.TimeUnit.SECONDS
 import scala.collection.mutable
 import scala.util.Random.nextInt
 
-class GamesHolderTest extends IdiomaticMockito with AnyFunSuiteLike {
+class GamesHolderTest extends MockitoSugar with AnyFunSuiteLike {
 
   test("Start new game") {
     val gameFactory = mock[TestSettings => TestGame]
@@ -34,7 +33,7 @@ class GamesHolderTest extends IdiomaticMockito with AnyFunSuiteLike {
     val expectedOutput = mock[TestGame]
 
     val holder = new GamesHolder[TestGame, TestSettings](null, (-24, SECONDS), view, null)
-    setField(holder, "_games", mutable.Map("1234" -> expectedInput))
+    setField(holder, "games", mutable.Map("1234" -> expectedInput))
 
     holder.progress("1234", actualInput => {
       assert(actualInput == expectedInput)
@@ -50,7 +49,7 @@ class GamesHolderTest extends IdiomaticMockito with AnyFunSuiteLike {
     val unchanged = mock[TestGame]
 
     val holder = new GamesHolder[TestGame, TestSettings](null, (-24, SECONDS), view, null)
-    setField(holder, "_games", mutable.Map("1234" -> unchanged))
+    setField(holder, "games", mutable.Map("1234" -> unchanged))
 
     holder.progress("1234", actualInput => {
       assert(actualInput == unchanged)
@@ -66,7 +65,7 @@ class GamesHolderTest extends IdiomaticMockito with AnyFunSuiteLike {
     val unchanged = mock[TestGame]
 
     val holder = new GamesHolder[TestGame, TestSettings](null, (-24, SECONDS), view, null)
-    setField(holder, "_games", mutable.Map("1234" -> unchanged))
+    setField(holder, "games", mutable.Map("1234" -> unchanged))
 
     holder.progress("5678", null)
 

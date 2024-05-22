@@ -2,7 +2,7 @@ package io.github.teonistor.connectn.termview
 
 import io.github.teonistor.connectn.Game
 import io.github.teonistor.connectn.data.{Color, GameOverChecker, GameSettings, GameState}
-import org.mockito.scalatest.IdiomaticMockito
+import org.mockito.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 class TermViewTest extends IdiomaticMockito with AnyFunSuiteLike {

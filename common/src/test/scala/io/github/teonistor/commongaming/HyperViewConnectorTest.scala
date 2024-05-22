@@ -1,10 +1,9 @@
 package io.github.teonistor.commongaming
 
-import org.mockito.Mockito.verify
-import org.mockito.scalatest.IdiomaticMockito
+import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuiteLike
 
-class HyperViewConnectorTest extends IdiomaticMockito with AnyFunSuiteLike {
+class HyperViewConnectorTest extends MockitoSugar with AnyFunSuiteLike {
 
   test("connected announce all") {
     val hyperView = mock[HyperView[Float]]

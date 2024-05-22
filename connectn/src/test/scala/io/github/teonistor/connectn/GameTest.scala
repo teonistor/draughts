@@ -2,7 +2,7 @@ package io.github.teonistor.connectn
 
 import io.github.teonistor.connectn.data.Color.{Red, Yellow}
 import io.github.teonistor.connectn.data.{GameOverChecker, GameSettings, GameState}
-import org.mockito.scalatest.IdiomaticMockito
+import org.mockito.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 class GameTest extends IdiomaticMockito with AnyFunSuiteLike {

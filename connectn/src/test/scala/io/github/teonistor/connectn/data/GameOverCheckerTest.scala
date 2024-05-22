@@ -1,10 +1,9 @@
 package io.github.teonistor.connectn.data
 
+import io.github.teonistor.commongaming.util.HDUtils.cartesianProduct
 import io.github.teonistor.connectn.Game
 import io.github.teonistor.connectn.data.Color.{Red, Yellow}
 import io.github.teonistor.connectn.data.GameState.Board
-import io.github.teonistor.draughts.HDUtils
-import io.github.teonistor.draughts.HDUtils.cartesianProduct
 import org.scalatest.funsuite.AnyFunSuiteLike
 
 class GameOverCheckerTest extends AnyFunSuiteLike {
