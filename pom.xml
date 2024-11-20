@@ -20,6 +20,7 @@
         <module>connectn</module>
         <module>draughts</module>
         <module>ttt</module>
+        <module>bsms</module>
     </modules>
 
     <properties>
