@@ -1,7 +1,7 @@
 package io.github.teonistor.bsms.rule
 
 import io.github.teonistor.bsms.core.Orientation.{horizontal, vertical}
-import io.github.teonistor.bsms.data.OceanCell.healthyShip
+import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip, mine}
 import io.github.teonistor.bsms.data.{ShipDescription, ShipInPlay}
 import org.scalatest.funsuite.AnyFunSuiteLike
 
@@ -40,5 +40,15 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
     assert(result.isValid)
     positionsWhereShipWillBe.foreach(p => assert(result.get()(p) == Right(expectedShip)))
     positionsWhereShipWontBe.foreach(p => assert(!result.get().contains(p)))
+  }
+
+  test("place ship on mine") {
+    val expectedShip = ShipInPlay("Fishing Boat", Map(Vector(5, 2) -> healthyShip, Vector(5, 3) -> damagedShip))
+
+    val result = ShipPlacementRule.placeShip(Map(Vector(5, 3) -> Left(mine)), fishingBoat, Vector(5, 2), vertical)
+
+    assert(result.isValid)
+    assert(result.get()(Vector(5, 2)) == Right(expectedShip))
+    assert(result.get()(Vector(5, 3)) == Right(expectedShip))
   }
 }
