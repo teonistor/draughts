@@ -8,6 +8,7 @@ import org.scalatest.funsuite.AnyFunSuiteLike
 class ShipPlacementRuleTest extends AnyFunSuiteLike {
 
   private val fishingBoat = ShipDescription("Fishing Boat", 2)
+  private val pirateShip = ShipDescription("Pirate Ship", 4)
 
   test("place ship horizontally") {
     val positionsWhereShipWillBe = List(
@@ -50,5 +51,18 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
     assert(result.isValid)
     assert(result.get()(Vector(5, 2)) == Right(expectedShip))
     assert(result.get()(Vector(5, 3)) == Right(expectedShip))
+  }
+
+  test("cannot place ship on ship") {
+    val boardWithPirateShip = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(3, 2), horizontal).get
+    List(
+        ShipPlacementRule.placeShip(boardWithPirateShip, fishingBoat, Vector(2, 2), horizontal),
+        ShipPlacementRule.placeShip(boardWithPirateShip, fishingBoat, Vector(4, 2), vertical),
+        ShipPlacementRule.placeShip(boardWithPirateShip, fishingBoat, Vector(6, 2), horizontal),
+        ShipPlacementRule.placeShip(boardWithPirateShip, fishingBoat, Vector(5, 1), vertical))
+      .foreach(result => {
+        assert(result.isInvalid)
+        assert(result.getError == "Cannot place ship on top of another")
+      })
   }
 }

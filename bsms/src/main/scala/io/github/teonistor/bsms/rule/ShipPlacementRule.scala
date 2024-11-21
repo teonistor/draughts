@@ -4,7 +4,7 @@ import io.github.teonistor.bsms.core.Orientation
 import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip, mine}
 import io.github.teonistor.bsms.data.{OwnBoard, Position, ShipDescription, ShipInPlay}
 import io.vavr.control.Validation
-import io.vavr.control.Validation.valid
+import io.vavr.control.Validation.{invalid, valid}
 
 object ShipPlacementRule {
 
@@ -15,6 +15,9 @@ object ShipPlacementRule {
         case ((coord, 1), Orientation.vertical) => coord + d
         case ((coord, _), _) => coord
       }))
+
+    if (positions.exists(board.get(_).exists(_.isRight)))
+      return invalid("Cannot place ship on top of another")
 
     val spawnedShip = ShipInPlay(ship.name, positions
       .map(pos => (pos, board.get(pos).filter(_== Left(mine)).map(_=> damagedShip).getOrElse(healthyShip)))
