@@ -1,25 +1,28 @@
 package io.github.teonistor.bsms.core
 
-import io.github.teonistor.bsms.data.{OceanCell, PlayerState, ShipDescription}
+import io.github.teonistor.bsms.core.Orientation.horizontal
+import io.github.teonistor.bsms.data.{OwnBoard, PlayerState, Position, ShipDescription}
+import io.github.teonistor.bsms.rule.ShipPlacementRule
+import io.vavr.control.Validation.valid
+import org.mockito.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 
-class BattleshipMinesweeperTest extends AnyFunSuiteLike {
+class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
+
+  private val board1 = mock[OwnBoard]
+  private val board2 = mock[OwnBoard]
+  private val ship = mock[ShipDescription]
+  private val position = mock[Position]
 
   test("place a ship") {
-    val positionsWhereShipWillBeLater = List(
-      Vector(1, 1), Vector(1, 2))
-    val positionsWhereShipWontBe = List(
-      Vector(0, 0), Vector(0, 1), Vector(0, 2), Vector(0, 3),
-      Vector(1, 0), Vector(1, 3),
-      Vector(2, 0), Vector(2, 1), Vector(2, 2), Vector(2, 3))
+    withObjectMocked[ShipPlacementRule.type] {
 
-    val game = new BattleshipMinesweeper(PlayerState(Map.empty, Map.empty, Set.empty, 0))
-    (positionsWhereShipWillBeLater ++ positionsWhereShipWontBe)
-      .foreach(p => assert(game.inspect(1, p) == OceanCell.water))
+      ShipPlacementRule.placeShip(board1, ship, position, horizontal) returns valid(board2)
 
-    val result = game.placeShip(1, Vector(1, 1), ShipDescription("Paper boat", 2), true)
-    assert(result.isValid)
-    positionsWhereShipWillBeLater.foreach(p => assert(result.get.inspect(1, p) == OceanCell.healthyShip))
-    positionsWhereShipWontBe.foreach(p => assert(result.get.inspect(1, p) == OceanCell.water))
+      val result = new BattleshipMinesweeper(PlayerState(board1, Map.empty, Set.empty, 0))
+        .placeShip(1, ship, position, horizontal)
+      assert(result.isValid)
+      assert(result.get.inspect(-1) == board2)
+    }
   }
 }
