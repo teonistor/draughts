@@ -1,6 +1,6 @@
 package io.github.teonistor.bsms.data
 
-case class PlayerState(board: Map[Position, Either[OceanCell, ShipInPlay]],
-                       opponentBoard: Map[Position, ShootingEffect],
+case class PlayerState(board: OwnBoard,
+                       opponentBoard: OpponentBoard,
                        shipsToPlace: Set[ShipDescription],
                        minesToPlace: Int)
