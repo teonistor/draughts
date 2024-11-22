@@ -20,5 +20,9 @@ case class PlayerState(board: OwnBoard,
     else
       invalid("Cannot use a ship you do not have")
 
-
+  def useMine(): Validation[String, PlayerState] =
+    if (minesToPlace > 0)
+      valid(copy(minesToPlace = minesToPlace - 1))
+    else
+      invalid("Cannot use a ship you do not have")
 }

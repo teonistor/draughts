@@ -3,6 +3,7 @@ package io.github.teonistor.bsms.data
 import io.github.teonistor.bsms.core.Orientation.horizontal
 import io.github.teonistor.bsms.rule.ShipPlacementRule
 import io.vavr.control.Validation.valid
+import org.apache.commons.lang3.RandomUtils.nextInt
 import org.mockito.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 
@@ -49,5 +50,19 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
         assert(result.isInvalid)
         assert(result.getError == "Cannot use a ship you do not have")
       })
+  }
+
+  test("use a mine") {
+    val mines = nextInt(1, 100)
+
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, mines + 1).useMine()
+    assert(result.isValid)
+    assert(result.get.minesToPlace == mines)
+  }
+
+  test("cannot use a mine you don't have") {
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0).useMine()
+    assert(result.isInvalid)
+    assert(result.getError == "Cannot use a mine you do not have")
   }
 }
