@@ -24,5 +24,5 @@ case class PlayerState(board: OwnBoard,
     if (minesToPlace > 0)
       valid(copy(minesToPlace = minesToPlace - 1))
     else
-      invalid("Cannot use a ship you do not have")
+      invalid("Cannot use a mine you do not have")
 }

@@ -2,7 +2,7 @@ package io.github.teonistor.bsms.data
 
 import io.github.teonistor.bsms.core.Orientation.horizontal
 import io.github.teonistor.bsms.rule.ShipPlacementRule
-import io.vavr.control.Validation.valid
+import io.vavr.control.Validation.{invalid, valid}
 import org.apache.commons.lang3.RandomUtils.nextInt
 import org.mockito.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
@@ -19,10 +19,20 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
 
       ShipPlacementRule.placeShip(board1, ship, position, horizontal) returns valid(board2)
 
-      val result = PlayerState(board1, Map.empty, Set.empty, 0)
-        .placeShip(ship, position, horizontal)
+      val result = PlayerState(board1, Map.empty, Set.empty, 0).placeShip(ship, position, horizontal)
       assert(result.isValid)
       assert(result.get.board == board2)
+    }
+  }
+
+  test("cannot place ship") {
+    withObjectMocked[ShipPlacementRule.type] {
+
+      ShipPlacementRule.placeShip(board1, ship, position, horizontal) returns invalid("Some reason")
+
+      val result = PlayerState(board1, Map.empty, Set.empty, 0).placeShip(ship, position, horizontal)
+      assert(result.isInvalid)
+      assert(result.getError == "Some reason")
     }
   }
 
