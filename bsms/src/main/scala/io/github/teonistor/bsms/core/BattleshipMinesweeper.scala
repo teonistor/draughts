@@ -1,16 +1,19 @@
 package io.github.teonistor.bsms.core
 
 import io.github.teonistor.bsms.data._
-import io.github.teonistor.bsms.rule.ShipPlacementRule
 
-class BattleshipMinesweeper(playerState: PlayerState) {
+class BattleshipMinesweeper(val playerState: PlayerState) {
 
-  def placeShip(player: Int, ship: ShipDescription, position: Position, orientation: Orientation): ValidatedGame =
-    ShipPlacementRule.placeShip(playerState.board, ship, position, orientation )
-      .map(newBoard => playerState.copy(board=newBoard))
+  def placeShip(player: Int, ship: ShipDescription, position: Position, orientation: Orientation): ValidatedGame = {
+    playerState.placeShip(ship, position, orientation)
+      .map(new BattleshipMinesweeper(_))
+  }
+
+  def useShip(player: Int, ship: ShipDescription):ValidatedGame =
+     playerState.useShip(ship)
       .map(new BattleshipMinesweeper(_))
 
-  def inspect(player: Int): OwnBoard =
-    playerState.board
-
+  def useMine(player: Int):ValidatedGame =
+     playerState.useMine()
+      .map(new BattleshipMinesweeper(_))
 }
