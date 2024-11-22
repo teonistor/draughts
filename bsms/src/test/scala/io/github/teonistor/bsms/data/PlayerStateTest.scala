@@ -24,4 +24,30 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
       assert(result.get.board == board2)
     }
   }
+
+  test("use a ship") {
+    val nautilus = ShipDescription("Nautilus", 3)
+
+    val result = PlayerState(Map.empty, Map.empty, Set(nautilus, ship), 0)
+      .useShip(ship)
+    assert(result.isValid)
+    assert(result.get.shipsToPlace == Set(nautilus))
+  }
+
+  test("cannot use a ship you don't have") {
+    val nautilus = ShipDescription("Nautilus", 3)
+    val titanic = ShipDescription("Titanic", 5)
+
+    List(ship,
+        ShipDescription("Atlantis", 5),
+        ShipDescription("Eleanor", 3),
+        ShipDescription("Nautilus", 5),
+        ShipDescription("Titanic", 3))
+      .map(ship => PlayerState(Map.empty, Map.empty, Set(nautilus, titanic), 0)
+        .useShip(ship))
+      .foreach(result => {
+        assert(result.isInvalid)
+        assert(result.getError == "Cannot use a ship you do not have")
+      })
+  }
 }
