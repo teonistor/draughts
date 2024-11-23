@@ -79,4 +79,12 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
     assert(result.isInvalid)
     assert(result.getError == "Final reason")
   }
+
+  test("shoot") {
+    aliceBefore.placeMine(position) returns aliceAfter
+
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).shoot(bob, position)
+    assert(result.aliceState == aliceAfter)
+    assert(result.bobState == bobBefore)
+  }
 }

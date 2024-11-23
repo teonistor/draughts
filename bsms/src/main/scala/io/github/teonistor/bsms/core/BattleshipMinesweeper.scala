@@ -29,6 +29,14 @@ class BattleshipMinesweeper(val aliceState: PlayerState,
       .act(player.other, (otherState, otherUpdate) =>
         otherUpdate(otherState.placeMine(position))))
 
+  /**
+   * @param player   The player performing the action
+   * @param position The position on the OTHER player's board where the mine will be placed
+   */
+  def shoot(player: Player, position: Position): BattleshipMinesweeper =
+    act(player.other, (state, update) =>
+      update(state.placeMine(position)))
+
   private def act[T](player: Player, action: (PlayerState, JuFunction[PlayerState, BattleshipMinesweeper]) => T) =
     player match {
       case Player.alice => action(aliceState, new BattleshipMinesweeper(_, bobState))
