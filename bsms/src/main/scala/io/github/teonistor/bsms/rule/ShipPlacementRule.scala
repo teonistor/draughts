@@ -20,7 +20,22 @@ object ShipPlacementRule {
   }
 
   def moveShip(board: OwnBoard, position: Position, movement: Vector[Int]): Validation[String, OwnBoard] = {
-    val Right(ShipInPlay(name, parts)) = board(position)
+    val vp = movement.groupMapReduce(identity)(_=>1)(_+_)
+    // This is quite horrible
+    if ((vp.keySet -- Set(-1,0,1)).nonEmpty || (vp.keySet - 0).size != 1 || vp.removed(0).values.toSet != Set(1))
+      return invalid("Ship must move exactly one space in the direction it is oriented")
+
+    val hopefullyShip = board.get(position).flatMap(_.toOption)
+    if (hopefullyShip.isEmpty)
+      return invalid(position.mkString("You don't have a ship at (", ",", ")"))
+
+    val Some(ShipInPlay(name, parts)) = hopefullyShip
+
+    // This is also quite horrible and together with the above horribility shows an abstraction is missing
+    val mi = movement.zipWithIndex.find {case (v,_) => v==1 || v == -1} .get._2
+    if (parts.keys.map(_(mi)).toSet.size == 1)
+      return invalid("Ship must move in the direction it is oriented")
+
     val lifted = board.removedAll(parts.keys)
     val poss = parts.keySet.map(_.lazyZip(movement).map(_+_))
 

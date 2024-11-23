@@ -66,12 +66,68 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
       })
   }
 
-  test("move ship") {
+  test("move ship horizontally") {
     val boardBeforeMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(3, 2), horizontal).get
     val boardAfterMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(4, 2), horizontal).get
 
     val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(3, 2), Vector(1, 0))
     assert(result.isValid)
     assert(result.contains(boardAfterMovement))
+  }
+
+  test("move ship vertically") {
+    val boardBeforeMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(3, 2), vertical).get
+    val boardAfterMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(3, 1), vertical).get
+
+    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(3, 2), Vector(0, -1))
+    assert(result.isValid)
+    assert(result.contains(boardAfterMovement))
+  }
+
+  List(
+      Vector( 0, 0),
+      Vector( 2, 0),
+      Vector(-3, 0),
+      Vector( 0,-2),
+      Vector( 0, 4),
+      Vector( 1, 1),
+      Vector( 1,-1),
+      Vector(-1, 1),
+      Vector(-1,-1)).foreach { movement =>
+    test("cannot move haphazardly - " + movement.mkString(",")) {
+      val result = ShipPlacementRule.moveShip(Map.empty, Vector(0, 0), movement)
+      assert(result.isInvalid)
+      assert(result.getError == "Ship must move exactly one space in the direction it is oriented")
+    }
+  }
+
+  List(
+      Vector(2, 0),
+      Vector(1, 4),
+      Vector(5, 2),
+      Vector(4, 6)).foreach { position =>
+    val str = position.mkString(",")
+
+    test("cannot move ship that isn't there - " + str) {
+      val result = ShipPlacementRule.moveShip(Map.empty, position, Vector(0, 1))
+      assert(result.isInvalid)
+      assert(result.getError == s"You don't have a ship at ($str)")
+    }
+  }
+
+  test("cannot move vertical ship horizontally") {
+    val boardBeforeMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(2,4), vertical).get
+
+    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(2,4), Vector(1, 0))
+    assert(result.isInvalid)
+    assert(result.getError == "Ship must move in the direction it is oriented")
+  }
+
+  test("cannot move horizontal ship vertically") {
+    val boardBeforeMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(5,1), horizontal).get
+
+    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(5,1), Vector(0, -1))
+    assert(result.isInvalid)
+    assert(result.getError == "Ship must move in the direction it is oriented")
   }
 }
