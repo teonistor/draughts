@@ -1,6 +1,7 @@
 package io.github.teonistor.bsms.data
 
 import io.github.teonistor.bsms.core.Orientation
+import io.github.teonistor.bsms.data.OceanCell.{damagedShip, mine}
 import io.github.teonistor.bsms.rule.ShipPlacementRule
 import io.vavr.control.Validation
 import io.vavr.control.Validation.{invalid, valid}
@@ -23,6 +24,14 @@ case class PlayerState(board: OwnBoard,
       valid(copy(shipsToPlace = shipsToPlace - ship))
     else
       invalid("Cannot use a ship you do not have")
+
+  def placeMine(position: Position): PlayerState =
+    copy(board = board ++ board
+      .get(position)
+      .flatMap(_.toOption)
+      .map(ship => ship.copy(parts = ship.parts + (position -> damagedShip)))
+      .map(ship => ship.parts.keySet.map((_, Right(ship))))
+      .getOrElse(Some(position -> Left(mine))))
 
   def useMine(): Validation[String, PlayerState] =
     if (minesToPlace > 0)

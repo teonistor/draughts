@@ -1,6 +1,7 @@
 package io.github.teonistor.bsms.data
 
 import io.github.teonistor.bsms.core.Orientation.horizontal
+import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip, mine}
 import io.github.teonistor.bsms.rule.ShipPlacementRule
 import io.vavr.control.Validation.{invalid, valid}
 import org.apache.commons.lang3.RandomUtils.nextInt
@@ -83,6 +84,20 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
         assert(result.isInvalid)
         assert(result.getError == "Cannot use a ship you do not have")
       })
+  }
+
+  test("place mine in water") {
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0).placeMine(Vector(7, 5))
+    assert(result.board == Map(Vector(7, 5) -> Left(mine)))
+  }
+
+  test("hit ship") {
+    val shipBefore = ShipInPlay("Fishing Boat", Map(Vector(2, 3) -> healthyShip, Vector(2, 4) -> healthyShip))
+    val shipAfter = ShipInPlay("Fishing Boat", Map(Vector(2, 3) -> healthyShip, Vector(2, 4) -> damagedShip))
+
+    val result = PlayerState(Map(Vector(2, 3) -> Right(shipBefore), Vector(2, 4) -> Right(shipBefore)), Map.empty, Set.empty, 0)
+      .placeMine(Vector(2, 4))
+    assert(result.board == Map(Vector(2, 3) -> Right(shipAfter), Vector(2, 4) -> Right(shipAfter)))
   }
 
   test("use a mine") {
