@@ -9,15 +9,17 @@ import io.vavr.control.Validation.{invalid, valid}
 case class PlayerState(board: OwnBoard,
                        opponentBoard: OpponentBoard,
                        shipsToPlace: Set[ShipDescription],
-                       minesToPlace: Int) {
+                       minesToPlace: Int,
+                       moveToMake: Boolean,
+                       shotToShoot: Boolean) {
 
   def placeShip(ship: ShipDescription, position: Position, orientation: Orientation): Validation[String, PlayerState] =
     ShipPlacementRule.placeShip(board, ship, position, orientation)
-      .map(b => copy(board=b))
+      .map(b => copy(board = b))
 
   def moveShip(position: Position, movement: Vector[Int]): Validation[String, PlayerState] =
     ShipPlacementRule.moveShip(board, position, movement)
-      .map(b => copy(board=b))
+      .map(b => copy(board = b))
 
   def useShip(ship: ShipDescription): Validation[String, PlayerState] =
     if (shipsToPlace.contains(ship))
@@ -38,4 +40,16 @@ case class PlayerState(board: OwnBoard,
       valid(copy(minesToPlace = minesToPlace - 1))
     else
       invalid("Cannot use a mine you do not have")
+
+  def move(): Validation[String, PlayerState] =
+    if (moveToMake)
+      valid(copy(moveToMake = false))
+    else
+      invalid("You do not have a move available")
+
+  def shoot(): Validation[String, PlayerState] =
+    if (shotToShoot)
+      valid(copy(shotToShoot = false))
+    else
+      invalid("You do not have a shot available")
 }

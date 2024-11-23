@@ -8,6 +8,7 @@ import org.apache.commons.lang3.RandomUtils.nextInt
 import org.mockito.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 
+// noinspection NameBooleanParameters
 class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
 
   private val board1 = mock[OwnBoard]
@@ -21,7 +22,7 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
 
       ShipPlacementRule.placeShip(board1, ship, position, horizontal) returns valid(board2)
 
-      val result = PlayerState(board1, Map.empty, Set.empty, 0).placeShip(ship, position, horizontal)
+      val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).placeShip(ship, position, horizontal)
       assert(result.isValid)
       assert(result.get.board == board2)
     }
@@ -32,7 +33,7 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
 
       ShipPlacementRule.placeShip(board1, ship, position, horizontal) returns invalid("Some reason")
 
-      val result = PlayerState(board1, Map.empty, Set.empty, 0).placeShip(ship, position, horizontal)
+      val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).placeShip(ship, position, horizontal)
       assert(result.isInvalid)
       assert(result.getError == "Some reason")
     }
@@ -43,7 +44,7 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
 
       ShipPlacementRule.moveShip(board1, position, movement) returns valid(board2)
 
-      val result = PlayerState(board1, Map.empty, Set.empty, 0).moveShip(position, movement)
+      val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).moveShip(position, movement)
       assert(result.isValid)
       assert(result.get.board == board2)
     }
@@ -54,7 +55,7 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
 
       ShipPlacementRule.moveShip(board1, position, movement) returns invalid("Some other reason")
 
-      val result = PlayerState(board1, Map.empty, Set.empty, 0).moveShip(position, movement)
+      val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).moveShip(position, movement)
       assert(result.isInvalid)
       assert(result.getError == "Some other reason")
     }
@@ -63,7 +64,7 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
   test("use a ship") {
     val nautilus = ShipDescription("Nautilus", 3)
 
-    val result = PlayerState(Map.empty, Map.empty, Set(nautilus, ship), 0)
+    val result = PlayerState(Map.empty, Map.empty, Set(nautilus, ship), 0, false, false)
       .useShip(ship)
     assert(result.isValid)
     assert(result.get.shipsToPlace == Set(nautilus))
@@ -78,7 +79,7 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
         ShipDescription("Eleanor", 3),
         ShipDescription("Nautilus", 5),
         ShipDescription("Titanic", 3))
-      .map(ship => PlayerState(Map.empty, Map.empty, Set(nautilus, titanic), 0)
+      .map(ship => PlayerState(Map.empty, Map.empty, Set(nautilus, titanic), 0, false, false)
         .useShip(ship))
       .foreach(result => {
         assert(result.isInvalid)
@@ -87,7 +88,7 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
   }
 
   test("place mine in water") {
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0).placeMine(Vector(7, 5))
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, false).placeMine(Vector(7, 5))
     assert(result.board == Map(Vector(7, 5) -> Left(mine)))
   }
 
@@ -95,7 +96,7 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
     val shipBefore = ShipInPlay("Fishing Boat", Map(Vector(2, 3) -> healthyShip, Vector(2, 4) -> healthyShip))
     val shipAfter = ShipInPlay("Fishing Boat", Map(Vector(2, 3) -> healthyShip, Vector(2, 4) -> damagedShip))
 
-    val result = PlayerState(Map(Vector(2, 3) -> Right(shipBefore), Vector(2, 4) -> Right(shipBefore)), Map.empty, Set.empty, 0)
+    val result = PlayerState(Map(Vector(2, 3) -> Right(shipBefore), Vector(2, 4) -> Right(shipBefore)), Map.empty, Set.empty, 0, false, false)
       .placeMine(Vector(2, 4))
     assert(result.board == Map(Vector(2, 3) -> Right(shipAfter), Vector(2, 4) -> Right(shipAfter)))
   }
@@ -103,14 +104,38 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
   test("use a mine") {
     val mines = nextInt(1, 100)
 
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, mines + 1).useMine()
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, mines + 1, false, false).useMine()
     assert(result.isValid)
     assert(result.get.minesToPlace == mines)
   }
 
   test("cannot use a mine you don't have") {
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0).useMine()
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, false).useMine()
     assert(result.isInvalid)
     assert(result.getError == "Cannot use a mine you do not have")
+  }
+
+  test("use a move") {
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, true, false).move()
+    assert(result.isValid)
+    assert(!result.get.moveToMake)
+  }
+
+  test("cannot use a move you don't have") {
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, false).move()
+    assert(result.isInvalid)
+    assert(result.getError == "You do not have a move available")
+  }
+
+  test("shoot a shot") {
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, true).shoot()
+    assert(result.isValid)
+    assert(!result.get.shotToShoot)
+  }
+
+  test("cannot shoot a shot you don't have") {
+    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, false).shoot()
+    assert(result.isInvalid)
+    assert(result.getError == "You do not have a shot available")
   }
 }
