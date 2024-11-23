@@ -18,8 +18,11 @@ case class PlayerState(board: OwnBoard,
       .map(b => copy(board = b))
 
   def moveShip(position: Position, movement: Vector[Int]): Validation[String, PlayerState] =
-    ShipPlacementRule.moveShip(board, position, movement)
-      .map(b => copy(board = b))
+    if (moveToMake)
+      ShipPlacementRule.moveShip(board, position, movement)
+        .map(b => copy(board = b, moveToMake = false))
+    else
+      invalid("You do not have a move available")
 
   def useShip(ship: ShipDescription): Validation[String, PlayerState] =
     if (shipsToPlace.contains(ship))
@@ -40,12 +43,6 @@ case class PlayerState(board: OwnBoard,
       valid(copy(minesToPlace = minesToPlace - 1))
     else
       invalid("Cannot use a mine you do not have")
-
-  def move(): Validation[String, PlayerState] =
-    if (moveToMake)
-      valid(copy(moveToMake = false))
-    else
-      invalid("You do not have a move available")
 
   def shoot(): Validation[String, PlayerState] =
     if (shotToShoot)

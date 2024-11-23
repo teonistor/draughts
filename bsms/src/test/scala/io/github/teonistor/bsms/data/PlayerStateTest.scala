@@ -44,18 +44,24 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
 
       ShipPlacementRule.moveShip(board1, position, movement) returns valid(board2)
 
-      val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).moveShip(position, movement)
+      val result = PlayerState(board1, Map.empty, Set.empty, 0, true, false).moveShip(position, movement)
       assert(result.isValid)
       assert(result.get.board == board2)
     }
   }
 
-  test("cannot move ship") {
+  test("cannot move because move used") {
+    val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).moveShip(position, movement)
+    assert(result.isInvalid)
+    assert(result.getError == "You do not have a move available")
+  }
+
+  test("cannot move ship due to rule") {
     withObjectMocked[ShipPlacementRule.type] {
 
       ShipPlacementRule.moveShip(board1, position, movement) returns invalid("Some other reason")
 
-      val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).moveShip(position, movement)
+      val result = PlayerState(board1, Map.empty, Set.empty, 0, true, false).moveShip(position, movement)
       assert(result.isInvalid)
       assert(result.getError == "Some other reason")
     }
@@ -113,18 +119,6 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
     val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, false).useMine()
     assert(result.isInvalid)
     assert(result.getError == "Cannot use a mine you do not have")
-  }
-
-  test("use a move") {
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, true, false).move()
-    assert(result.isValid)
-    assert(!result.get.moveToMake)
-  }
-
-  test("cannot use a move you don't have") {
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, false).move()
-    assert(result.isInvalid)
-    assert(result.getError == "You do not have a move available")
   }
 
   test("shoot a shot") {
