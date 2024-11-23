@@ -14,6 +14,10 @@ case class PlayerState(board: OwnBoard,
     ShipPlacementRule.placeShip(board, ship, position, orientation)
       .map(b => copy(board=b))
 
+  def moveShip(position: Position, movement: Vector[Int]): Validation[String, PlayerState] =
+    ShipPlacementRule.moveShip(board, position, movement)
+      .map(b => copy(board=b))
+
   def useShip(ship: ShipDescription): Validation[String, PlayerState] =
     if (shipsToPlace.contains(ship))
       valid(copy(shipsToPlace = shipsToPlace - ship))

@@ -13,6 +13,7 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
   private val board2 = mock[OwnBoard]
   private val ship = mock[ShipDescription]
   private val position = mock[Position]
+  private val movement = mock[Vector[Int]]
 
   test("place a ship") {
     withObjectMocked[ShipPlacementRule.type] {
@@ -33,6 +34,28 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
       val result = PlayerState(board1, Map.empty, Set.empty, 0).placeShip(ship, position, horizontal)
       assert(result.isInvalid)
       assert(result.getError == "Some reason")
+    }
+  }
+
+  test("move a ship") {
+    withObjectMocked[ShipPlacementRule.type] {
+
+      ShipPlacementRule.moveShip(board1, position, movement) returns valid(board2)
+
+      val result = PlayerState(board1, Map.empty, Set.empty, 0).moveShip(position, movement)
+      assert(result.isValid)
+      assert(result.get.board == board2)
+    }
+  }
+
+  test("cannot move ship") {
+    withObjectMocked[ShipPlacementRule.type] {
+
+      ShipPlacementRule.moveShip(board1, position, movement) returns invalid("Some other reason")
+
+      val result = PlayerState(board1, Map.empty, Set.empty, 0).moveShip(position, movement)
+      assert(result.isInvalid)
+      assert(result.getError == "Some other reason")
     }
   }
 
