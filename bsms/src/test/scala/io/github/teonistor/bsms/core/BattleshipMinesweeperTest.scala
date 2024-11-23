@@ -9,6 +9,7 @@ import org.scalatest.funsuite.AnyFunSuiteLike
 class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
 
   private val aliceBefore = mock[PlayerState]
+  private val aliceMiddle = mock[PlayerState]
   private val aliceAfter = mock[PlayerState]
   private val bobBefore = mock[PlayerState]
   private val bobAfter = mock[PlayerState]
@@ -17,8 +18,9 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
   private val orientation = mock[Orientation]
   private val movement = mock[Vector[Int]]
 
-  test("place a ship") {
-    aliceBefore.placeShip(ship, position, orientation) returns valid(aliceAfter)
+  test("place and use a ship") {
+    aliceBefore.placeShip(ship, position, orientation) returns valid(aliceMiddle)
+    aliceMiddle.useShip(ship) returns valid(aliceAfter)
 
     val result = new BattleshipMinesweeper(aliceBefore,bobBefore).placeShip(alice, ship, position, orientation)
     assert(result.isValid)
@@ -32,6 +34,15 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
     val result = new BattleshipMinesweeper(aliceBefore,bobBefore).placeShip(alice, ship, position, orientation)
     assert(result.isInvalid)
     assert(result.getError == "Some reason")
+  }
+
+  test("cannot use ship") {
+    aliceBefore.placeShip(ship, position, orientation) returns valid(aliceMiddle)
+    aliceMiddle.useShip(ship) returns invalid("Some other reason")
+
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).placeShip(alice, ship, position, orientation)
+    assert(result.isInvalid)
+    assert(result.getError == "Some other reason")
   }
 
   test("move a ship") {
@@ -51,36 +62,20 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
     assert(result.getError == "Some second reason")
   }
 
-  test("use a ship") {
-    aliceBefore.useShip(ship) returns valid(aliceAfter)
+  test("use a mine and place it on the other player's board") {
+    bobBefore.useMine() returns valid(bobAfter)
+    aliceBefore.placeMine(position) returns aliceAfter
 
-    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).useShip(alice, ship)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).placeMine(bob, position)
     assert(result.isValid)
     assert(result.get.aliceState == aliceAfter)
-    assert(result.get.bobState == bobBefore)
-  }
-
-  test("cannot use ship") {
-    aliceBefore.useShip(ship) returns invalid("Some other reason")
-
-    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).useShip(alice, ship)
-    assert(result.isInvalid)
-    assert(result.getError == "Some other reason")
-  }
-
-  test("use a mine") {
-    bobBefore.useMine() returns valid(bobAfter)
-
-    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).useMine(bob)
-    assert(result.isValid)
-    assert(result.get.aliceState == aliceBefore)
     assert(result.get.bobState == bobAfter)
   }
 
   test("cannot use mine") {
     bobBefore.useMine() returns invalid("Final reason")
 
-    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).useMine(bob)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).placeMine(bob, position)
     assert(result.isInvalid)
     assert(result.getError == "Final reason")
   }
