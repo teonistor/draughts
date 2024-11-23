@@ -7,11 +7,14 @@ import org.scalatest.funsuite.AnyFunSuiteLike
 
 class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
 
-  private val state1 = mock[PlayerState]
-  private val state2 = mock[PlayerState]
+  private val aliceBefore = mock[PlayerState]
+  private val aliceAfter = mock[PlayerState]
+  private val bobBefore = mock[PlayerState]
+  private val bobAfter = mock[PlayerState]
   private val ship = mock[ShipDescription]
   private val position = mock[Position]
   private val orientation = mock[Orientation]
+  private val movement = mock[Vector[Int]]
 
   test("place a ship") {
     state1.placeShip(ship, position, orientation) returns valid(state2)
@@ -27,6 +30,22 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
     val result = new BattleshipMinesweeper(state1).placeShip(1, ship, position, orientation)
     assert(result.isInvalid)
     assert(result.getError == "Some reason")
+  }
+
+  test("move a ship") {
+    bobBefore.moveShip(position, movement) returns valid(bobAfter)
+
+    val result = new BattleshipMinesweeper(bobBefore).moveShip(1, position, movement)
+    assert(result.isValid)
+    assert(result.get.playerState == bobAfter)
+  }
+
+  test("cannot move ship") {
+    bobBefore.moveShip(position, movement) returns invalid("Some second reason")
+
+    val result = new BattleshipMinesweeper(bobBefore).moveShip(1, position, movement)
+    assert(result.isInvalid)
+    assert(result.getError == "Some second reason")
   }
 
   test("use a ship") {
