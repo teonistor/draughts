@@ -16,10 +16,22 @@ object ShipPlacementRule {
         case ((coord, _), _) => coord
       }))
 
+    placeShip0(board, ship.name, positions)
+  }
+
+  def moveShip(board: OwnBoard, position: Position, movement: Vector[Int]): Validation[String, OwnBoard] = {
+    val Right(ShipInPlay(name, parts)) = board(position)
+    val lifted = board.removedAll(parts.keys)
+    val poss = parts.keySet.map(_.lazyZip(movement).map(_+_))
+
+    placeShip0(lifted, name, poss)
+  }
+
+  private def placeShip0(board: OwnBoard, name: String, positions: Iterable[Vector[Int]]): Validation[String, OwnBoard] = {
     if (positions.exists(board.get(_).exists(_.isRight)))
       return invalid("Cannot place ship on top of another")
 
-    val spawnedShip = ShipInPlay(ship.name, positions
+    val spawnedShip = ShipInPlay(name, positions
       .map(pos => (pos, board.get(pos).filter(_== Left(mine)).map(_=> damagedShip).getOrElse(healthyShip)))
       .toMap)
 

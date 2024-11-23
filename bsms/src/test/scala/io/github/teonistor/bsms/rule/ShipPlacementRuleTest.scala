@@ -65,4 +65,13 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
         assert(result.getError == "Cannot place ship on top of another")
       })
   }
+
+  test("move ship") {
+    val boardBeforeMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(3, 2), horizontal).get
+    val boardAfterMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(4, 2), horizontal).get
+
+    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(3, 2), Vector(1, 0))
+    assert(result.isValid)
+    assert(result.contains(boardAfterMovement))
+  }
 }
