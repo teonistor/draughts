@@ -1,5 +1,6 @@
 package io.github.teonistor.bsms.core
 
+import io.github.teonistor.bsms.data.Player.{alice, bob}
 import io.github.teonistor.bsms.data.{PlayerState, Position, ShipDescription}
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.IdiomaticMockito
@@ -17,17 +18,18 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
   private val movement = mock[Vector[Int]]
 
   test("place a ship") {
-    state1.placeShip(ship, position, orientation) returns valid(state2)
+    aliceBefore.placeShip(ship, position, orientation) returns valid(aliceAfter)
 
-    val result = new BattleshipMinesweeper(state1).placeShip(1, ship, position, orientation)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).placeShip(alice, ship, position, orientation)
     assert(result.isValid)
-    assert(result.get.playerState == state2)
+    assert(result.get.aliceState == aliceAfter)
+    assert(result.get.bobState == bobBefore)
   }
 
   test("cannot place ship") {
-    state1.placeShip(ship, position, orientation) returns invalid("Some reason")
+    aliceBefore.placeShip(ship, position, orientation) returns invalid("Some reason")
 
-    val result = new BattleshipMinesweeper(state1).placeShip(1, ship, position, orientation)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).placeShip(alice, ship, position, orientation)
     assert(result.isInvalid)
     assert(result.getError == "Some reason")
   }
@@ -35,47 +37,50 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
   test("move a ship") {
     bobBefore.moveShip(position, movement) returns valid(bobAfter)
 
-    val result = new BattleshipMinesweeper(bobBefore).moveShip(1, position, movement)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).moveShip(bob, position, movement)
     assert(result.isValid)
-    assert(result.get.playerState == bobAfter)
+    assert(result.get.aliceState == aliceBefore)
+    assert(result.get.bobState == bobAfter)
   }
 
   test("cannot move ship") {
     bobBefore.moveShip(position, movement) returns invalid("Some second reason")
 
-    val result = new BattleshipMinesweeper(bobBefore).moveShip(1, position, movement)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).moveShip(bob, position, movement)
     assert(result.isInvalid)
     assert(result.getError == "Some second reason")
   }
 
   test("use a ship") {
-    state1.useShip(ship) returns valid(state2)
+    aliceBefore.useShip(ship) returns valid(aliceAfter)
 
-    val result = new BattleshipMinesweeper(state1).useShip(1, ship)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).useShip(alice, ship)
     assert(result.isValid)
-    assert(result.get.playerState == state2)
+    assert(result.get.aliceState == aliceAfter)
+    assert(result.get.bobState == bobBefore)
   }
 
   test("cannot use ship") {
-    state1.useShip(ship) returns invalid("Some other reason")
+    aliceBefore.useShip(ship) returns invalid("Some other reason")
 
-    val result = new BattleshipMinesweeper(state1).useShip(1, ship)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).useShip(alice, ship)
     assert(result.isInvalid)
     assert(result.getError == "Some other reason")
   }
 
   test("use a mine") {
-    state1.useMine() returns valid(state2)
+    bobBefore.useMine() returns valid(bobAfter)
 
-    val result = new BattleshipMinesweeper(state1).useMine(1)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).useMine(bob)
     assert(result.isValid)
-    assert(result.get.playerState == state2)
+    assert(result.get.aliceState == aliceBefore)
+    assert(result.get.bobState == bobAfter)
   }
 
   test("cannot use mine") {
-    state1.useMine() returns invalid("Final reason")
+    bobBefore.useMine() returns invalid("Final reason")
 
-    val result = new BattleshipMinesweeper(state1).useMine(1)
+    val result = new BattleshipMinesweeper(aliceBefore,bobBefore).useMine(bob)
     assert(result.isInvalid)
     assert(result.getError == "Final reason")
   }
