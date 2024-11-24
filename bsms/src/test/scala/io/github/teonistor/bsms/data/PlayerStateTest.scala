@@ -6,10 +6,10 @@ import io.github.teonistor.bsms.rule.ShipPlacementRule
 import io.vavr.control.Validation.{invalid, valid}
 import org.apache.commons.lang3.RandomUtils.nextInt
 import org.mockito.IdiomaticMockito
-import org.scalatest.funsuite.AnyFunSuiteLike
+import org.scalatest.funspec.AnyFunSpec
 
 // noinspection NameBooleanParameters
-class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
+class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
 
   private val board1 = mock[OwnBoard]
   private val board2 = mock[OwnBoard]
@@ -17,119 +17,171 @@ class PlayerStateTest extends AnyFunSuiteLike with IdiomaticMockito {
   private val position = mock[Position]
   private val movement = mock[Vector[Int]]
 
-  test("place a ship") {
-    withObjectMocked[ShipPlacementRule.type] {
+  describe("base trait PlayerState") {
 
-      ShipPlacementRule.placeShip(board1, ship, position, horizontal) returns valid(board2)
+    val setter = mock[OwnBoard => PlayerState]
 
-      val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).placeShip(ship, position, horizontal)
-      assert(result.isValid)
-      assert(result.get.board == board2)
+    // noinspection NotImplementedCode, TypeAnnotation
+    val st = new PlayerState {
+      override val board = board1
+      override def withBoard(board: OwnBoard) = setter(board)
     }
-  }
 
-  test("cannot place ship") {
-    withObjectMocked[ShipPlacementRule.type] {
-
-      ShipPlacementRule.placeShip(board1, ship, position, horizontal) returns invalid("Some reason")
-
-      val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).placeShip(ship, position, horizontal)
+    it("cannot use ship outside ship placement stage") {
+      val result = st.useShip(ship)
       assert(result.isInvalid)
-      assert(result.getError == "Some reason")
+      assert(result.getError == "Cannot use ship outside ship placement stage")
     }
-  }
 
-  test("move a ship") {
-    withObjectMocked[ShipPlacementRule.type] {
-
-      ShipPlacementRule.moveShip(board1, position, movement) returns valid(board2)
-
-      val result = PlayerState(board1, Map.empty, Set.empty, 0, true, false).moveShip(position, movement)
-      assert(result.isValid)
-      assert(result.get.board == board2)
-    }
-  }
-
-  test("cannot move because move used") {
-    val result = PlayerState(board1, Map.empty, Set.empty, 0, false, false).moveShip(position, movement)
-    assert(result.isInvalid)
-    assert(result.getError == "You do not have a move available")
-  }
-
-  test("cannot move ship due to rule") {
-    withObjectMocked[ShipPlacementRule.type] {
-
-      ShipPlacementRule.moveShip(board1, position, movement) returns invalid("Some other reason")
-
-      val result = PlayerState(board1, Map.empty, Set.empty, 0, true, false).moveShip(position, movement)
+    it("cannot use mine outside mine placement stage") {
+      val result = st.useMine()
       assert(result.isInvalid)
-      assert(result.getError == "Some other reason")
+      assert(result.getError == "Cannot use mine outside mine placement stage")
+    }
+
+    it("cannot move ship outside ship movement stage") {
+      val result = st.moveShip(position, movement)
+      assert(result.isInvalid)
+      assert(result.getError == "Cannot move ship outside ship movement stage")
+    }
+
+    it("cannot shoot outside shooting stage") {
+      val result = st.shoot()
+      assert(result.isInvalid)
+      assert(result.getError == "Cannot shoot outside shooting stage")
+    }
+
+    it("call setter") {
+      val nextState = mock[PlayerState]
+      setter(board2) returns nextState
+
+      assert(st.withBoard(board2) == nextState)
     }
   }
 
-  test("use a ship") {
-    val nautilus = ShipDescription("Nautilus", 3)
+  describe("ship placement stage") {
 
-    val result = PlayerState(Map.empty, Map.empty, Set(nautilus, ship), 0, false, false)
-      .useShip(ship)
-    assert(result.isValid)
-    assert(result.get.shipsToPlace == Set(nautilus))
-  }
+    it("use a ship") {
+      val nautilus = ShipDescription("Nautilus", 3)
 
-  test("cannot use a ship you don't have") {
-    val nautilus = ShipDescription("Nautilus", 3)
-    val titanic = ShipDescription("Titanic", 5)
+      val result = PlayerStateShipPlacement(Map.empty, Map.empty, Set(nautilus, ship)).useShip(ship)
+      assert(result.isValid)
+      assert(result.get.asInstanceOf[PlayerStateShipPlacement].shipsToPlace == Set(nautilus))
+    }
 
-    List(ship,
-        ShipDescription("Atlantis", 5),
-        ShipDescription("Eleanor", 3),
-        ShipDescription("Nautilus", 5),
-        ShipDescription("Titanic", 3))
-      .map(ship => PlayerState(Map.empty, Map.empty, Set(nautilus, titanic), 0, false, false)
-        .useShip(ship))
-      .foreach(result => {
+    it("cannot use a ship you don't have") {
+      val nautilus = ShipDescription("Nautilus", 3)
+      val titanic = ShipDescription("Titanic", 5)
+
+      List(ship,
+          ShipDescription("Atlantis", 5),
+          ShipDescription("Eleanor", 3),
+          ShipDescription("Nautilus", 5),
+          ShipDescription("Titanic", 3))
+        .map(ship => PlayerStateShipPlacement(Map.empty, Map.empty, Set(nautilus, titanic)).useShip(ship))
+        .foreach(result => {
+          assert(result.isInvalid)
+          assert(result.getError == "Cannot use a ship you do not have")
+        })
+    }
+
+    it("place a ship") {
+      withObjectMocked[ShipPlacementRule.type] {
+
+        ShipPlacementRule.placeShip(board1, ship, position, horizontal) returns valid(board2)
+
+        val result = PlayerStateShipPlacement(board1, Map.empty, Set.empty).placeShip(ship, position, horizontal)
+        assert(result.isValid)
+        assert(result.get.board == board2)
+      }
+    }
+
+    it("cannot place ship") {
+      withObjectMocked[ShipPlacementRule.type] {
+
+        ShipPlacementRule.placeShip(board1, ship, position, horizontal) returns invalid("Some reason")
+
+        val result = PlayerStateShipPlacement(board1, Map.empty, Set.empty).placeShip(ship, position, horizontal)
         assert(result.isInvalid)
-        assert(result.getError == "Cannot use a ship you do not have")
-      })
+        assert(result.getError == "Some reason")
+      }
+    }
   }
 
-  test("place mine in water") {
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, false).placeMine(Vector(7, 5))
-    assert(result.board == Map(Vector(7, 5) -> Left(mine)))
+  describe("mine placement stage") {
+
+    it("place mine in water") {
+      val result = PlayerStateMinePlacement(Map.empty, Map.empty, 0).placeMine(Vector(7, 5))
+      assert(result.board == Map(Vector(7, 5) -> Left(mine)))
+    }
+
+    it("hit ship") {
+      val shipBefore = ShipInPlay("Fishing Boat", Map(Vector(2, 3) -> healthyShip, Vector(2, 4) -> healthyShip))
+      val shipAfter = ShipInPlay("Fishing Boat", Map(Vector(2, 3) -> healthyShip, Vector(2, 4) -> damagedShip))
+
+      val result = PlayerStateMinePlacement(Map(Vector(2, 3) -> Right(shipBefore), Vector(2, 4) -> Right(shipBefore)), Map.empty, 0)
+        .placeMine(Vector(2, 4))
+      assert(result.board == Map(Vector(2, 3) -> Right(shipAfter), Vector(2, 4) -> Right(shipAfter)))
+    }
+
+    it("use a mine") {
+      val mines = nextInt(1, 100)
+
+      val result = PlayerStateMinePlacement(Map.empty, Map.empty, mines + 1).useMine()
+      assert(result.isValid)
+      assert(result.get.asInstanceOf[PlayerStateMinePlacement].minesToPlace == mines)
+    }
+
+    it("cannot use a mine you don't have") {
+      val result = PlayerStateMinePlacement(Map.empty, Map.empty, 0).useMine()
+      assert(result.isInvalid)
+      assert(result.getError == "Cannot use a mine you do not have")
+    }
   }
 
-  test("hit ship") {
-    val shipBefore = ShipInPlay("Fishing Boat", Map(Vector(2, 3) -> healthyShip, Vector(2, 4) -> healthyShip))
-    val shipAfter = ShipInPlay("Fishing Boat", Map(Vector(2, 3) -> healthyShip, Vector(2, 4) -> damagedShip))
+  describe("ship movement stage") {
 
-    val result = PlayerState(Map(Vector(2, 3) -> Right(shipBefore), Vector(2, 4) -> Right(shipBefore)), Map.empty, Set.empty, 0, false, false)
-      .placeMine(Vector(2, 4))
-    assert(result.board == Map(Vector(2, 3) -> Right(shipAfter), Vector(2, 4) -> Right(shipAfter)))
+    it("move a ship") {
+      withObjectMocked[ShipPlacementRule.type] {
+
+        ShipPlacementRule.moveShip(board1, position, movement) returns valid(board2)
+
+        val result = PlayerStateMovement(board1, Map.empty, true).moveShip(position, movement)
+        assert(result.isValid)
+        assert(result.get.board == board2)
+      }
+    }
+
+    it("cannot move because move used") {
+      val result = PlayerStateMovement(board1, Map.empty, false).moveShip(position, movement)
+      assert(result.isInvalid)
+      assert(result.getError == "You do not have a move available")
+    }
+
+    it("cannot move ship due to rule") {
+      withObjectMocked[ShipPlacementRule.type] {
+
+        ShipPlacementRule.moveShip(board1, position, movement) returns invalid("Some other reason")
+
+        val result = PlayerStateMovement(board1, Map.empty, true).moveShip(position, movement)
+        assert(result.isInvalid)
+        assert(result.getError == "Some other reason")
+      }
+    }
   }
 
-  test("use a mine") {
-    val mines = nextInt(1, 100)
+  describe("shooting stage") {
 
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, mines + 1, false, false).useMine()
-    assert(result.isValid)
-    assert(result.get.minesToPlace == mines)
-  }
+    it("shoot a shot") {
+      val result = PlayerStateShooting(Map.empty, Map.empty, true).shoot()
+      assert(result.isValid)
+      assert(!result.get.asInstanceOf[PlayerStateShooting].shotToShoot)
+    }
 
-  test("cannot use a mine you don't have") {
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, false).useMine()
-    assert(result.isInvalid)
-    assert(result.getError == "Cannot use a mine you do not have")
-  }
-
-  test("shoot a shot") {
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, true).shoot()
-    assert(result.isValid)
-    assert(!result.get.shotToShoot)
-  }
-
-  test("cannot shoot a shot you don't have") {
-    val result = PlayerState(Map.empty, Map.empty, Set.empty, 0, false, false).shoot()
-    assert(result.isInvalid)
-    assert(result.getError == "You do not have a shot available")
+    it("cannot shoot a shot you don't have") {
+      val result = PlayerStateShooting(Map.empty, Map.empty, false).shoot()
+      assert(result.isInvalid)
+      assert(result.getError == "You do not have a shot available")
+    }
   }
 }
