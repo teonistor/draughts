@@ -34,22 +34,19 @@
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.mockito</groupId>-->
-<!--            <artifactId>mockito-scala-scalatest_2.13</artifactId>-->
-<!--            <version>${mockito-scala.version}</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Because withObjectMocked in mockito-scala performs heavy reflection, this is needed from Java 17 or so -->
+                    <argLine>--add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                             --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
 <!--            <plugin>-->
 <!--                <groupId>org.codehaus.mojo</groupId>-->
 <!--                <artifactId>exec-maven-plugin</artifactId>-->
