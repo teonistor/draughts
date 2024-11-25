@@ -25,6 +25,7 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
     val st = new PlayerState {
       override val board = board1
       override def withBoard(board: OwnBoard) = setter(board)
+      override def isStageOver: Boolean = ???
     }
 
     it("cannot use ship outside ship placement stage") {
@@ -78,8 +79,11 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
           ShipDescription("Eleanor", 3),
           ShipDescription("Nautilus", 5),
           ShipDescription("Titanic", 3))
-        .map(ship => PlayerStateShipPlacement(Map.empty, Map.empty, Set(nautilus, titanic)).useShip(ship))
-        .foreach(result => {
+        .foreach(ship => {
+          val initial = PlayerStateShipPlacement(Map.empty, Map.empty, Set(nautilus, titanic))
+          val result = initial.useShip(ship)
+
+          assert(!initial.isStageOver)
           assert(result.isInvalid)
           assert(result.getError == "Cannot use a ship you do not have")
         })
@@ -106,6 +110,10 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
         assert(result.getError == "Some reason")
       }
     }
+
+    it("stage over") {
+      assert(PlayerStateShipPlacement(board1, Map.empty, Set.empty).isStageOver)
+    }
   }
 
   describe("mine placement stage") {
@@ -126,14 +134,19 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
 
     it("use a mine") {
       val mines = nextInt(1, 100)
+      val initial = PlayerStateMinePlacement(Map.empty, Map.empty, mines + 1)
+      val result = initial.useMine()
 
-      val result = PlayerStateMinePlacement(Map.empty, Map.empty, mines + 1).useMine()
+      assert(!initial.isStageOver)
       assert(result.isValid)
       assert(result.get.asInstanceOf[PlayerStateMinePlacement].minesToPlace == mines)
     }
 
     it("cannot use a mine you don't have") {
-      val result = PlayerStateMinePlacement(Map.empty, Map.empty, 0).useMine()
+      val initial = PlayerStateMinePlacement(Map.empty, Map.empty, 0)
+      val result = initial.useMine()
+
+      assert(initial.isStageOver)
       assert(result.isInvalid)
       assert(result.getError == "Cannot use a mine you do not have")
     }
@@ -153,17 +166,22 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
     }
 
     it("cannot move because move used") {
-      val result = PlayerStateMovement(board1, Map.empty, false).moveShip(position, movement)
+      val initial = PlayerStateMovement(board1, Map.empty, false)
+      val result = initial.moveShip(position, movement)
+
+      assert(initial.isStageOver)
       assert(result.isInvalid)
       assert(result.getError == "You do not have a move available")
     }
 
     it("cannot move ship due to rule") {
+      val initial = PlayerStateMovement(board1, Map.empty, true)
       withObjectMocked[ShipPlacementRule.type] {
 
         ShipPlacementRule.moveShip(board1, position, movement) returns invalid("Some other reason")
 
-        val result = PlayerStateMovement(board1, Map.empty, true).moveShip(position, movement)
+        val result = initial.moveShip(position, movement)
+        assert(!initial.isStageOver)
         assert(result.isInvalid)
         assert(result.getError == "Some other reason")
       }
@@ -173,13 +191,19 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
   describe("shooting stage") {
 
     it("shoot a shot") {
-      val result = PlayerStateShooting(Map.empty, Map.empty, true).shoot()
+      val initial = PlayerStateShooting(Map.empty, Map.empty, true)
+      val result = initial.shoot()
+
+      assert(!initial.isStageOver)
       assert(result.isValid)
       assert(!result.get.asInstanceOf[PlayerStateShooting].shotToShoot)
     }
 
     it("cannot shoot a shot you don't have") {
-      val result = PlayerStateShooting(Map.empty, Map.empty, false).shoot()
+      val initial = PlayerStateShooting(Map.empty, Map.empty, false)
+      val result = initial.shoot()
+
+      assert(initial.isStageOver)
       assert(result.isInvalid)
       assert(result.getError == "You do not have a shot available")
     }

@@ -35,6 +35,8 @@ trait PlayerState {
       .map(ship => ship.copy(parts = ship.parts + (position -> damagedShip)))
       .map(ship => ship.parts.keySet.map((_, Right(ship))))
       .getOrElse(Some(position -> Left(mine))))
+
+  def isStageOver: Boolean
 }
 
 case class PlayerStateShipPlacement(board: OwnBoard,
@@ -48,6 +50,8 @@ case class PlayerStateShipPlacement(board: OwnBoard,
       invalid("Cannot use a ship you do not have")
 
   override def withBoard(board: OwnBoard): PlayerState = copy(board = board)
+
+  lazy val isStageOver: Boolean = shipsToPlace.isEmpty
 }
 
 case class PlayerStateMinePlacement(board: OwnBoard,
@@ -61,6 +65,8 @@ case class PlayerStateMinePlacement(board: OwnBoard,
       invalid("Cannot use a mine you do not have")
 
   override def withBoard(board: OwnBoard): PlayerState = copy(board = board)
+
+  lazy val isStageOver: Boolean = minesToPlace <= 0
 }
 
 case class PlayerStateMovement(board: OwnBoard,
@@ -75,6 +81,8 @@ case class PlayerStateMovement(board: OwnBoard,
       invalid("You do not have a move available")
 
   override def withBoard(board: OwnBoard): PlayerState = copy(board = board)
+
+  lazy val isStageOver: Boolean = !moveToMake
 }
 
 case class PlayerStateShooting(board: OwnBoard,
@@ -88,4 +96,6 @@ case class PlayerStateShooting(board: OwnBoard,
       invalid("You do not have a shot available")
 
   override def withBoard(board: OwnBoard): PlayerState = copy(board = board)
+
+  lazy val isStageOver: Boolean = !shotToShoot
 }
