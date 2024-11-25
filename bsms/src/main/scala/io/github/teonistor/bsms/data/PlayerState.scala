@@ -37,6 +37,8 @@ trait PlayerState {
       .getOrElse(Some(position -> Left(mine))))
 
   def isStageOver: Boolean
+
+  def nextStage(gameSettings: GameSettings): PlayerState
 }
 
 case class PlayerStateShipPlacement(board: OwnBoard,
@@ -52,6 +54,9 @@ case class PlayerStateShipPlacement(board: OwnBoard,
   override def withBoard(board: OwnBoard): PlayerState = copy(board = board)
 
   lazy val isStageOver: Boolean = shipsToPlace.isEmpty
+
+  override def nextStage(gameSettings: GameSettings): PlayerState =
+    PlayerStateMinePlacement(board, opponentBoard, gameSettings.minesToPlace)
 }
 
 case class PlayerStateMinePlacement(board: OwnBoard,
@@ -67,6 +72,10 @@ case class PlayerStateMinePlacement(board: OwnBoard,
   override def withBoard(board: OwnBoard): PlayerState = copy(board = board)
 
   lazy val isStageOver: Boolean = minesToPlace <= 0
+
+  // noinspection NameBooleanParameters
+  override def nextStage(gameSettings: GameSettings): PlayerState =
+    PlayerStateMovement(board, opponentBoard, true)
 }
 
 case class PlayerStateMovement(board: OwnBoard,
@@ -83,6 +92,10 @@ case class PlayerStateMovement(board: OwnBoard,
   override def withBoard(board: OwnBoard): PlayerState = copy(board = board)
 
   lazy val isStageOver: Boolean = !moveToMake
+
+  // noinspection NameBooleanParameters
+  override def nextStage(gameSettings: GameSettings): PlayerState =
+    PlayerStateShooting(board ,opponentBoard, true)
 }
 
 case class PlayerStateShooting(board: OwnBoard,
@@ -98,4 +111,8 @@ case class PlayerStateShooting(board: OwnBoard,
   override def withBoard(board: OwnBoard): PlayerState = copy(board = board)
 
   lazy val isStageOver: Boolean = !shotToShoot
+
+  // noinspection NameBooleanParameters
+  override def nextStage(gameSettings: GameSettings): PlayerState =
+    PlayerStateMovement(board, opponentBoard, true)
 }

@@ -25,7 +25,8 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
     val st = new PlayerState {
       override val board = board1
       override def withBoard(board: OwnBoard) = setter(board)
-      override def isStageOver: Boolean = ???
+      override def isStageOver = ???
+      override def nextStage(gameSettings: GameSettings) = ???
     }
 
     it("cannot use ship outside ship placement stage") {
@@ -114,6 +115,16 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
     it("stage over") {
       assert(PlayerStateShipPlacement(board1, Map.empty, Set.empty).isStageOver)
     }
+
+    it("next stage") {
+      val settings = mock[GameSettings]
+      val board = mock[OwnBoard]
+      val minesToPlace = nextInt(2,7)
+      settings.minesToPlace returns minesToPlace
+
+      val result = PlayerStateShipPlacement(board, Map.empty, Set.empty).nextStage(settings)
+      assert(result == PlayerStateMinePlacement(board, Map.empty, minesToPlace))
+    }
   }
 
   describe("mine placement stage") {
@@ -149,6 +160,14 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
       assert(initial.isStageOver)
       assert(result.isInvalid)
       assert(result.getError == "Cannot use a mine you do not have")
+    }
+
+    it("next stage") {
+      val settings = mock[GameSettings]
+      val board = mock[OwnBoard]
+
+      val result = PlayerStateMinePlacement(board, Map.empty, 1).nextStage(settings)
+      assert(result == PlayerStateMovement(board, Map.empty, true))
     }
   }
 
@@ -186,6 +205,14 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
         assert(result.getError == "Some other reason")
       }
     }
+
+    it("next stage") {
+      val settings = mock[GameSettings]
+      val board = mock[OwnBoard]
+
+      val result = PlayerStateMovement(board, Map.empty, false).nextStage(settings)
+      assert(result == PlayerStateShooting(board, Map.empty, true))
+    }
   }
 
   describe("shooting stage") {
@@ -206,6 +233,14 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
       assert(initial.isStageOver)
       assert(result.isInvalid)
       assert(result.getError == "You do not have a shot available")
+    }
+
+    it("next stage") {
+      val settings = mock[GameSettings]
+      val board = mock[OwnBoard]
+
+      val result = PlayerStateShooting(board, Map.empty, true).nextStage(settings)
+      assert(result == PlayerStateMovement(board, Map.empty, true))
     }
   }
 }
