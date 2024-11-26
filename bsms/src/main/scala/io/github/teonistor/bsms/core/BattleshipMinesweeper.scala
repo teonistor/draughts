@@ -1,11 +1,13 @@
 package io.github.teonistor.bsms.core
 
 import io.github.teonistor.bsms.data._
+import io.github.teonistor.bsms.rule.StageChange.advanceStageIfNecessary
 
 import java.util.function.{Function => JuFunction}
 
-class BattleshipMinesweeper(val aliceState: PlayerState,
-                            val bobState: PlayerState) {
+case class BattleshipMinesweeper(settings: GameSettings,
+                                 aliceState: PlayerState,
+                                 bobState: PlayerState) {
 
   def placeShip(player: Player, ship: ShipDescription, position: Position, orientation: Orientation): ValidatedGame =
     act(player, (state, update) => state
@@ -39,7 +41,7 @@ class BattleshipMinesweeper(val aliceState: PlayerState,
 
   private def act[T](player: Player, action: (PlayerState, JuFunction[PlayerState, BattleshipMinesweeper]) => T) =
     player match {
-      case Player.alice => action(aliceState, new BattleshipMinesweeper(_, bobState))
-      case Player.bob => action(bobState, new BattleshipMinesweeper(aliceState, _))
+      case Player.alice => action(aliceState, newState => advanceStageIfNecessary(copy(aliceState=newState)))
+      case Player.bob => action(bobState, newState => advanceStageIfNecessary(copy(bobState=newState)))
     }
 }
