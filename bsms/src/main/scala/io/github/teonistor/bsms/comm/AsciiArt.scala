@@ -1,0 +1,42 @@
+package io.github.teonistor.bsms.comm
+
+import io.github.teonistor.bsms.core.BattleshipMinesweeper
+import io.github.teonistor.bsms.data.OceanCell.damagedShip
+import io.github.teonistor.bsms.data.{OwnBoard, PlayerState}
+
+object AsciiArt {
+
+  def illustrateGame(game: BattleshipMinesweeper): String = ???
+
+  def illustrateState(state: PlayerState, width: Int, height: Int): String = ???
+
+  private val boxChars = Vector(" ", "F", "F", "╰", "F", "│", "╭", "├", "F", "╯", "─", "┴", "╮", "┤", "┬", "┼")
+  private val damagedChar = "█"
+
+  def illustrateBoard(board: OwnBoard, width: Int, height: Int): String = {
+    (0 to height)
+      .map(y => (0 to width * 3)
+        .map { x =>
+
+          val lx = (x + 2) / 3 - 1
+          val rx =  x / 3
+          val ty =  y - 1
+
+          val tl = board.get(Vector(lx,ty)).flatMap(_.toOption).map(_.name)
+          val tr = board.get(Vector(rx,ty)).flatMap(_.toOption).map(_.name)
+          val bl = board.get(Vector(lx, y)).flatMap(_.toOption).map(_.name)
+          val br = board.get(Vector(rx, y)).flatMap(_.toOption).map(_.name)
+
+          if (lx == rx
+              && board.get(Vector(rx, y)).flatMap(_.toOption.map(_.parts(Vector(rx, y)))).contains(damagedShip))
+            damagedChar
+          else
+            boxChars((if (tl == tr) 0 else 1)
+                   + (if (br == tr) 0 else 2)
+                   + (if (bl == br) 0 else 4)
+                   + (if (tl == bl) 0 else 8))
+        })
+      .map(_.mkString.stripTrailing())
+      .mkString("\n")
+  }
+}
