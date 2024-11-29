@@ -6,7 +6,22 @@ import io.github.teonistor.bsms.data._
 
 object AsciiArt {
 
-  def illustrateGame(game: BattleshipMinesweeper): String = ???
+  def illustrateGame(game: BattleshipMinesweeper): String = {
+    val a = illustrateState(game.aliceState, game.settings.width, game.settings.height).linesIterator.to(Vector)
+    val b = illustrateState(game.bobState, game.settings.width, game.settings.height).linesIterator.to(Vector)
+
+    illustrateGame0(
+      a.lift.andThen(_.getOrElse("")),
+      b.lift.andThen(_.getOrElse("")),
+      a.length max b.length,
+      a.map(_.length).max)
+  }
+
+  private def illustrateGame0(a: Int => String, b: Int => String, howManyLines: Int, maxWidthA: Int) =
+    (-1 to howManyLines).iterator
+      .map(i => s"     ${a(i).padTo(maxWidthA, ' ')}     ║║     ${b(i)}")
+      .map(_.stripTrailing())
+      .mkString("\n")
 
   def illustrateState(state: PlayerState, width: Int, height: Int): String =
       s"${illustrateBoard(state.board, width, height)}\n${illustrateStateInner(state)}"

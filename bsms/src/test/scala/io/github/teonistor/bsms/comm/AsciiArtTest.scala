@@ -1,6 +1,6 @@
 package io.github.teonistor.bsms.comm
 
-import io.github.teonistor.bsms.core.{PlayerStateMinePlacement, PlayerStateMovement, PlayerStateShipPlacement, PlayerStateShooting}
+import io.github.teonistor.bsms.core._
 import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip}
 import io.github.teonistor.bsms.data._
 import org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric
@@ -14,7 +14,60 @@ import scala.util.Random.nextInt
 class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
 
   describe("illustrateGame") {
+    val aliceState = mock[PlayerState]
+    val bobState = mock[PlayerState]
+    val width = nextInt(99)
+    val height = nextInt(99)
+    val game = BattleshipMinesweeper(GameSettings(Set.empty, 0, width, height), aliceState, bobState)
 
+    it("works") {
+      withObjectMocked[AsciiArt.type] {
+        AsciiArt.illustrateGame(any()) shouldCall realMethod
+        AsciiArt.illustrateState(aliceState, width, height) returns
+          """        X
+            |       XXX
+            |      XX XX
+            |     XX   XX
+            |    XX     XX
+            |   XXXXXXXXXXX
+            |  XX         XX
+            | XX           XX
+            |XX             XX
+            |
+            |≈≈≈≈≈  ≈≈≈
+            |≈≈ ≈≈≈≈≈≈≈≈≈≈≈""".stripMargin
+        AsciiArt.illustrateState(bobState, width, height) returns
+          """XXXXXXXXXXXXX
+            |XX          XXX
+            |XX           XX
+            |XX          XXX
+            |XXXXXXXXXXXXX
+            |XX          XXX
+            |XX           XX
+            |XX          XXX
+            |XXXXXXXXXXXXX
+            |
+            |≈≈≈ ≈≈≈≈≈≈≈≈≈ ≈≈≈≈""".stripMargin
+
+        assert(AsciiArt.illustrateGame(game)==
+          """                           ║║
+            |             X             ║║     XXXXXXXXXXXXX
+            |            XXX            ║║     XX          XXX
+            |           XX XX           ║║     XX           XX
+            |          XX   XX          ║║     XX          XXX
+            |         XX     XX         ║║     XXXXXXXXXXXXX
+            |        XXXXXXXXXXX        ║║     XX          XXX
+            |       XX         XX       ║║     XX           XX
+            |      XX           XX      ║║     XX          XXX
+            |     XX             XX     ║║     XXXXXXXXXXXXX
+            |                           ║║
+            |     ≈≈≈≈≈  ≈≈≈            ║║     ≈≈≈ ≈≈≈≈≈≈≈≈≈ ≈≈≈≈
+            |     ≈≈ ≈≈≈≈≈≈≈≈≈≈≈        ║║
+            |                           ║║""".stripMargin)
+
+        AsciiArt.illustrateState(any(), any(), any()) wasCalled twice
+      }
+    }
   }
 
   // noinspection NameBooleanParameters
