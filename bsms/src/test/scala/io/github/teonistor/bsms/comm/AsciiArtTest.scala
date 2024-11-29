@@ -48,6 +48,18 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
         boardStr + "\nShip placement complete. Waiting for other player")
     }
 
+    customTest("illustrate mine placement in progress") {
+      assert(AsciiArt.illustrateState(
+        PlayerStateMinePlacement(board, Map.empty, 3), width, height) ==
+        boardStr + "\nMines to place: 3")
+    }
+
+    customTest("illustrate mine placement complete") {
+      assert(AsciiArt.illustrateState(
+        PlayerStateMinePlacement(board, Map.empty, 0), width, height) ==
+        boardStr + "\nMine placement complete. Waiting for other player")
+    }
+
     customTest("illustrate movement available") {
       assert(AsciiArt.illustrateState(PlayerStateMovement(board, Map.empty, true), width, height) ==
         boardStr + "\nYou may move")

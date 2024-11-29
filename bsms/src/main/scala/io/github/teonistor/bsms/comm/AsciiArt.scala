@@ -2,7 +2,7 @@ package io.github.teonistor.bsms.comm
 
 import io.github.teonistor.bsms.core.BattleshipMinesweeper
 import io.github.teonistor.bsms.data.OceanCell.damagedShip
-import io.github.teonistor.bsms.data.{OwnBoard, PlayerState, PlayerStateShipPlacement, ShipDescription}
+import io.github.teonistor.bsms.data._
 
 object AsciiArt {
 
@@ -44,7 +44,10 @@ object AsciiArt {
   private def illustrateStateInner(state: PlayerState) = state match {
     case PlayerStateShipPlacement(_, _, ships) =>
       if (state.isStageOver) "Ship placement complete. Waiting for other player"
-      else ships.map { case ShipDescription(name, length) => s"> $name (length $length)" }.mkString("Ship placement:\n","\n","")
-//    case
+      else ships.map { case ShipDescription(name, length) => s"> $name (length $length)" }.mkString("Ship placement:\n", "\n", "")
+    case PlayerStateMinePlacement(_, _, mines) =>
+      if (state.isStageOver) "Mine placement complete. Waiting for other player"
+      else "Mines to place: " + mines
+    //    case
   }
 }
