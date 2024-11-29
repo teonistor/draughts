@@ -1,7 +1,7 @@
 package io.github.teonistor.bsms.rule
 
-import io.github.teonistor.bsms.core.BattleshipMinesweeper
-import io.github.teonistor.bsms.data.{GameSettings, PlayerState}
+import io.github.teonistor.bsms.core.{BattleshipMinesweeper, PlayerState}
+import io.github.teonistor.bsms.data.GameSettings
 import org.mockito.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuiteLike
 

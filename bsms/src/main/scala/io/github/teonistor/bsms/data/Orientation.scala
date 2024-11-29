@@ -1,4 +1,4 @@
-package io.github.teonistor.bsms.core
+package io.github.teonistor.bsms.data
 
 sealed trait Orientation
 

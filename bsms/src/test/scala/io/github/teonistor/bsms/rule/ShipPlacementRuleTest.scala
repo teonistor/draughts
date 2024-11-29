@@ -1,7 +1,7 @@
 package io.github.teonistor.bsms.rule
 
-import io.github.teonistor.bsms.core.Orientation.{horizontal, vertical}
 import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip, mine}
+import io.github.teonistor.bsms.data.Orientation.{horizontal, vertical}
 import io.github.teonistor.bsms.data.{ShipDescription, ShipInPlay}
 import org.scalatest.funsuite.AnyFunSuiteLike
 

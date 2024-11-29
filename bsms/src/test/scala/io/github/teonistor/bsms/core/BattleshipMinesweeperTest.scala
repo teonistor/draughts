@@ -1,7 +1,7 @@
 package io.github.teonistor.bsms.core
 
 import io.github.teonistor.bsms.data.Player.{alice, bob}
-import io.github.teonistor.bsms.data.{GameSettings, PlayerState, Position, ShipDescription}
+import io.github.teonistor.bsms.data.{GameSettings, Orientation, Position, ShipDescription}
 import io.github.teonistor.bsms.rule.StageChange
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.ArgumentMatchers.any

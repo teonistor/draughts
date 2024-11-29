@@ -1,8 +1,7 @@
 package io.github.teonistor.bsms.rule
 
-import io.github.teonistor.bsms.core.Orientation
 import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip, mine}
-import io.github.teonistor.bsms.data.{OwnBoard, Position, ShipDescription, ShipInPlay}
+import io.github.teonistor.bsms.data._
 import io.vavr.control.Validation
 import io.vavr.control.Validation.{invalid, valid}
 

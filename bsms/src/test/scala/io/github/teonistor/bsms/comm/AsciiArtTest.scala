@@ -1,5 +1,6 @@
 package io.github.teonistor.bsms.comm
 
+import io.github.teonistor.bsms.core.{PlayerStateMinePlacement, PlayerStateMovement, PlayerStateShipPlacement, PlayerStateShooting}
 import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip}
 import io.github.teonistor.bsms.data._
 import org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric

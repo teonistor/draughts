@@ -1,6 +1,6 @@
 package io.github.teonistor.bsms.comm
 
-import io.github.teonistor.bsms.core.BattleshipMinesweeper
+import io.github.teonistor.bsms.core._
 import io.github.teonistor.bsms.data.OceanCell.damagedShip
 import io.github.teonistor.bsms.data._
 

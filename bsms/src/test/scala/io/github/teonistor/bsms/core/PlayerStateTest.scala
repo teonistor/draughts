@@ -1,7 +1,8 @@
-package io.github.teonistor.bsms.data
+package io.github.teonistor.bsms.core
 
-import io.github.teonistor.bsms.core.Orientation.horizontal
 import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip, mine}
+import io.github.teonistor.bsms.data.Orientation.horizontal
+import io.github.teonistor.bsms.data._
 import io.github.teonistor.bsms.rule.ShipPlacementRule
 import io.vavr.control.Validation.{invalid, valid}
 import org.apache.commons.lang3.RandomUtils.nextInt
