@@ -42,13 +42,15 @@ object AsciiArt {
   }
 
   private def illustrateStateInner(state: PlayerState) = state match {
-    case PlayerStateShipPlacement(_, _, ships) =>
+    case PlayerStateShipPlacement(_,_, ships) =>
       if (state.isStageOver) "Ship placement complete. Waiting for other player"
       else ships.map { case ShipDescription(name, length) => s"> $name (length $length)" }.mkString("Ship placement:\n", "\n", "")
-    case PlayerStateMinePlacement(_, _, mines) =>
+    case PlayerStateMinePlacement(_,_, mines) =>
       if (state.isStageOver) "Mine placement complete. Waiting for other player"
       else "Mines to place: " + mines
-    case PlayerStateMovement(_,_,true) =>"You may move"
-    case PlayerStateMovement(_,_,false) =>"You have moved. Waiting for other player"
+    case PlayerStateMovement(_,_, true) => "You may move"
+    case PlayerStateMovement(_,_, false) => "You have moved. Waiting for other player"
+    case PlayerStateShooting(_,_, true) => "Pick a target to shoot"
+    case PlayerStateShooting(_,_, false) => "Shot fired. Waiting for other player"
   }
 }

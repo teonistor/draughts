@@ -69,13 +69,22 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
       assert(AsciiArt.illustrateState(PlayerStateMovement(board, Map.empty, false), width, height) ==
         boardStr + "\nYou have moved. Waiting for other player")
     }
+
+    customTest("illustrate shot available") {
+      assert(AsciiArt.illustrateState(PlayerStateShooting(board, Map.empty, true), width, height) ==
+        boardStr + "\nPick a target to shoot")
+    }
+
+    customTest("illustrate shot unavailable") {
+      assert(AsciiArt.illustrateState(PlayerStateShooting(board, Map.empty, false), width, height) ==
+        boardStr + "\nShot fired. Waiting for other player")
+    }
   }
 
   describe("illustrateBoard") {
 
     it("Empty") {
-      assert(AsciiArt.illustrateBoard(Map.empty, 3, 3) ==
-        Iterator.continually("          ").take(4).mkString("\n"))
+      assert(AsciiArt.illustrateBoard(Map.empty, 3, 3) == "\n\n\n")
     }
 
     it("Healthy ships") {
