@@ -59,6 +59,10 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
 
       assert(st.withBoard(board2) == nextState)
     }
+
+    it("pass") {
+      assert(st.pass() eq st)
+    }
   }
 
   describe("ship placement stage") {
@@ -182,6 +186,11 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
         assert(result.isValid)
         assert(result.get.board == board2)
       }
+    }
+
+    it("skip ship movement") {
+      val result = PlayerStateMovement(board1, Map.empty, true).pass()
+      assert(result == PlayerStateMovement(board1, Map.empty, false))
     }
 
     it("cannot move because move used") {

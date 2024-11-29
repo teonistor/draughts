@@ -24,6 +24,8 @@ trait PlayerState {
   def shoot(): Validation[String,PlayerState] =
     invalid("Cannot shoot outside shooting stage")
 
+  def pass(): PlayerState = this
+
   def placeShip(ship: ShipDescription, position: Position, orientation: Orientation): Validation[String, PlayerState] =
     ShipPlacementRule.placeShip(board, ship, position, orientation)
       .map(withBoard)
@@ -96,6 +98,9 @@ case class PlayerStateMovement(board: OwnBoard,
   // noinspection NameBooleanParameters
   override def nextStage(gameSettings: GameSettings): PlayerState =
     PlayerStateShooting(board ,opponentBoard, true)
+
+  override def pass(): PlayerState =
+    copy(moveToMake = false)
 }
 
 case class PlayerStateShooting(board: OwnBoard,
