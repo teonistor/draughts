@@ -1,20 +1,65 @@
 package io.github.teonistor.bsms.comm
 
 import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip}
-import io.github.teonistor.bsms.data.ShipInPlay
+import io.github.teonistor.bsms.data._
+import org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric
+import org.mockito.ArgumentMatchers.any
+import org.mockito.IdiomaticMockito
+import org.scalactic.source.Position
 import org.scalatest.funspec.AnyFunSpec
 
-class AsciiArtTest extends AnyFunSpec {
+import scala.util.Random.nextInt
 
-  describe("illustrateBoard") {
-
-  }
+class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
 
   describe("illustrateGame") {
 
   }
 
+  // noinspection NameBooleanParameters
   describe("illustrateState") {
+    val board = mock[OwnBoard]
+    val width = nextInt(99)
+    val height = nextInt(99)
+    val boardStr = randomAlphanumeric(5) + "\n" + randomAlphanumeric(5) + "\n" + randomAlphanumeric(5)
+
+    def customTest(name: String)(assertion: => Any)(implicit pos: Position): Unit = {
+      it(name) {
+        withObjectMocked[AsciiArt.type] {
+          AsciiArt.illustrateBoard(board, width, height) returns boardStr
+          AsciiArt.illustrateState(any(), any(), any()) shouldCall realMethod
+
+          assertion
+
+          AsciiArt.illustrateBoard(board, width, height) wasCalled once
+        }
+      }(pos)
+    }
+
+    customTest("illustrate ship placement in progress") {
+      assert(AsciiArt.illustrateState(
+        PlayerStateShipPlacement(board, Map.empty, Set(ShipDescription("Fishing Boat", 4))), width, height) ==
+        boardStr + "\nShip placement:\n> Fishing Boat (length 4)")
+    }
+
+    customTest("illustrate ship placement complete") {
+      assert(AsciiArt.illustrateState(
+        PlayerStateShipPlacement(board, Map.empty, Set.empty), width, height) ==
+        boardStr + "\nShip placement complete. Waiting for other player")
+    }
+
+    customTest("illustrate movement available") {
+      assert(AsciiArt.illustrateState(PlayerStateMovement(board, Map.empty, true), width, height) ==
+        boardStr + "\nYou may move")
+    }
+
+    customTest("illustrate movement unavailable") {
+      assert(AsciiArt.illustrateState(PlayerStateMovement(board, Map.empty, false), width, height) ==
+        boardStr + "\nYYou have moved. Waiting for other player")
+    }
+  }
+
+  describe("illustrateBoard") {
 
     it("Empty") {
       assert(AsciiArt.illustrateBoard(Map.empty, 3, 3) ==

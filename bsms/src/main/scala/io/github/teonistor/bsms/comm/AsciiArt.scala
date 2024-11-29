@@ -2,13 +2,14 @@ package io.github.teonistor.bsms.comm
 
 import io.github.teonistor.bsms.core.BattleshipMinesweeper
 import io.github.teonistor.bsms.data.OceanCell.damagedShip
-import io.github.teonistor.bsms.data.{OwnBoard, PlayerState}
+import io.github.teonistor.bsms.data.{OwnBoard, PlayerState, PlayerStateShipPlacement, ShipDescription}
 
 object AsciiArt {
 
   def illustrateGame(game: BattleshipMinesweeper): String = ???
 
-  def illustrateState(state: PlayerState, width: Int, height: Int): String = ???
+  def illustrateState(state: PlayerState, width: Int, height: Int): String =
+      s"${illustrateBoard(state.board, width, height)}\n${illustrateStateInner(state)}"
 
   private val boxChars = Vector(" ", "F", "F", "╰", "F", "│", "╭", "├", "F", "╯", "─", "┴", "╮", "┤", "┬", "┼")
   private val damagedChar = "█"
@@ -38,5 +39,12 @@ object AsciiArt {
         })
       .map(_.mkString.stripTrailing())
       .mkString("\n")
+  }
+
+  private def illustrateStateInner(state: PlayerState) = state match {
+    case PlayerStateShipPlacement(_, _, ships) =>
+      if (state.isStageOver) "Ship placement complete. Waiting for other player"
+      else ships.map { case ShipDescription(name, length) => s"> $name (length $length)" }.mkString("Ship placement:\n","\n","")
+//    case
   }
 }
