@@ -67,7 +67,7 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
 
     customTest("illustrate movement unavailable") {
       assert(AsciiArt.illustrateState(PlayerStateMovement(board, Map.empty, false), width, height) ==
-        boardStr + "\nYYou have moved. Waiting for other player")
+        boardStr + "\nYou have moved. Waiting for other player")
     }
   }
 

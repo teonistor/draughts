@@ -48,6 +48,7 @@ object AsciiArt {
     case PlayerStateMinePlacement(_, _, mines) =>
       if (state.isStageOver) "Mine placement complete. Waiting for other player"
       else "Mines to place: " + mines
-    //    case
+    case PlayerStateMovement(_,_,true) =>"You may move"
+    case PlayerStateMovement(_,_,false) =>"You have moved. Waiting for other player"
   }
 }
