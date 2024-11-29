@@ -75,6 +75,13 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
     assert(result.getError == "Some second reason")
   }
 
+  test("skip ship movement") {
+    bobBefore.pass() returns bobAfter
+
+    val result = BattleshipMinesweeper(settings, aliceBefore, bobBefore).pass(bob)
+    assert(result.bobState == bobAfter)
+  }
+
   test("use a mine and place it on the other player's board") {
     bobBefore.useMine() returns valid(bobAfter)
     aliceBefore.placeMine(position) returns aliceAfter

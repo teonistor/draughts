@@ -39,6 +39,9 @@ case class BattleshipMinesweeper(settings: GameSettings,
     act(player.other, (state, update) =>
       update(state.placeMine(position)))
 
+  def pass(player: Player): BattleshipMinesweeper =
+    act(player, (state, update) => update(state.pass()))
+
   private def act[T](player: Player, action: (PlayerState, JuFunction[PlayerState, BattleshipMinesweeper]) => T) =
     player match {
       case Player.alice => action(aliceState, newState => advanceStageIfNecessary(copy(aliceState=newState)))
