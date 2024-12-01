@@ -6,9 +6,11 @@ import io.github.teonistor.bsms.data._
 
 object AsciiArt {
 
-  def illustrateGame(game: BattleshipMinesweeper): String = {
-    val a = illustrateState(game.aliceState, game.settings.width, game.settings.height).linesIterator.to(Vector)
-    val b = illustrateState(game.bobState, game.settings.width, game.settings.height).linesIterator.to(Vector)
+  def illustrateGame(game: BattleshipMinesweeper,
+                     aliceCursor: Option[Position] = None,
+                     bobCursor: Option[Position] = None): String = {
+    val a = illustrateState(game.aliceState, aliceCursor, game.settings.width, game.settings.height).linesIterator.to(Vector)
+    val b = illustrateState(game.bobState, bobCursor, game.settings.width, game.settings.height).linesIterator.to(Vector)
 
     illustrateGame0(
       a.lift.andThen(_.getOrElse("")),
@@ -23,13 +25,27 @@ object AsciiArt {
       .map(_.stripTrailing())
       .mkString("\n")
 
-  def illustrateState(state: PlayerState, width: Int, height: Int): String =
-      s"${illustrateBoard(state.board, width, height)}\n${illustrateStateInner(state)}"
+  def illustrateState(state: PlayerState, cursor: Option[Position], width: Int, height: Int) =
+      s"${illustrateBoard(state.board, cursor, width, height)}\n${illustrateStateInner(state)}"
 
   private val boxChars = Vector(" ", "F", "F", "╰", "F", "│", "╭", "├", "F", "╯", "─", "┴", "╮", "┤", "┬", "┼")
+  private val cursorChars = Vector("F", "╲", "╱")
   private val damagedChar = "█"
 
-  def illustrateBoard(board: OwnBoard, width: Int, height: Int): String = {
+  def illustrateBoard(board: OwnBoard, cursor: Option[Position], width: Int, height: Int): String = {
+    // We don't really expect water to be populated in the map, but need to change the types to compilerly ensure that
+    // (once we do, the empty check simply becomes board.isEmpty)
+    val empty = board.valuesIterator.forall(_.swap.toOption.contains(OceanCell.water))
+
+    val boarder =
+      if(empty)
+        (p: Position) => if (p(0) < 0 || p(0) >=width || p(1) < 0 || p(1) >=height )
+          None
+        else
+          Some(s"${p(0)},${p(1)}")
+      else
+        board.lift.andThen(_.flatMap(_.toOption).map(_.name))
+
     (0 to height)
       .map(y => (0 to width * 3)
         .map { x =>
@@ -38,14 +54,38 @@ object AsciiArt {
           val rx =  x / 3
           val ty =  y - 1
 
-          val tl = board.get(Vector(lx,ty)).flatMap(_.toOption).map(_.name)
-          val tr = board.get(Vector(rx,ty)).flatMap(_.toOption).map(_.name)
-          val bl = board.get(Vector(lx, y)).flatMap(_.toOption).map(_.name)
-          val br = board.get(Vector(rx, y)).flatMap(_.toOption).map(_.name)
+  //          val (tl, tr, bl, br)=
+  //            if (empty) {
+  //              //            if (lx == rx) "─"
+  //              //            else if (lx < 0)
+  //              //              if (ty < 0) ""
+  //
+  //              Vector(lx, ty)
+  //              Vector(rx, ty)
+  //              Vector(lx, y)
+  //              Vector(rx, y)
+  //
+  //
+  //            } else
+  //              ( board.get(Vector(lx, ty)).flatMap(_.toOption).map(_.name),
+  //                board.get(Vector(rx, ty)).flatMap(_.toOption).map(_.name),
+  //                board.get(Vector(lx, y)).flatMap(_.toOption).map(_.name),
+  //                board.get(Vector(rx, y)).flatMap(_.toOption).map(_.name))
+
+          val tl = boarder(Vector(lx,ty))
+          val tr = boarder(Vector(rx,ty))
+          val bl = boarder(Vector(lx, y))
+          val br = boarder(Vector(rx, y))
 
           if (lx == rx
+              && cursor.contains(Vector(lx, y)))
+            cursorChars(x % 3)
+
+          else if (!empty
+              && lx == rx
               && board.get(Vector(rx, y)).flatMap(_.toOption.map(_.parts(Vector(rx, y)))).contains(damagedShip))
             damagedChar
+
           else
             boxChars((if (tl == tr) 0 else 1)
                    + (if (br == tr) 0 else 2)
