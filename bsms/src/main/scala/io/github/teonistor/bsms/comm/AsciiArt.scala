@@ -26,6 +26,10 @@ object AsciiArt {
       .mkString("\n")
 
   def illustrateState(state: PlayerState, cursor: Option[Position], width: Int, height: Int) =
+    if (state.isInstanceOf[PlayerStateMinePlacement] || state.isInstanceOf[PlayerStateShooting])
+      // We'll think later about showing limited knowledge about the adversary's ocean
+      s"${illustrateBoard(Map.empty, cursor, width, height)}\n${illustrateStateInner(state)}"
+    else
       s"${illustrateBoard(state.board, cursor, width, height)}\n${illustrateStateInner(state)}"
 
   private val boxChars = Vector(" ", "F", "F", "╰", "F", "│", "╭", "├", "F", "╯", "─", "┴", "╮", "┤", "┬", "┼")
@@ -33,8 +37,9 @@ object AsciiArt {
   private val damagedChar = "█"
 
   def illustrateBoard(board: OwnBoard, cursor: Option[Position], width: Int, height: Int): String = {
-    // We don't really expect water to be populated in the map, but need to change the types to compilerly ensure that
-    // (once we do, the empty check simply becomes board.isEmpty)
+    // We don't really expect water to be populated in the map, but need to change the types to compilerly ensure that.
+    // (once we do, the empty check simply becomes board.isEmpty). Also and independently, if we display adversary
+    // information of a different nature, we'll need something other than an "empty" check
     val empty = board.valuesIterator.forall(_.swap.toOption.contains(OceanCell.water))
 
     val boarder =
@@ -53,24 +58,6 @@ object AsciiArt {
           val lx = (x + 2) / 3 - 1
           val rx =  x / 3
           val ty =  y - 1
-
-  //          val (tl, tr, bl, br)=
-  //            if (empty) {
-  //              //            if (lx == rx) "─"
-  //              //            else if (lx < 0)
-  //              //              if (ty < 0) ""
-  //
-  //              Vector(lx, ty)
-  //              Vector(rx, ty)
-  //              Vector(lx, y)
-  //              Vector(rx, y)
-  //
-  //
-  //            } else
-  //              ( board.get(Vector(lx, ty)).flatMap(_.toOption).map(_.name),
-  //                board.get(Vector(rx, ty)).flatMap(_.toOption).map(_.name),
-  //                board.get(Vector(lx, y)).flatMap(_.toOption).map(_.name),
-  //                board.get(Vector(rx, y)).flatMap(_.toOption).map(_.name))
 
           val tl = boarder(Vector(lx,ty))
           val tr = boarder(Vector(rx,ty))

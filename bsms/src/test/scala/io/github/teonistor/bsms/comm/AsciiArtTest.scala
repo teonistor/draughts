@@ -80,7 +80,7 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
     val height = nextInt(99)
     val boardStr = randomAlphanumeric(5) + "\n" + randomAlphanumeric(5) + "\n" + randomAlphanumeric(5)
 
-    def customTest(name: String)(assertion: => Any)(implicit pos: Pos): Unit = {
+    def customTest(name: String, board: OwnBoard, assertion: => Any, pos: Pos): Unit = {
       it(name) {
         withObjectMocked[AsciiArt.type] {
           AsciiArt.illustrateBoard(board, cursor, width, height) returns boardStr
@@ -93,42 +93,48 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
       }(pos)
     }
 
-    customTest("illustrate ship placement in progress") {
+    def customTestBoard(name: String)(assertion: => Any)(implicit pos: Pos): Unit =
+      customTest(name, board, assertion, pos)
+
+    def customTestNoBoard(name: String)(assertion: => Any)(implicit pos: Pos): Unit =
+      customTest(name, Map.empty, assertion, pos)
+
+    customTestBoard("illustrate ship placement in progress") {
       assert(AsciiArt.illustrateState(PlayerStateShipPlacement(board, Map.empty, Set(ShipDescription("Fishing Boat", 4))), cursor, width, height) ==
         boardStr + "\nShip placement:\n> Fishing Boat (length 4)")
     }
 
-    customTest("illustrate ship placement complete") {
+    customTestBoard("illustrate ship placement complete") {
       assert(AsciiArt.illustrateState(PlayerStateShipPlacement(board, Map.empty, Set.empty), cursor, width, height) ==
         boardStr + "\nShip placement complete. Waiting for other player")
     }
 
-    customTest("illustrate mine placement in progress") {
+    customTestNoBoard("illustrate mine placement in progress") {
       assert(AsciiArt.illustrateState(PlayerStateMinePlacement(board, Map.empty, 3), cursor, width, height) ==
         boardStr + "\nMines to place: 3")
     }
 
-    customTest("illustrate mine placement complete") {
+    customTestNoBoard("illustrate mine placement complete") {
       assert(AsciiArt.illustrateState(PlayerStateMinePlacement(board, Map.empty, 0), cursor, width, height) ==
         boardStr + "\nMine placement complete. Waiting for other player")
     }
 
-    customTest("illustrate movement available") {
+    customTestBoard("illustrate movement available") {
       assert(AsciiArt.illustrateState(PlayerStateMovement(board, Map.empty, true), cursor, width, height) ==
         boardStr + "\nYou may move")
     }
 
-    customTest("illustrate movement unavailable") {
+    customTestBoard("illustrate movement unavailable") {
       assert(AsciiArt.illustrateState(PlayerStateMovement(board, Map.empty, false), cursor, width, height) ==
         boardStr + "\nYou have moved. Waiting for other player")
     }
 
-    customTest("illustrate shot available") {
+    customTestNoBoard("illustrate shot available") {
       assert(AsciiArt.illustrateState(PlayerStateShooting(board, Map.empty, true), cursor, width, height) ==
         boardStr + "\nPick a target to shoot")
     }
 
-    customTest("illustrate shot unavailable") {
+    customTestNoBoard("illustrate shot unavailable") {
       assert(AsciiArt.illustrateState(PlayerStateShooting(board, Map.empty, false), cursor, width, height) ==
         boardStr + "\nShot fired. Waiting for other player")
     }
