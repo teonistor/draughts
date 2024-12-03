@@ -35,9 +35,11 @@ case class BattleshipMinesweeper(settings: GameSettings,
    * @param player   The player performing the action
    * @param position The position on the OTHER player's board where the mine will be placed
    */
-  def shoot(player: Player, position: Position): BattleshipMinesweeper =
+  def shoot(player: Player, position: Position): ValidatedGame =
     act(player.other, (state, update) =>
-      update(state.placeMine(position)))
+      update(state.placeMine(position))
+        .act(player, (state, update) =>
+          state.shoot().map(update)))
 
   def pass(player: Player): BattleshipMinesweeper =
     act(player, (state, update) => update(state.pass()))

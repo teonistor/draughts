@@ -107,13 +107,29 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
 
   test("shoot") {
     aliceBefore.placeMine(position) returns aliceAfter
+    bobBefore.shoot() returns valid(bobAfter)
     withObjectMocked[StageChange.type] {
       StageChange.advanceStageIfNecessary(any()) answers ((a: BattleshipMinesweeper) => a)
 
       val result = BattleshipMinesweeper(settings, aliceBefore, bobBefore).shoot(bob, position)
 
-      assert(result.aliceState == aliceAfter)
-      assert(result.bobState == bobBefore)
+      assert(result.isValid)
+      assert(result.get.aliceState == aliceAfter)
+      assert(result.get.bobState == bobAfter)
+      StageChange.advanceStageIfNecessary(any()) wasCalled twice
+    }
+  }
+
+  test("cannot shoot") {
+    aliceBefore.placeMine(position) returns aliceAfter
+    bobBefore.shoot() returns invalid("Sting operation")
+    withObjectMocked[StageChange.type] {
+      StageChange.advanceStageIfNecessary(any()) answers ((a: BattleshipMinesweeper) => a)
+
+      val result = BattleshipMinesweeper(settings, aliceBefore, bobBefore).shoot(bob, position)
+
+      assert(result.isInvalid)
+      assert(result.getError == "Sting operation")
       StageChange.advanceStageIfNecessary(any()) wasCalled once
     }
   }
