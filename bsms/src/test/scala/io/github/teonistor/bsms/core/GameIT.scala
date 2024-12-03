@@ -16,24 +16,46 @@ object GameIT /*extends AnyFunSuite */{
                      bobOrientation:   Orientation)
 
   case class NioState(cursor: Position,
-                      flag: Boolean) {
+                      flag: Boolean,
+                      prevCur: Position) {
 
-    def move(movement:Vector[Int]) =
+    private lazy val orientation = if (flag) horizontal else vertical
+
+    def move(movement: Vector[Int]): NioState =
       copy(cursor = cursor + movement)
 
-    def toggle() =
+    def toggle(): NioState =
       copy(flag = !flag)
 
-    def resolve(playerState: PlayerState):Validation[String,PlayerState] = {
+    def preview(playerState: PlayerState): Validation[String, PlayerState] = {
       Some(playerState)
         .filter(!_.isStageOver)
-        .map {
-          case state: PlayerStateShipPlacement => state.placeShip(state.shipsToPlace.head, cursor, if (flag) horizontal else vertical)
-          case state: PlayerStateMinePlacement => valid[String,PlayerState](state.placeMine(cursor))
-//        case state: PlayerStateMovement
-//        case state: PlayerStateShooting
-      }
+        .map[Validation[String, PlayerState]] {
+          case state: PlayerStateShipPlacement => state.placeShip(state.shipsToPlace.head, cursor, orientation)
+          case state: PlayerStateMinePlacement => valid(state.placeMine(cursor))
+       // TODO Quite terrible hacks here... we probably need preview...() integrated into the state
+          case state: PlayerStateMovement => state.moveShip(prevCur, cursor).map(_.asInstanceOf[PlayerStateMovement].copy(moveToMake = true))
+          case state: PlayerStateShooting => state.shoot().map(_.asInstanceOf[PlayerStateShooting].copy(shotToShoot = true))
+        }
         .getOrElse(valid(playerState))
+    }
+
+    def effect(game:BattleshipMinesweeper, player: Player):(ValidatedGame, NioState)={
+      val state = player match {
+        case Player.alice => game.aliceState
+        case Player.bob => game.bobState
+      }
+
+      state match {
+        case state: PlayerStateShipPlacement => (game.placeShip(player, state.shipsToPlace.head, cursor, orientation), this)
+        case _    : PlayerStateMinePlacement => (game.placeMine(player, cursor), this)
+        case state: PlayerStateMovement => (state.board.get(cursor).flatMap(_.toOption), prevCur) match {
+          case (Some(_), Vector(0,0)) => (valid(game), copy(prevCur = cursor, cursor = Vector(0,0)))
+          case (Some(_), _) => (game.moveShip(player, prevCur, cursor), copy(prevCur = Vector(0,0), cursor = Vector(0,0)))
+          case (None   , _) => (valid(game.pass(player)), this)
+        }
+        case _: PlayerStateShooting => (game.shoot(player, cursor), this)
+      }
     }
   }
 
@@ -45,24 +67,24 @@ def main(arg: Array[String]): Unit = {
       ShipDescription("Bomber", 3)),
       2, 8, 8)
     var game = BattleshipMinesweeper(settings, PlayerStateShipPlacement(Map.empty, Map.empty, settings.shipsToPlace), PlayerStateShipPlacement(Map.empty, Map.empty, settings.shipsToPlace))
-    var ioState = IoState(Vector(0,0), Vector(0,0), horizontal, horizontal)
+//    var ioState = IoState(Vector(0,0), Vector(0,0), horizontal, horizontal)
 
-  var aliceIo = new NioState(Vector(0,0), false)
-  var bobIo = new NioState(Vector(0,0), false)
+  var aliceIo = NioState(Vector(0, 0), false, Vector(0,0))
+  var bobIo = NioState(Vector(0, 0), false, Vector(0,0))
 
-    def mkAlice() = {
-      Some(game.aliceState).filter(_.isStageOver)
-        .orElse(Option(game.aliceState.placeShip(game.aliceState.asInstanceOf[PlayerStateShipPlacement].shipsToPlace.head, ioState.aliceCursor, ioState.aliceOrientation).getOrNull()))
-    }
-
-    def mkBob() = {
-      Some(game.bobState).filter(_.isStageOver)
-        .orElse(Option(game.bobState.placeShip(game.bobState.asInstanceOf[PlayerStateShipPlacement].shipsToPlace.head, ioState.bobCursor, ioState.bobOrientation).getOrNull()))
-    }
+//    def mkAlice() = {
+//      Some(game.aliceState).filter(_.isStageOver)
+//        .orElse(Option(game.aliceState.placeShip(game.aliceState.asInstanceOf[PlayerStateShipPlacement].shipsToPlace.head, ioState.aliceCursor, ioState.aliceOrientation).getOrNull()))
+//    }
+//
+//    def mkBob() = {
+//      Some(game.bobState).filter(_.isStageOver)
+//        .orElse(Option(game.bobState.placeShip(game.bobState.asInstanceOf[PlayerStateShipPlacement].shipsToPlace.head, ioState.bobCursor, ioState.bobOrientation).getOrNull()))
+//    }
 
     def display(): Unit =
-      println(illustrateGame(game.copy(aliceState = mkAlice().getOrElse(game.aliceState), bobState = mkBob().getOrElse(game.bobState))))
-
+      println(illustrateGame(game.copy(aliceState = aliceIo.preview(game.aliceState).getOrElse(game.aliceState),
+                                       bobState   = bobIo.preview(game.bobState).getOrElse(game.bobState))))
     display()
 
     new AsciiArtIO(new AAI {
@@ -78,9 +100,11 @@ def main(arg: Array[String]): Unit = {
       }
 
       override def aliceConfirm(): Unit = {
-        game.placeShip(alice, game.aliceState.asInstanceOf[PlayerStateShipPlacement].shipsToPlace.head, ioState.aliceCursor, ioState.aliceOrientation)
-          .fold(err => println(err),
-                 ng => game=ng)
+        val (result, newIo) = aliceIo.effect(game, alice)
+        result.fold(err => println(err), { newGame =>
+          aliceIo = newIo
+          game = newGame
+        })
         display()
       }
 
@@ -95,64 +119,15 @@ def main(arg: Array[String]): Unit = {
       }
 
       override def bobConfirm(): Unit = {
-        game.placeShip(bob, game.bobState.asInstanceOf[PlayerStateShipPlacement].shipsToPlace.head, ioState.bobCursor, ioState.bobOrientation)
-          .fold(err => println(err),
-                 ng => game=ng)
+        val (result, newIo) = bobIo.effect(game, bob)
+        result.fold(err => println(err), { newGame =>
+          bobIo = newIo
+          game = newGame
+        })
         display()
       }
     })
-
-//    Thread.sleep(100000)
-
-//    display(game)
-//    Thread.sleep(1000)
-//    game = game.placeShip(alice, ShipDescription("Fishing boat", 2), Vector(4, 1), horizontal).get()
-//    display(game)
-//    Thread.sleep(1000)
-//    game = game.placeShip(bob, ShipDescription("Bomber", 3), Vector(3, 3), horizontal).get()
-//    display(game)
-//    Thread.sleep(1000)
-//    game = game.placeShip(bob, ShipDescription("Fishing boat", 2), Vector(4, 1), vertical).get()
-//    display(game)
-//    Thread.sleep(1000)
-//    game = game.placeShip(alice, ShipDescription("Bomber", 3), Vector(2, 2), horizontal).get()
-//    display(game)
-//    Thread.sleep(1000)
-//    game = game.placeMine(alice, Vector(5, 6)).get
-//    display(game)
-//    Thread.sleep(1000)
-//    game = game.placeMine(bob, Vector(3 ,2)).get
-//    display(game)
-  }
-
-//  private def display(game: BattleshipMinesweeper) = {
-//    println(illustrateGame(game))
-////    println("Alice:")
-////    println(displayOne(game.aliceState.board))
-////    println("Bob:")
-////    println(displayOne(game.bobState.board))
-////    println("----------------------------------------")
-//  }
-
-  private def displayOne(board: OwnBoard) =
-    (0 to 9).map(y =>
-      (0 to 9).map(x => Vector(x, y))
-        .map(pos => board.get(pos) map {
-          case Right(ShipInPlay(_, parts)) => parts(pos)
-          case Left(cell) => cell
-        })
-        .map {
-          case Some(OceanCell.mine) => "*"
-          case Some(OceanCell.healthyShip) => "O"
-          case Some(OceanCell.damagedShip) => "#"
-          case _=> " "
-        }
-        .mkString)
-      .mkString("\n")
-//}
-//
-// object GameIT {
-
+}
   implicit class IntVectorAddition(private val l: Position) extends AnyVal {
     def +(r: Vector[Int]): Vector[Int] =
       Vector.tabulate(l.length)(i => l(i) + r.lift(i).getOrElse(0))
