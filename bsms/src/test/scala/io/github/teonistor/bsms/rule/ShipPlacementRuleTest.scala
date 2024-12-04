@@ -84,6 +84,11 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
     assert(result.contains(boardAfterMovement))
   }
 
+  test("move ship preserves damage") {
+    // TODO Come here
+    assert(false)
+  }
+
   List(
       Vector( 0, 0),
       Vector( 2, 0),
