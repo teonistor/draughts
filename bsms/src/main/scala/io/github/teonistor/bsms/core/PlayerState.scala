@@ -3,7 +3,6 @@ package io.github.teonistor.bsms.core
 import io.github.teonistor.bsms.data.OceanCell.{damagedShip, mine}
 import io.github.teonistor.bsms.data._
 import io.github.teonistor.bsms.rule.ShipPlacementRule
-import io.vavr.control.Validation
 import io.vavr.control.Validation.{invalid, valid}
 
 trait PlayerState {
@@ -12,21 +11,21 @@ trait PlayerState {
 
   def withBoard(board: OwnBoard): PlayerState
 
-  def useShip(ship: ShipDescription): Validation[String,PlayerState] =
+  def useShip(ship: ShipDescription): ValidatedState =
     invalid("Cannot use ship outside ship placement stage")
 
-  def useMine(): Validation[String,PlayerState] =
+  def useMine(): ValidatedState =
     invalid("Cannot use mine outside mine placement stage")
 
-  def moveShip(position: Position, movement: Vector[Int]): Validation[String, PlayerState] =
+  def moveShip(position: Position, movement: Vector[Int]): ValidatedState =
     invalid("Cannot move ship outside ship movement stage")
 
-  def shoot(): Validation[String,PlayerState] =
+  def shoot(): ValidatedState =
     invalid("Cannot shoot outside shooting stage")
 
   def pass(): PlayerState = this
 
-  def placeShip(ship: ShipDescription, position: Position, orientation: Orientation): Validation[String, PlayerState] =
+  def placeShip(ship: ShipDescription, position: Position, orientation: Orientation): ValidatedState =
     ShipPlacementRule.placeShip(board, ship, position, orientation)
       .map(withBoard)
 
@@ -47,7 +46,7 @@ case class PlayerStateShipPlacement(board: OwnBoard,
                                     opponentBoard: OpponentBoard,
                                     shipsToPlace: Set[ShipDescription]) extends PlayerState {
 
-  override def useShip(ship: ShipDescription): Validation[String, PlayerState] =
+  override def useShip(ship: ShipDescription): ValidatedState =
     if (shipsToPlace.contains(ship))
       valid(copy(shipsToPlace = shipsToPlace - ship))
     else
@@ -65,7 +64,7 @@ case class PlayerStateMinePlacement(board: OwnBoard,
                                     opponentBoard: OpponentBoard,
                                     minesToPlace: Int) extends PlayerState {
 
-  override def useMine(): Validation[String, PlayerState] =
+  override def useMine(): ValidatedState =
     if (minesToPlace > 0)
       valid(copy(minesToPlace = minesToPlace - 1))
     else
@@ -84,7 +83,7 @@ case class PlayerStateMovement(board: OwnBoard,
                                opponentBoard: OpponentBoard,
                                moveToMake: Boolean) extends PlayerState {
 
-  override def moveShip(position: Position, movement: Vector[Int]): Validation[String, PlayerState] =
+  override def moveShip(position: Position, movement: Vector[Int]): ValidatedState =
     if (moveToMake)
       ShipPlacementRule.moveShip(board, position, movement)
         .map(b => copy(board = b, moveToMake = false))
@@ -107,7 +106,7 @@ case class PlayerStateShooting(board: OwnBoard,
                                opponentBoard: OpponentBoard,
                                shotToShoot: Boolean) extends PlayerState {
 
-  override def shoot(): Validation[String, PlayerState] =
+  override def shoot(): ValidatedState =
     if (shotToShoot)
       valid(copy(shotToShoot = false))
     else
