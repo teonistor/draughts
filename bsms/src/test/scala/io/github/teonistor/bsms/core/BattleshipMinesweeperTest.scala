@@ -1,8 +1,8 @@
 package io.github.teonistor.bsms.core
 
 import io.github.teonistor.bsms.data.Player.{alice, bob}
-import io.github.teonistor.bsms.data.{GameSettings, Orientation, Position, ShipDescription}
-import io.github.teonistor.bsms.rule.StageChange
+import io.github.teonistor.bsms.data._
+import io.github.teonistor.bsms.rule.{GameOverChecker, StageChange}
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.IdiomaticMockito
@@ -131,6 +131,16 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
       assert(result.isInvalid)
       assert(result.getError == "Sting operation")
       StageChange.advanceStageIfNecessary(any()) wasCalled once
+    }
+  }
+
+  test("Game Condition") {
+    val game = BattleshipMinesweeper(settings, aliceBefore, bobBefore)
+    val condition = mock[GameCondition]
+    withObjectMocked[GameOverChecker.type] {
+      GameOverChecker.check(game) returns condition
+
+      assert(game.condition == condition)
     }
   }
 }

@@ -1,6 +1,7 @@
 package io.github.teonistor.bsms.core
 
 import io.github.teonistor.bsms.data._
+import io.github.teonistor.bsms.rule.GameOverChecker
 import io.github.teonistor.bsms.rule.StageChange.advanceStageIfNecessary
 
 import java.util.function.{Function => JuFunction}
@@ -8,6 +9,11 @@ import java.util.function.{Function => JuFunction}
 case class BattleshipMinesweeper(settings: GameSettings,
                                  aliceState: PlayerState,
                                  bobState: PlayerState) {
+
+  lazy val condition: GameCondition = GameOverChecker.check(this)
+
+  // Not sure where the executive TODO is...
+  // You always see an accurate view of the mines in the opponent's ocean
 
   def placeShip(player: Player, ship: ShipDescription, position: Position, orientation: Orientation): ValidatedGame =
     act(player, (state, update) => state
