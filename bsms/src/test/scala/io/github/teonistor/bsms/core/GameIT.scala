@@ -1,6 +1,7 @@
 package io.github.teonistor.bsms.core
 
-import io.github.teonistor.bsms.core.experimental.{KeyboardIoGameContainer, KeyboardesqueIoState}
+import io.github.teonistor.bsms.comm.KeyboardIoGameContainer
+import io.github.teonistor.bsms.core.experimental.KeyboardesqueIoState
 import io.github.teonistor.bsms.data._
 
 object GameIT /*extends AnyFunSuite */{
@@ -20,7 +21,7 @@ object GameIT /*extends AnyFunSuite */{
       KeyboardesqueIoState.nil,
       KeyboardesqueIoState.nil)
 
-    KeyboardIoGameContainer.bindToAsciiArtIO(() => wg, _.fold(
+    KeyboardAsciiArtIoRunner.launch(() => wg, _.fold(
       println(_),
       nwg => nwg.illustration.fold(
         s => {
