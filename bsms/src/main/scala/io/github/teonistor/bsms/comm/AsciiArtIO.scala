@@ -18,7 +18,21 @@ class AsciiArtIO(aliceMove:    Movement => Unit,
   private val window = new JFrame("Battleship Minesweeper Input Box")
 
   window.setLayout(new FlowLayout())
-  window.add(new JLabel("<i>Keep this</i> window in focus"))
+  window.add(new JLabel(
+    """<html><pre>
+    Keep your eyes on the terminal and your focus on this window.
+
+                       Alice                 Bob
+                       ╭───╮                ╭───╮
+                 ⎧     │ W │                │ I │
+            Move ⎨  ╭──┴┬──┴┬───╮        ╭──┴┬──┴┬───╮
+                 ⎩  │ A │ S │ D │        │ J │ K │ L │
+                    ╰─┬─┴─┬─┴─┬─╯        ╰─┬─┴─┬─┴─┬─╯
+                      │ Z │ X │            │ M │ , │
+                      ╰───┴───╯            ╰───┴───╯
+                     ╱         ╲
+                 Toggle        Confirm
+    </pre></html>"""))
   window.setDefaultCloseOperation(DISPOSE_ON_CLOSE)
   window.setVisible(true)
   window.setSize(window.getPreferredSize)
