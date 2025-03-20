@@ -1,14 +1,17 @@
 package io.github.teonistor.bsms.comm
 
+import io.github.teonistor.bsms.data.Movement
+import io.github.teonistor.bsms.data.Movement.{down, left, right, up}
+
 import java.awt.FlowLayout
 import java.awt.event.{KeyAdapter, KeyEvent}
 import javax.swing.WindowConstants.DISPOSE_ON_CLOSE
 import javax.swing.{JFrame, JLabel}
 
-class AsciiArtIO(aliceMove:    Vector[Int] => Unit,
+class AsciiArtIO(aliceMove:    Movement => Unit,
                  aliceToggle:  () => Unit,
                  aliceConfirm: () => Unit,
-                 bobMove:      Vector[Int] => Unit,
+                 bobMove:      Movement => Unit,
                  bobToggle:    () => Unit,
                  bobConfirm:   () => Unit) {
 
@@ -23,17 +26,17 @@ class AsciiArtIO(aliceMove:    Vector[Int] => Unit,
   window.addKeyListener(new KeyAdapter {
     override def keyTyped(e: KeyEvent): Unit =
       e.getKeyChar.toLower match {
-        case 'w' => aliceMove(Vector( 0,-1))
-        case 'a' => aliceMove(Vector(-1, 0))
-        case 's' => aliceMove(Vector( 0, 1))
-        case 'd' => aliceMove(Vector( 1, 0))
+        case 'w' => aliceMove(up)
+        case 'a' => aliceMove(left)
+        case 's' => aliceMove(down)
+        case 'd' => aliceMove(right)
         case 'z' => aliceToggle ()
         case 'x' => aliceConfirm()
 
-        case 'i' => bobMove(Vector( 0,-1))
-        case 'j' => bobMove(Vector(-1, 0))
-        case 'k' => bobMove(Vector( 0, 1))
-        case 'l' => bobMove(Vector( 1, 0))
+        case 'i' => bobMove(up)
+        case 'j' => bobMove(left)
+        case 'k' => bobMove(down)
+        case 'l' => bobMove(right)
         case 'm' => bobToggle ()
         case ',' => bobConfirm()
         case _=>

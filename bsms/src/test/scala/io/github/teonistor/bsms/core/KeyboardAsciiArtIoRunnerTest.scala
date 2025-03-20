@@ -3,7 +3,7 @@ package io.github.teonistor.bsms.core
 import io.github.teonistor.bsms.comm.{AsciiArtIO, KeyboardIoGameContainer}
 import io.github.teonistor.bsms.core.KeyboardAsciiArtIoRunner.ValidatedKeyboardIoGameContainer
 import io.github.teonistor.bsms.core.experimental.KeyboardesqueIoState
-import io.github.teonistor.bsms.data.Player
+import io.github.teonistor.bsms.data.{Movement, Player}
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.IdiomaticMockito
 import org.mockito.MockedConstruction.Context
@@ -21,7 +21,7 @@ class KeyboardAsciiArtIoRunnerTest extends AnyFunSuite with IdiomaticMockito wit
 
   private val gameIn = mock[BattleshipMinesweeper]
   private val stateIn = mock[KeyboardesqueIoState]
-  private val movement = mock[Vector[Int]]
+  private val movement = mock[Movement]
   private val stateOut = mock[KeyboardesqueIoState]
   private val gameOut = mock[BattleshipMinesweeper]
 
@@ -31,7 +31,7 @@ class KeyboardAsciiArtIoRunnerTest extends AnyFunSuite with IdiomaticMockito wit
                bobMove,
                bobToggle,
                bobConfirm) = {
-      type AsciiArtIoConstructorParams = (Vector[Int] => Unit, () => Unit, () => Unit, Vector[Int] => Unit, () => Unit, () => Unit)
+      type AsciiArtIoConstructorParams = (Movement => Unit, () => Unit, () => Unit, Movement => Unit, () => Unit, () => Unit)
       var capturedParams: AsciiArtIoConstructorParams = null
       Using(mockConstruction(classOf[AsciiArtIO], (_: AsciiArtIO, context: Context) => {
         val aliceMove :: aliceToggle :: aliceConfirm :: bobMove :: bobToggle :: bobConfirm :: Nil = context.arguments().asScala.toList

@@ -1,5 +1,7 @@
 package io.github.teonistor.bsms.comm
 
+import io.github.teonistor.bsms.data.Movement
+import io.github.teonistor.bsms.data.Movement.{down, left, right, up}
 import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.IdiomaticMockito
 import org.mockito.Mockito.mockConstruction
@@ -17,10 +19,10 @@ class AsciiArtIoTest extends AnyFunSpec with IdiomaticMockito {
 
   describe("Window") {
 
-    val aliceMove = mock[Vector[Int] => Unit]
+    val aliceMove = mock[Movement => Unit]
     val aliceToggle = mock[() => Unit]
     val aliceConfirm = mock[() => Unit]
-    val bobMove = mock[Vector[Int] => Unit]
+    val bobMove = mock[Movement => Unit]
     val bobToggle = mock[() => Unit]
     val bobConfirm = mock[() => Unit]
 
@@ -54,22 +56,22 @@ class AsciiArtIoTest extends AnyFunSpec with IdiomaticMockito {
 
       it("Alice moves up") {
         keyListener.keyTyped(new KeyEvent(component, 0, 0, 0, 0, 'w'))
-        aliceMove(Vector(0, -1)) wasCalled once
+        aliceMove(up) wasCalled once
       }
 
       it("Alice moves left") {
         keyListener.keyTyped(new KeyEvent(component, 0, 0, 0, 0, 'a'))
-        aliceMove(Vector(-1, 0)) wasCalled once
+        aliceMove(left) wasCalled once
       }
 
       it("Alice moves down") {
         keyListener.keyTyped(new KeyEvent(component, 0, 0, 0, 0, 's'))
-        aliceMove(Vector(0, 1)) wasCalled once
+        aliceMove(down) wasCalled once
       }
 
       it("Alice moves right") {
         keyListener.keyTyped(new KeyEvent(component, 0, 0, 0, 0, 'd'))
-        aliceMove(Vector(1, 0)) wasCalled once
+        aliceMove(right) wasCalled once
       }
 
       it("Alice toggles") {
@@ -84,22 +86,22 @@ class AsciiArtIoTest extends AnyFunSpec with IdiomaticMockito {
 
       it("Bob moves up") {
         keyListener.keyTyped(new KeyEvent(component, 0, 0, 0, 0, 'i'))
-        bobMove(Vector(0, -1)) wasCalled once
+        bobMove(up) wasCalled once
       }
 
       it("Bob moves left") {
         keyListener.keyTyped(new KeyEvent(component, 0, 0, 0, 0, 'j'))
-        bobMove(Vector(-1, 0)) wasCalled once
+        bobMove(left) wasCalled once
       }
 
       it("Bob moves down") {
         keyListener.keyTyped(new KeyEvent(component, 0, 0, 0, 0, 'k'))
-        bobMove(Vector(0, 1)) wasCalled once
+        bobMove(down) wasCalled once
       }
 
       it("Bob moves right") {
         keyListener.keyTyped(new KeyEvent(component, 0, 0, 0, 0, 'l'))
-        bobMove(Vector(1, 0)) wasCalled once
+        bobMove(right) wasCalled once
       }
 
       it("Bob toggles") {

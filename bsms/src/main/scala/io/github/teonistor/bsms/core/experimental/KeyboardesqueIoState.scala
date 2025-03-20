@@ -2,7 +2,7 @@ package io.github.teonistor.bsms.core.experimental
 
 import io.github.teonistor.bsms.core._
 import io.github.teonistor.bsms.data.Orientation.{horizontal, vertical}
-import io.github.teonistor.bsms.data.{Player, Position}
+import io.github.teonistor.bsms.data.{Movement, Player, Position}
 import io.vavr.control.Validation.valid
 
 case class KeyboardesqueIoState(cursor: Position,
@@ -11,9 +11,8 @@ case class KeyboardesqueIoState(cursor: Position,
 
   private lazy val orientation = if (flag) horizontal else vertical
 
-  def move(movement: Vector[Int]): KeyboardesqueIoState =
-  // TODO Need a dedicated, validated Movement class/wrapper
-    copy(cursor = Vector.tabulate(cursor.length)(i => cursor(i) + movement.lift(i).getOrElse(0)))
+  def move(movement: Movement): KeyboardesqueIoState =
+    copy(cursor = movement.move(cursor))
 
   def toggle(): KeyboardesqueIoState =
     copy(flag = !flag)
@@ -23,11 +22,9 @@ case class KeyboardesqueIoState(cursor: Position,
       .filter(!_.isStageOver)
       .map[(ValidatedState,Option[Position])] {
         case state: PlayerStateShipPlacement => (state.placeShip(state.shipsToPlace.head, cursor, orientation), None)
-//        case state: PlayerStateMinePlacement => (valid(state), Some(cursor))
         case state: PlayerStateMovement => prevCur.fold((valid[String,PlayerState](state), Option(cursor)))(
        // TODO Would help if the state declared its actual type as return type; tried, but variance goes boom because Validation is a Vavr (non-Scala) class
           prevCur => (state.moveShip(prevCur, cursor).map(_.asInstanceOf[PlayerStateMovement].copy(moveToMake = true)), None))
-//        case state: PlayerStateShooting => (valid(state), Some(cursor))
         case state => (valid(state), Some(cursor))
       }
       .getOrElse((valid(playerState), None))
