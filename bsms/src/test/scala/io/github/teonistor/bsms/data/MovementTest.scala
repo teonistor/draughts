@@ -7,9 +7,9 @@ class MovementTest extends AnyFunSuite {
 
   test("Four values") {
     assert(up != null)
-    assert(Movement.left != null)
-    assert(Movement.down != null)
-    assert(Movement.right != null)
+    assert(left != null)
+    assert(down != null)
+    assert(right != null)
 
     assertDoesNotCompile("new Movement {}")
   }
@@ -26,6 +26,33 @@ class MovementTest extends AnyFunSuite {
 
       test(s"Move $input $s to $output") {
         assert(movement.move(input) == output)
+      }
+    }
+
+  private val horizontals = List(
+    Set(Vector(2,3), Vector(3,3)),
+    Set(Vector(9,5), Vector(7,5), Vector(8,5)))
+  private val verticals = List(
+    Set(Vector(2,3), Vector(2,4)),
+    Set(Vector(9,5), Vector(9,7), Vector(9,6)))
+  private val both = List(
+    Set(Vector(11, 15)),
+    Set(Vector(18, 15)))
+  private val neither = List(
+    Set(Vector(2,3), Vector(3,4)),
+    Set(Vector(9,5), Vector(9), Vector(8,6,4)))
+
+  List(("up", up, verticals ++ both), ("left", left, horizontals ++ both), ("down", down, verticals ++ both), ("right", right, horizontals ++ both))
+    .foreach { case (s, movement, aligned) =>
+      test(s"Aligned with $s") {
+        assert(aligned.forall(movement.aligns))
+      }
+    }
+
+  List(("up", up, horizontals ++ neither), ("left", left, verticals ++ neither), ("down", down, horizontals ++ neither), ("right", right, verticals ++ neither))
+    .foreach { case (s, movement, aligned) =>
+      test(s"Not aligned with $s") {
+        assert(!aligned.exists(movement.aligns))
       }
     }
 }
