@@ -21,7 +21,7 @@ case class BattleshipMinesweeper(settings: GameSettings,
       .flatMap(_.useShip(ship))
       .map(update))
 
-  def moveShip(player: Player, position: Position, movement: Vector[Int]): ValidatedGame =
+  def moveShip(player: Player, position: Position, movement: Movement): ValidatedGame =
     act(player, (state, update) =>
       state.moveShip(position, movement)
         .map(update))

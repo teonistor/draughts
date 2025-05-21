@@ -15,33 +15,26 @@ object ShipPlacementRule {
         case ((coord, _), _) => coord
       }))
 
-    placeShip0(board, ship.name, positions)
+    placeShip0(ship.name, board, positions)
   }
 
-  def moveShip(board: OwnBoard, position: Position, movement: Vector[Int]): Validation[String, OwnBoard] = {
-    val vp = movement.groupMapReduce(identity)(_=>1)(_+_)
-    // This is quite horrible
-    if ((vp.keySet -- Set(-1,0,1)).nonEmpty || (vp.keySet - 0).size != 1 || vp.removed(0).values.toSet != Set(1))
-      return invalid("Ship must move exactly one space in the direction it is oriented")
+  def moveShip(board: OwnBoard, position: Position, movement: Movement): Validation[String, OwnBoard] = {
 
     val hopefullyShip = board.get(position).flatMap(_.toOption)
     if (hopefullyShip.isEmpty)
       return invalid(position.mkString("You don't have a ship at (", ",", ")"))
 
     val Some(ShipInPlay(name, parts)) = hopefullyShip
+    if (movement aligns parts.keySet)
+      placeShip0(name,
+        board.removedAll(parts.keys),
+        parts.keySet.map(movement.move))
 
-    // This is also quite horrible and together with the above horribility shows an abstraction is missing
-    val mi = movement.zipWithIndex.find {case (v,_) => v==1 || v == -1} .get._2
-    if (parts.keys.map(_(mi)).toSet.size == 1)
-      return invalid("Ship must move in the direction it is oriented")
-
-    val lifted = board.removedAll(parts.keys)
-    val poss = parts.keySet.map(_.lazyZip(movement).map(_+_))
-
-    placeShip0(lifted, name, poss)
+    else
+      invalid("Ship must move in the direction it is oriented")
   }
 
-  private def placeShip0(board: OwnBoard, name: String, positions: Iterable[Vector[Int]]): Validation[String, OwnBoard] = {
+  private def placeShip0(name: String, board: OwnBoard, positions: Iterable[Vector[Int]]): Validation[String, OwnBoard] = {
     if (positions.exists(board.get(_).exists(_.isRight)))
       return invalid("Cannot place ship on top of another")
 

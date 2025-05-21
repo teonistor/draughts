@@ -16,7 +16,7 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
   private val board2 = mock[OwnBoard]
   private val ship = mock[ShipDescription]
   private val position = mock[Position]
-  private val movement = mock[Vector[Int]]
+  private val movement = mock[Movement]
 
   describe("base trait PlayerState") {
 

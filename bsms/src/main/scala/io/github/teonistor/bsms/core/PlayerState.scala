@@ -17,7 +17,7 @@ trait PlayerState {
   def useMine(): ValidatedState =
     invalid("Cannot use mine outside mine placement stage")
 
-  def moveShip(position: Position, movement: Vector[Int]): ValidatedState =
+  def moveShip(position: Position, movement: Movement): ValidatedState =
     invalid("Cannot move ship outside ship movement stage")
 
   def shoot(): ValidatedState =
@@ -83,7 +83,7 @@ case class PlayerStateMovement(board: OwnBoard,
                                opponentBoard: OpponentBoard,
                                moveToMake: Boolean) extends PlayerState {
 
-  override def moveShip(position: Position, movement: Vector[Int]): ValidatedState =
+  override def moveShip(position: Position, movement: Movement): ValidatedState =
     if (moveToMake)
       ShipPlacementRule.moveShip(board, position, movement)
         .map(b => copy(board = b, moveToMake = false))

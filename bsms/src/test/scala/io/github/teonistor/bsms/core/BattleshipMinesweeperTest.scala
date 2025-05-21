@@ -19,7 +19,7 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
   private val ship = mock[ShipDescription]
   private val position = mock[Position]
   private val orientation = mock[Orientation]
-  private val movement = mock[Vector[Int]]
+  private val movement = mock[Movement]
 
   test("place and use a ship") {
     aliceBefore.placeShip(ship, position, orientation) returns valid(aliceMiddle)

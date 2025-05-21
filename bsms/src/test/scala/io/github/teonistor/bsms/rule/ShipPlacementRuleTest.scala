@@ -1,5 +1,6 @@
 package io.github.teonistor.bsms.rule
 
+import io.github.teonistor.bsms.data.Movement._
 import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip, mine}
 import io.github.teonistor.bsms.data.Orientation.{horizontal, vertical}
 import io.github.teonistor.bsms.data.{ShipDescription, ShipInPlay}
@@ -70,40 +71,27 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
     val boardBeforeMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(3, 2), horizontal).get
     val boardAfterMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(4, 2), horizontal).get
 
-    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(3, 2), Vector(1, 0))
+    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(3, 2), right)
     assert(result.isValid)
     assert(result.contains(boardAfterMovement))
+
+    assert(ShipPlacementRule.moveShip(result.get, Vector(4, 2), left).contains(boardBeforeMovement))
   }
 
   test("move ship vertically") {
     val boardBeforeMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(3, 2), vertical).get
     val boardAfterMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(3, 1), vertical).get
 
-    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(3, 2), Vector(0, -1))
+    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(3, 2), up)
     assert(result.isValid)
     assert(result.contains(boardAfterMovement))
+
+    assert(ShipPlacementRule.moveShip(result.get, Vector(3, 1), down).contains(boardBeforeMovement))
   }
 
   test("move ship preserves damage") {
     // TODO Come here
     assert(false)
-  }
-
-  List(
-      Vector( 0, 0),
-      Vector( 2, 0),
-      Vector(-3, 0),
-      Vector( 0,-2),
-      Vector( 0, 4),
-      Vector( 1, 1),
-      Vector( 1,-1),
-      Vector(-1, 1),
-      Vector(-1,-1)).foreach { movement =>
-    test("cannot move haphazardly - " + movement.mkString(",")) {
-      val result = ShipPlacementRule.moveShip(Map.empty, Vector(0, 0), movement)
-      assert(result.isInvalid)
-      assert(result.getError == "Ship must move exactly one space in the direction it is oriented")
-    }
   }
 
   List(
@@ -114,7 +102,7 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
     val str = position.mkString(",")
 
     test("cannot move ship that isn't there - " + str) {
-      val result = ShipPlacementRule.moveShip(Map.empty, position, Vector(0, 1))
+      val result = ShipPlacementRule.moveShip(Map.empty, position, up)
       assert(result.isInvalid)
       assert(result.getError == s"You don't have a ship at ($str)")
     }
@@ -123,16 +111,20 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
   test("cannot move vertical ship horizontally") {
     val boardBeforeMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(2,4), vertical).get
 
-    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(2,4), Vector(1, 0))
-    assert(result.isInvalid)
-    assert(result.getError == "Ship must move in the direction it is oriented")
+    List(left, right).foreach { movement =>
+      val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(2, 4), movement)
+      assert(result.isInvalid)
+      assert(result.getError == "Ship must move in the direction it is oriented")
+    }
   }
 
   test("cannot move horizontal ship vertically") {
     val boardBeforeMovement = ShipPlacementRule.placeShip(Map.empty, pirateShip, Vector(5,1), horizontal).get
 
-    val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(5,1), Vector(0, -1))
-    assert(result.isInvalid)
-    assert(result.getError == "Ship must move in the direction it is oriented")
+    List(up, down).foreach { movement =>
+      val result = ShipPlacementRule.moveShip(boardBeforeMovement, Vector(5, 1), movement)
+      assert(result.isInvalid)
+      assert(result.getError == "Ship must move in the direction it is oriented")
+    }
   }
 }
