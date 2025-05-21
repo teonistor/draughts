@@ -37,10 +37,8 @@ object AsciiArt {
   private val damagedChar = "█"
 
   def illustrateBoard(board: OwnBoard, cursor: Option[Position], width: Int, height: Int): String = {
-    // We don't really expect water to be populated in the map, but need to change the types to compilerly ensure that.
-    // (once we do, the empty check simply becomes board.isEmpty). Also and independently, if we display adversary
-    // information of a different nature, we'll need something other than an "empty" check
-    val empty = board.valuesIterator.forall(_.swap.toOption.contains(OceanCell.water))
+    // If and when we display adversary information of a different nature, we'll need something other than an "empty" check
+    val empty = board.isEmpty
 
     val boarder =
       if(empty)
