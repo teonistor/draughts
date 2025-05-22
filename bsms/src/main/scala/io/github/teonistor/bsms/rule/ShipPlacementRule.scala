@@ -1,6 +1,6 @@
 package io.github.teonistor.bsms.rule
 
-import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip, mine}
+import io.github.teonistor.bsms.data.OceanCell.{Ship, damagedShip, healthyShip, mine}
 import io.github.teonistor.bsms.data._
 import io.vavr.control.Validation
 import io.vavr.control.Validation.{invalid, valid}
@@ -15,7 +15,7 @@ object ShipPlacementRule {
         case ((coord, _), _) => coord
       }))
 
-    placeShip0(ship.name, board, positions)
+    placeShip0(ship.name, board, positions.map((_, healthyShip)).toMap)
   }
 
   def moveShip(board: OwnBoard, position: Position, movement: Movement): Validation[String, OwnBoard] = {
@@ -28,20 +28,21 @@ object ShipPlacementRule {
     if (movement aligns parts.keySet)
       placeShip0(name,
         board.removedAll(parts.keys),
-        parts.keySet.map(movement.move))
+        parts.map { case (k,v) => (movement move k, v) })
 
     else
       invalid("Ship must move in the direction it is oriented")
   }
 
-  private def placeShip0(name: String, board: OwnBoard, positions: Iterable[Vector[Int]]): Validation[String, OwnBoard] = {
-    if (positions.exists(board.get(_).exists(_.isRight)))
+  private def placeShip0(name: String, board: OwnBoard, parts: Map[Position, Ship]): Validation[String, OwnBoard] = {
+    if (parts.keys.exists(board.get(_).exists(_.isRight)))
       return invalid("Cannot place ship on top of another")
 
-    val spawnedShip = ShipInPlay(name, positions
-      .map(pos => (pos, board.get(pos).filter(_== Left(mine)).map(_=> damagedShip).getOrElse(healthyShip)))
+    val spawnedShip = ShipInPlay(name, parts
+      .keys
+      .map(pos => (pos, board.get(pos).filter(_== Left(mine)).map(_=> damagedShip).getOrElse(parts(pos))))
       .toMap)
 
-    valid(board ++ positions.map((_, Right(spawnedShip))))
+    valid(board ++ parts.keys.map((_, Right(spawnedShip))))
   }
 }

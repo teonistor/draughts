@@ -90,8 +90,15 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
   }
 
   test("move ship preserves damage") {
-    // TODO Come here
-    assert(false)
+    val unmoved  = ShipInPlay("Buoy",  Map(Vector(6,8) -> healthyShip, Vector(7,8) -> damagedShip))
+    val shipDown = ShipInPlay("Dingy", Map(Vector(7,4) -> healthyShip, Vector(7,5) -> damagedShip, Vector(7,6) -> healthyShip))
+    val shipUp   = ShipInPlay("Dingy", Map(Vector(7,3) -> healthyShip, Vector(7,4) -> damagedShip, Vector(7,5) -> healthyShip))
+
+    val boardDown = List(shipDown, unmoved).flatMap(s => s.parts.keys.map((_, Right(s)))).toMap
+    val boardUp   = List(shipUp,   unmoved).flatMap(s => s.parts.keys.map((_, Right(s)))).toMap
+
+    assert(ShipPlacementRule.moveShip(boardDown, Vector(7,5), up) contains boardUp)
+    assert(ShipPlacementRule.moveShip(boardUp, Vector(7,5), down) contains boardDown)
   }
 
   List(
