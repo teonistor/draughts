@@ -1,12 +1,10 @@
 package io.github.teonistor.bsms.comm
 
 import io.github.teonistor.bsms.core._
-import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip}
+import io.github.teonistor.bsms.data.OceanCell.{damagedShip, healthyShip, mine}
 import io.github.teonistor.bsms.data._
-import org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric
 import org.mockito.ArgumentMatchers.any
 import org.mockito.IdiomaticMockito
-import org.scalactic.source.{Position => Pos}
 import org.scalatest.funspec.AnyFunSpec
 
 import scala.util.Random.nextInt
@@ -16,16 +14,41 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
   describe("illustrateGame") {
     val aliceState = mock[PlayerState]
     val bobState = mock[PlayerState]
-    val aliceCursor = mock[Option[Position]]
-    val bobCursor = mock[Option[Position]]
+    val aliceBoard = mock[OwnBoard]
+    val bobBoard = mock[OwnBoard]
+
+    val aliceCursor = mock[Cursor]
+    val bobCursor = mock[Cursor]
+    val aliceOwnCursor = mock[Option[Position]]
+    val bobOwnCursor = mock[Option[Position]]
+    val aliceOpponentCursor = mock[Option[Position]]
+    val bobOpponentCursor = mock[Option[Position]]
+
     val width = nextInt(99)
     val height = nextInt(99)
+
     val game = BattleshipMinesweeper(GameSettings(Set.empty, 0, width, height), aliceState, bobState)
 
     it("works") {
+      aliceState .board          returns aliceBoard
+      bobState   .board          returns bobBoard
+      aliceCursor.ownCursor      returns aliceOwnCursor
+      bobCursor  .ownCursor      returns bobOwnCursor
+      aliceCursor.opponentCursor returns aliceOpponentCursor
+      bobCursor  .opponentCursor returns bobOpponentCursor
       withObjectMocked[AsciiArt.type] {
         AsciiArt.illustrateGame(any, any, any) shouldCall realMethod
-        AsciiArt.illustrateState(aliceState, aliceCursor, width, height) returns
+        AsciiArt.illustrateMines(bobBoard, aliceOpponentCursor, width, height) returns
+          """ ~~              ~~
+            | ~~ ~~        ~~ ~~
+            | ~~    ~~  ~~    ~~
+            | ~~      ~~      ~~
+            | ~~      ~~      ~~
+            | ~~              ~~
+            | ~~              ~~
+            | ~~              ~~
+            | ~~              ~~""".stripMargin
+        AsciiArt.illustrateShips(aliceBoard, aliceOwnCursor, width, height) returns
           """        X
             |       XXX
             |      XX XX
@@ -34,11 +57,20 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
             |   XXXXXXXXXXX
             |  XX         XX
             | XX           XX
-            |XX             XX
-            |
-            |≈≈≈≈≈  ≈≈≈
+            |XX             XX""".stripMargin
+        AsciiArt.illustrateInfo(aliceState) returns
+          """≈≈≈≈≈  ≈≈≈
             |≈≈ ≈≈≈≈≈≈≈≈≈≈≈""".stripMargin
-        AsciiArt.illustrateState(bobState, bobCursor, width, height) returns
+        AsciiArt.illustrateMines(aliceBoard, bobOpponentCursor, width, height) returns
+          """ ⋅⋅⋅      ⋅⋅⋅
+            | ⋅⋅ ⋅⋅  ⋅⋅ ⋅⋅
+            | ⋅⋅   ⋅⋅   ⋅⋅
+            | ⋅⋅   ⋅⋅   ⋅⋅
+            | ⋅⋅        ⋅⋅
+            | ⋅⋅        ⋅⋅
+            | ⋅⋅        ⋅⋅
+            | ⋅⋅        ⋅⋅""".stripMargin
+        AsciiArt.illustrateShips(bobBoard, bobOwnCursor, width, height) returns
           """XXXXXXXXXXXXX
             |XX          XXX
             |XX           XX
@@ -47,103 +79,46 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
             |XX          XXX
             |XX           XX
             |XX          XXX
-            |XXXXXXXXXXXXX
-            |
-            |≈≈≈ ≈≈≈≈≈≈≈≈≈ ≈≈≈≈""".stripMargin
+            |XXXXXXXXXXXXX""".stripMargin
+        AsciiArt.illustrateInfo(bobState) returns "≈≈≈ ≈≈≈≈≈≈≈≈≈ ≈≈≈≈"
 
         assert(AsciiArt.illustrateGame(game, aliceCursor, bobCursor)==
-          """                           ║║
-            |             X             ║║     XXXXXXXXXXXXX
-            |            XXX            ║║     XX          XXX
-            |           XX XX           ║║     XX           XX
-            |          XX   XX          ║║     XX          XXX
-            |         XX     XX         ║║     XXXXXXXXXXXXX
-            |        XXXXXXXXXXX        ║║     XX          XXX
-            |       XX         XX       ║║     XX           XX
-            |      XX           XX      ║║     XX          XXX
-            |     XX             XX     ║║     XXXXXXXXXXXXX
-            |                           ║║
-            |     ≈≈≈≈≈  ≈≈≈            ║║     ≈≈≈ ≈≈≈≈≈≈≈≈≈ ≈≈≈≈
-            |     ≈≈ ≈≈≈≈≈≈≈≈≈≈≈        ║║
-            |                           ║║""".stripMargin)
+          """                             ║║
+            |      ~~              ~~     ║║      ⋅⋅⋅      ⋅⋅⋅
+            |      ~~ ~~        ~~ ~~     ║║      ⋅⋅ ⋅⋅  ⋅⋅ ⋅⋅
+            |      ~~    ~~  ~~    ~~     ║║      ⋅⋅   ⋅⋅   ⋅⋅
+            |      ~~      ~~      ~~     ║║      ⋅⋅   ⋅⋅   ⋅⋅
+            |      ~~      ~~      ~~     ║║      ⋅⋅        ⋅⋅
+            |      ~~              ~~     ║║      ⋅⋅        ⋅⋅
+            |      ~~              ~~     ║║      ⋅⋅        ⋅⋅
+            |      ~~              ~~     ║║      ⋅⋅        ⋅⋅
+            |      ~~              ~~     ║║
+            |                             ║║     XXXXXXXXXXXXX
+            |             X               ║║     XX          XXX
+            |            XXX              ║║     XX           XX
+            |           XX XX             ║║     XX          XXX
+            |          XX   XX            ║║     XXXXXXXXXXXXX
+            |         XX     XX           ║║     XX          XXX
+            |        XXXXXXXXXXX          ║║     XX           XX
+            |       XX         XX         ║║     XX          XXX
+            |      XX           XX        ║║     XXXXXXXXXXXXX
+            |     XX             XX       ║║
+            |                             ║║     ≈≈≈ ≈≈≈≈≈≈≈≈≈ ≈≈≈≈
+            |     ≈≈≈≈≈  ≈≈≈              ║║
+            |     ≈≈ ≈≈≈≈≈≈≈≈≈≈≈          ║║
+            |                             ║║""".stripMargin)
 
-        AsciiArt.illustrateState(any, any, any, any) wasCalled twice
+        AsciiArt.illustrateMines(any, any, any, any) wasCalled twice
+        AsciiArt.illustrateShips(any, any, any, any) wasCalled twice
+        AsciiArt.illustrateInfo(any) wasCalled twice
       }
     }
   }
 
-  // noinspection NameBooleanParameters
-  describe("illustrateState") {
-    val board = mock[OwnBoard]
-    val cursor = mock[Option[Position]]
-    val width = nextInt(99)
-    val height = nextInt(99)
-    val boardStr = randomAlphanumeric(5) + "\n" + randomAlphanumeric(5) + "\n" + randomAlphanumeric(5)
-
-    def customTest(name: String, board: OwnBoard, assertion: => Any, pos: Pos): Unit = {
-      it(name) {
-        withObjectMocked[AsciiArt.type] {
-          AsciiArt.illustrateBoard(board, cursor, width, height) returns boardStr
-          AsciiArt.illustrateState(any, cursor, any, any) shouldCall realMethod
-
-          assertion
-
-          AsciiArt.illustrateBoard(board, cursor, width, height) wasCalled once
-        }
-      }(pos)
-    }
-
-    def customTestBoard(name: String)(assertion: => Any)(implicit pos: Pos): Unit =
-      customTest(name, board, assertion, pos)
-
-    def customTestNoBoard(name: String)(assertion: => Any)(implicit pos: Pos): Unit =
-      customTest(name, Map.empty, assertion, pos)
-
-    customTestBoard("illustrate ship placement in progress") {
-      assert(AsciiArt.illustrateState(PlayerStateShipPlacement(board, Map.empty, Set(ShipDescription("Fishing Boat", 4))), cursor, width, height) ==
-        boardStr + "\nShip placement:\n> Fishing Boat (length 4)")
-    }
-
-    customTestBoard("illustrate ship placement complete") {
-      assert(AsciiArt.illustrateState(PlayerStateShipPlacement(board, Map.empty, Set.empty), cursor, width, height) ==
-        boardStr + "\nShip placement complete. Waiting for other player")
-    }
-
-    customTestNoBoard("illustrate mine placement in progress") {
-      assert(AsciiArt.illustrateState(PlayerStateMinePlacement(board, Map.empty, 3), cursor, width, height) ==
-        boardStr + "\nMines to place: 3")
-    }
-
-    customTestNoBoard("illustrate mine placement complete") {
-      assert(AsciiArt.illustrateState(PlayerStateMinePlacement(board, Map.empty, 0), cursor, width, height) ==
-        boardStr + "\nMine placement complete. Waiting for other player")
-    }
-
-    customTestBoard("illustrate movement available") {
-      assert(AsciiArt.illustrateState(PlayerStateMovement(board, Map.empty, true), cursor, width, height) ==
-        boardStr + "\nYou may move")
-    }
-
-    customTestBoard("illustrate movement unavailable") {
-      assert(AsciiArt.illustrateState(PlayerStateMovement(board, Map.empty, false), cursor, width, height) ==
-        boardStr + "\nYou have moved. Waiting for other player")
-    }
-
-    customTestNoBoard("illustrate shot available") {
-      assert(AsciiArt.illustrateState(PlayerStateShooting(board, Map.empty, true), cursor, width, height) ==
-        boardStr + "\nPick a target to shoot")
-    }
-
-    customTestNoBoard("illustrate shot unavailable") {
-      assert(AsciiArt.illustrateState(PlayerStateShooting(board, Map.empty, false), cursor, width, height) ==
-        boardStr + "\nShot fired. Waiting for other player")
-    }
-  }
-
-  describe("illustrateBoard") {
+  describe("illustrateMines") {
 
     it("Empty grid") {
-      assert(AsciiArt.illustrateBoard(Map.empty, None, 3, 3) ==
+      assert(AsciiArt.illustrateMines(Map.empty, None, 3, 3) ==
         """╭──┬──┬──╮
           |├──┼──┼──┤
           |├──┼──┼──┤
@@ -151,18 +126,35 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
     }
 
     it("Empty grid and a cursor") {
-      assert(AsciiArt.illustrateBoard(Map.empty, Some(Vector(3,2)), 4, 4) ==
+      assert(AsciiArt.illustrateMines(Map.empty, Some(Vector(3, 2)), 4, 4) ==
         """╭──┬──┬──┬──╮
           |├──┼──┼──┼──┤
           |├──┼──┼──┼╲╱┤
           |├──┼──┼──┼──┤
           |╰──┴──┴──┴──╯""".stripMargin)
-      assert(AsciiArt.illustrateBoard(Map.empty, Some(Vector(2,1)), 5, 3) ==
+      assert(AsciiArt.illustrateMines(Map.empty, Some(Vector(2, 1)), 5, 3) ==
         """╭──┬──┬──┬──┬──╮
           |├──┼──┼╲╱┼──┼──┤
           |├──┼──┼──┼──┼──┤
           |╰──┴──┴──┴──┴──╯""".stripMargin)
     }
+
+    it("Mines") {
+      assert(AsciiArt.illustrateMines(Map(Vector(1, 1) -> Left(mine)), Some(Vector(3, 2)), 4, 4) ==
+        """╭──┬──┬──┬──╮
+          |├──┼MM┼──┼──┤
+          |├──┼──┼──┼╲╱┤
+          |├──┼──┼──┼──┤
+          |╰──┴──┴──┴──╯""".stripMargin)
+      assert(AsciiArt.illustrateMines(Map(Vector(2, 0) -> Left(mine), Vector(0, 1) -> Left(mine), Vector(3, 2) -> Left(mine)), None, 5, 3) ==
+        """╭──┬──┬MM┬──┬──╮
+          |├MM┼──┼──┼──┼──┤
+          |├──┼──┼──┼MM┼──┤
+          |╰──┴──┴──┴──┴──╯""".stripMargin)
+    }
+  }
+
+  describe("illustrateShips") {
 
     it("Healthy ships") {
       val blueBoat = ShipInPlay("Blue Boat", Map(
@@ -196,7 +188,7 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
         .flatMap(ship => ship.parts.keys.map((_, Right(ship))))
         .toMap
 
-      assert(AsciiArt.illustrateBoard(board, None, 7, 9) ==
+      assert(AsciiArt.illustrateShips(board, None, 7, 9) ==
         """╭───────────╮
           |╰──┬────────┴──┬─────╮
           |╭──┼───────────┴─────╯
@@ -256,7 +248,7 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
         .flatMap(ship => ship.parts.keys.map((_, Right(ship))))
         .toMap
 
-      assert(AsciiArt.illustrateBoard(board, Some(Vector(3,2)), 7, 9) ==
+      assert(AsciiArt.illustrateShips(board, Some(Vector(3,2)), 7, 9) ==
         """╭───██──────╮
           |╰──┬───██───┴──┬───██╮
           |╭──┼──────╲╱───┴─────╯
@@ -267,6 +259,51 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
           |         │██│  │
           |         ╰──┴──╯
           |""".stripMargin)
+    }
+  }
+
+  // noinspection NameBooleanParameters
+  describe("illustrateInfo") {
+    val board = mock[OwnBoard]
+
+    it("illustrate ship placement in progress") {
+      assert(AsciiArt.illustrateInfo(PlayerStateShipPlacement(board, Map.empty, Set(ShipDescription("Fishing Boat", 4)))) ==
+        "Ship placement:\n> Fishing Boat (length 4)")
+    }
+
+    it("illustrate ship placement complete") {
+      assert(AsciiArt.illustrateInfo(PlayerStateShipPlacement(board, Map.empty, Set.empty)) ==
+        "Ship placement complete. Waiting for other player")
+    }
+
+    it("illustrate mine placement in progress") {
+      assert(AsciiArt.illustrateInfo(PlayerStateMinePlacement(board, Map.empty, 3)) ==
+        "Mines to place: 3")
+    }
+
+    it("illustrate mine placement complete") {
+      assert(AsciiArt.illustrateInfo(PlayerStateMinePlacement(board, Map.empty, 0)) ==
+        "Mine placement complete. Waiting for other player")
+    }
+
+    it("illustrate movement available") {
+      assert(AsciiArt.illustrateInfo(PlayerStateMovement(board, Map.empty, true)) ==
+        "You may move")
+    }
+
+    it("illustrate movement unavailable") {
+      assert(AsciiArt.illustrateInfo(PlayerStateMovement(board, Map.empty, false)) ==
+        "You have moved. Waiting for other player")
+    }
+
+    it("illustrate shot available") {
+      assert(AsciiArt.illustrateInfo(PlayerStateShooting(board, Map.empty, true)) ==
+        "Pick a target to shoot")
+    }
+
+    it("illustrate shot unavailable") {
+      assert(AsciiArt.illustrateInfo(PlayerStateShooting(board, Map.empty, false)) ==
+        "Shot fired. Waiting for other player")
     }
   }
 }
