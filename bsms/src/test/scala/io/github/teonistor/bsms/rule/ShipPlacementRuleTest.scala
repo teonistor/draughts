@@ -134,4 +134,20 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
       assert(result.getError == "Ship must move in the direction it is oriented")
     }
   }
+
+  test("remove ship"){
+    val input = ShipPlacementRule.placeShip(ShipPlacementRule.placeShip(Map.empty,
+      fishingBoat, Vector(3, 8), vertical).get,
+      pirateShip, Vector(5, 1), horizontal).get
+    val expected = ShipPlacementRule.placeShip(Map.empty,
+      fishingBoat, Vector(3, 8), vertical).get
+
+    assert(ShipPlacementRule.removeShip(input, Vector(5, 1)) == expected)
+    assert(ShipPlacementRule.removeShip(input, Vector(6, 1)) == expected)
+    assert(ShipPlacementRule.removeShip(input, Vector(7, 1)) == expected)
+    assert(ShipPlacementRule.removeShip(input, Vector(8, 1)) == expected)
+
+    assert(ShipPlacementRule.removeShip(input, Vector(5, 2)) == input)
+    assert(ShipPlacementRule.removeShip(input, Vector(9, 1)) == input)
+  }
 }

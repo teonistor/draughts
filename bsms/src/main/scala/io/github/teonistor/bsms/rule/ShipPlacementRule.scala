@@ -45,4 +45,10 @@ object ShipPlacementRule {
 
     valid(board ++ parts.keys.map((_, Right(spawnedShip))))
   }
+
+  def removeShip(board: OwnBoard, position: Position): OwnBoard =
+    board -- board.get(position)
+      .flatMap(_.toOption)
+      .map(_.parts.keySet)
+      .getOrElse(Set.empty)
 }

@@ -13,7 +13,8 @@ case class BattleshipMinesweeper(settings: GameSettings,
   lazy val condition: GameCondition = GameOverChecker.check(this)
 
   // Not sure where the executive TODO is...
-  // You always see an accurate view of the mines in the opponent's ocean
+  // Notify for which ship dead always
+  // Notify for which ship hit only in Shooting
 
   def placeShip(player: Player, ship: ShipDescription, position: Position, orientation: Orientation): ValidatedGame =
     act(player, (state, update) => state

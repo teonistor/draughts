@@ -37,6 +37,9 @@ trait PlayerState {
       .map(ship => ship.parts.keySet.map((_, Right(ship))))
       .getOrElse(Some(position -> Left(mine))))
 
+  def removeShip(position: Position): PlayerState =
+    withBoard(ShipPlacementRule.removeShip(board, position))
+
   def isStageOver: Boolean
 
   def nextStage(gameSettings: GameSettings): PlayerState
