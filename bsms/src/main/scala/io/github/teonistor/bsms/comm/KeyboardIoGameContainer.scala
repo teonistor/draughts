@@ -3,16 +3,18 @@ package io.github.teonistor.bsms.comm
 import io.github.teonistor.bsms.comm.AsciiArt.illustrateGame
 import io.github.teonistor.bsms.core.BattleshipMinesweeper
 import io.github.teonistor.bsms.core.experimental.KeyboardesqueIoState
+import io.vavr.control.Validation
 
 case class KeyboardIoGameContainer(game: BattleshipMinesweeper,
                                    aliceIO: KeyboardesqueIoState,
                                    bobIO: KeyboardesqueIoState) {
-  lazy val illustration = {
-    val (alicePreview, aliceCursor) = aliceIO.preview(game.aliceState)
-    val (bobPreview, bobCursor) = bobIO.preview(game.bobState)
-    alicePreview.combine(bobPreview)
-      .ap((a, b) => game.copy(aliceState = a, bobState = b))
+  lazy val illustration: Validation[String,String] = {
+
+    val alp = aliceIO.preview(game.aliceState)
+    val bop = bobIO.preview(game.bobState)
+
+    alp.combine(bop)
+      .ap { case (a, b) => illustrateGame(a, b, game.settings) }
       .mapError[String](_.mkString(". "))
-      .map[String](illustrateGame(_, aliceCursor, bobCursor))
   }
 }

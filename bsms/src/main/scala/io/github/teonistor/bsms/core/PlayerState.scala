@@ -38,7 +38,7 @@ trait PlayerState {
       .getOrElse(Some(position -> Left(mine))))
 
   def removeShip(position: Position): PlayerState =
-    withBoard(ShipPlacementRule.removeShip(board, position))
+    withBoard(ShipPlacementRule.isolateShip(board, position)._2)
 
   def isStageOver: Boolean
 

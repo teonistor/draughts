@@ -23,11 +23,11 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
     val bobOwnCursor = mock[Option[Position]]
     val aliceOpponentCursor = mock[Option[Position]]
     val bobOpponentCursor = mock[Option[Position]]
+    val aliceOverlay = mock[Option[OwnBoard]]
+    val bobOverlay = mock[Option[OwnBoard]]
 
     val width = nextInt(99)
     val height = nextInt(99)
-
-    val game = BattleshipMinesweeper(GameSettings(Set.empty, 0, width, height), aliceState, bobState)
 
     it("works") {
       aliceState .board          returns aliceBoard
@@ -48,7 +48,7 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
             | ~~              ~~
             | ~~              ~~
             | ~~              ~~""".stripMargin
-        AsciiArt.illustrateShips(aliceBoard, aliceOwnCursor, width, height) returns
+        AsciiArt.illustrateShips(aliceBoard, aliceOverlay, aliceOwnCursor, width, height) returns
           """        X
             |       XXX
             |      XX XX
@@ -70,7 +70,7 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
             | ⋅⋅        ⋅⋅
             | ⋅⋅        ⋅⋅
             | ⋅⋅        ⋅⋅""".stripMargin
-        AsciiArt.illustrateShips(bobBoard, bobOwnCursor, width, height) returns
+        AsciiArt.illustrateShips(bobBoard, bobOverlay, bobOwnCursor, width, height) returns
           """XXXXXXXXXXXXX
             |XX          XXX
             |XX           XX
@@ -82,7 +82,9 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
             |XXXXXXXXXXXXX""".stripMargin
         AsciiArt.illustrateInfo(bobState) returns "≈≈≈ ≈≈≈≈≈≈≈≈≈ ≈≈≈≈"
 
-        assert(AsciiArt.illustrateGame(game, aliceCursor, bobCursor)==
+        assert(AsciiArt.illustrateGame(AsciiDisplayablePlayerState(aliceState, aliceCursor, aliceOverlay),
+                                       AsciiDisplayablePlayerState(bobState, bobCursor, bobOverlay),
+                                       GameSettings(Set.empty, 0, width, height)) ==
           """                             ║║
             |      ~~              ~~     ║║      ⋅⋅⋅      ⋅⋅⋅
             |      ~~ ~~        ~~ ~~     ║║      ⋅⋅ ⋅⋅  ⋅⋅ ⋅⋅
@@ -109,7 +111,7 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
             |                             ║║""".stripMargin)
 
         AsciiArt.illustrateMines(any, any, any, any) wasCalled twice
-        AsciiArt.illustrateShips(any, any, any, any) wasCalled twice
+        AsciiArt.illustrateShips(any, any, any, any, any) wasCalled twice
         AsciiArt.illustrateInfo(any) wasCalled twice
       }
     }
@@ -188,7 +190,7 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
         .flatMap(ship => ship.parts.keys.map((_, Right(ship))))
         .toMap
 
-      assert(AsciiArt.illustrateShips(board, None, 7, 9) ==
+      assert(AsciiArt.illustrateShips(board, None, None, 7, 9) ==
         """╭───────────╮
           |╰──┬────────┴──┬─────╮
           |╭──┼───────────┴─────╯
@@ -248,7 +250,7 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
         .flatMap(ship => ship.parts.keys.map((_, Right(ship))))
         .toMap
 
-      assert(AsciiArt.illustrateShips(board, Some(Vector(3,2)), 7, 9) ==
+      assert(AsciiArt.illustrateShips(board, None, Some(Vector(3,2)), 7, 9) ==
         """╭───██──────╮
           |╰──┬───██───┴──┬───██╮
           |╭──┼──────╲╱───┴─────╯

@@ -46,9 +46,16 @@ object ShipPlacementRule {
     valid(board ++ parts.keys.map((_, Right(spawnedShip))))
   }
 
-  def removeShip(board: OwnBoard, position: Position): OwnBoard =
-    board -- board.get(position)
+  /**
+   * @return Two boards, the first containing only the ship at the given position, the second containing everything else.
+   *         If there is no ship at the given position, the first board is empty and the second is equal to the input.
+   */
+  def isolateShip(board: OwnBoard, position: Position): (OwnBoard,OwnBoard) = {
+    val select = board.get(position)
       .flatMap(_.toOption)
       .map(_.parts.keySet)
       .getOrElse(Set.empty)
+    (board.filter(u=>select(u._1)),
+     board -- select)
+  }
 }

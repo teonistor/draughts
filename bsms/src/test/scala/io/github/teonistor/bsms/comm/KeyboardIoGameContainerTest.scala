@@ -2,6 +2,7 @@ package io.github.teonistor.bsms.comm
 
 import io.github.teonistor.bsms.core.experimental.KeyboardesqueIoState
 import io.github.teonistor.bsms.core.{BattleshipMinesweeper, PlayerState}
+import io.github.teonistor.bsms.data.GameSettings
 import io.vavr.control.Validation.{invalid, valid}
 import org.mockito.IdiomaticMockito
 import org.scalatest.funsuite.AnyFunSuite
@@ -18,12 +19,15 @@ class KeyboardIoGameContainerTest extends AnyFunSuite with IdiomaticMockito {
   private val bobCursor = mock[Cursor]
 
   test("everything valid") {
-    withObjectMocked[AsciiArt.type] {
+    val aliceState = mock[AsciiDisplayablePlayerState]
+    val bobState = mock[AsciiDisplayablePlayerState]
+    val settings = mock[GameSettings]
 
-      val game = BattleshipMinesweeper(null, aliceStateIn, bobStateIn)
-      aliceIO.preview(aliceStateIn) returns valid(AsciiDisplayablePlayerState(aliceStateOut, aliceCursor))
-      bobIO.preview(bobStateIn) returns valid(AsciiDisplayablePlayerState(bobStateOut, bobCursor))
-      AsciiArt.illustrateGame(BattleshipMinesweeper(null, aliceStateOut, bobStateOut), aliceCursor, bobCursor) returns "This is the game displayed, trust me"
+    withObjectMocked[AsciiArt.type] {
+      val game = BattleshipMinesweeper(settings, aliceStateIn, bobStateIn)
+      aliceIO.preview(aliceStateIn) returns valid(aliceState)
+      bobIO.preview(bobStateIn) returns valid(bobState)
+      AsciiArt.illustrateGame(aliceState, bobState, settings) returns "This is the game displayed, trust me"
 
       assert(KeyboardIoGameContainer(game, aliceIO, bobIO).illustration contains "This is the game displayed, trust me")
     }

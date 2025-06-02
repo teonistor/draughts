@@ -64,7 +64,7 @@ class PlayerStateTest extends AnyFunSpec with IdiomaticMockito {
     it("remove ship") {
       val nextState = mock[PlayerState]
       withObjectMocked[ShipPlacementRule.type] {
-        ShipPlacementRule.removeShip(board1, position) returns board2
+        ShipPlacementRule.isolateShip(board1, position) returns ((null, board2))
         setter(board2) returns nextState
 
         assert(st.removeShip(position) == nextState)

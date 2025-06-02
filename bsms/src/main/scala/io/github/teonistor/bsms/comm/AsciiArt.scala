@@ -6,21 +6,21 @@ import io.github.teonistor.bsms.data._
 
 object AsciiArt {
 
-  def illustrateGame(game: BattleshipMinesweeper,
-                     aliceCursor: Cursor,
-                     bobCursor: Cursor): String = {
-    val a = (illustrateMines(game.bobState.board, aliceCursor.opponentCursor, game.settings.width, game.settings.height) +
+  def illustrateGame(aliceState: AsciiDisplayablePlayerState,
+                     bobState: AsciiDisplayablePlayerState,
+                     settings: GameSettings): String = {
+    val a = (illustrateMines(bobState.state.board, aliceState.cursor.opponentCursor, settings.width, settings.height) +
       "\n\n" +
-      illustrateShips(game.aliceState.board, aliceCursor.ownCursor, game.settings.width, game.settings.height) +
+      illustrateShips(aliceState.state.board, aliceState.overlay, aliceState.cursor.ownCursor, settings.width, settings.height) +
       "\n\n" +
-      illustrateInfo(game.aliceState))
+      illustrateInfo(aliceState.state))
         .linesIterator.to(Vector)
 
-    val b = (illustrateMines(game.aliceState.board, bobCursor.opponentCursor, game.settings.width, game.settings.height) +
+    val b = (illustrateMines(aliceState.state.board, bobState.cursor.opponentCursor, settings.width, settings.height) +
       "\n\n" +
-      illustrateShips(game.bobState.board, bobCursor.ownCursor, game.settings.width, game.settings.height) +
+      illustrateShips(bobState.state.board, bobState.overlay, bobState.cursor.ownCursor, settings.width, settings.height) +
       "\n\n" +
-      illustrateInfo(game.bobState))
+      illustrateInfo(bobState.state))
         .linesIterator.to(Vector)
 
     illustrateGame0(
@@ -76,7 +76,18 @@ object AsciiArt {
       .mkString("\n")
   }
 
-  private[comm] def illustrateShips(board: OwnBoard, cursor: Option[Position], width: Int, height: Int): String = {
+  private[comm] def illustrateShips(board: OwnBoard, overlay: Option[OwnBoard], cursor: Option[Position], width: Int, height: Int): String = {
+    val base = illustrateShips(board, cursor, width, height)
+    val over = illustrateShips(overlay.getOrElse(Map.empty), None, width, height)
+
+    (0 to height)
+      .map(y => (0 to width * 3)
+        .map { x => if (over(y)(x) == " ") base(y)(x) else over(y)(x) }
+        .mkString.stripTrailing())
+      .mkString("\n")
+  }
+
+  private def illustrateShips(board: OwnBoard, cursor: Option[Position], width: Int, height: Int) = {
     val boardSafeGetName = board.lift
        .andThen(_.flatMap(_.toOption).map(_.name))
 
@@ -107,8 +118,8 @@ object AsciiArt {
                    + (if (bl == br) 0 else 4)
                    + (if (tl == bl) 0 else 8))
         })
-      .map(_.mkString.stripTrailing())
-      .mkString("\n")
+//      .map(_.mkString.stripTrailing())
+//      .mkString("\n")
   }
 
   private[comm] def illustrateInfo(state: PlayerState) = state match {
