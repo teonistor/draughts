@@ -8,13 +8,9 @@ import io.vavr.control.Validation
 case class KeyboardIoGameContainer(game: BattleshipMinesweeper,
                                    aliceIO: KeyboardesqueIoState,
                                    bobIO: KeyboardesqueIoState) {
-  lazy val illustration: Validation[String,String] = {
 
-    val alp = aliceIO.preview(game.aliceState)
-    val bop = bobIO.preview(game.bobState)
-
-    alp.combine(bop)
+  lazy val illustration: Validation[String,String] =
+    (aliceIO.preview(game.aliceState) combine bobIO.preview(game.bobState))
       .ap { case (a, b) => illustrateGame(a, b, game.settings) }
       .mapError[String](_.mkString(". "))
-  }
 }

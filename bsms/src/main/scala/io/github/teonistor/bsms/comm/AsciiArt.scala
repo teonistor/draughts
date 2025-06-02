@@ -9,26 +9,23 @@ object AsciiArt {
   def illustrateGame(aliceState: AsciiDisplayablePlayerState,
                      bobState: AsciiDisplayablePlayerState,
                      settings: GameSettings): String = {
-    val a = (illustrateMines(bobState.state.board, aliceState.cursor.opponentCursor, settings.width, settings.height) +
-      "\n\n" +
-      illustrateShips(aliceState.state.board, aliceState.overlay, aliceState.cursor.ownCursor, settings.width, settings.height) +
-      "\n\n" +
-      illustrateInfo(aliceState.state))
-        .linesIterator.to(Vector)
-
-    val b = (illustrateMines(aliceState.state.board, bobState.cursor.opponentCursor, settings.width, settings.height) +
-      "\n\n" +
-      illustrateShips(bobState.state.board, bobState.overlay, bobState.cursor.ownCursor, settings.width, settings.height) +
-      "\n\n" +
-      illustrateInfo(bobState.state))
-        .linesIterator.to(Vector)
+    val aStr = illustrateState(aliceState, bobState, settings)
+    val bStr = illustrateState(bobState, aliceState, settings)
 
     illustrateGame0(
-      a.lift.andThen(_.getOrElse("")),
-      b.lift.andThen(_.getOrElse("")),
-      a.length max b.length,
-      a.map(_.length).max)
+      aStr.lift.andThen(_.getOrElse("")),
+      bStr.lift.andThen(_.getOrElse("")),
+      aStr.length max bStr.length,
+      aStr.map(_.length).max)
   }
+
+  private def illustrateState(thisState: AsciiDisplayablePlayerState, thatState: AsciiDisplayablePlayerState, settings: GameSettings): Vector[String] =
+    (   illustrateMines(thatState.state.board, thisState.cursor.opponentCursor, settings.width, settings.height) +
+        "\n\n" +
+        illustrateShips(thisState.state.board, thisState.overlay, thisState.cursor.ownCursor, settings.width, settings.height) +
+        "\n\n" +
+        illustrateInfo(thisState.state))
+      .linesIterator.to(Vector)
 
   private def illustrateGame0(a: Int => String, b: Int => String, howManyLines: Int, maxWidthA: Int) =
     (-1 to howManyLines).iterator
@@ -40,6 +37,8 @@ object AsciiArt {
   private val cursorChars = Vector("F", "╲", "╱")
   private val damagedChar = "█"
   private val mineChar = "M"
+
+  // TODO [Refactor] we shouldn't join the strings just to split them again, but tests need to change if so
 
   private[comm] def illustrateMines(board: OwnBoard, cursor: Option[Position], width: Int, height: Int): String = {
     val mines = board.keySet.filter(board.get(_).contains(Left(mine)))
