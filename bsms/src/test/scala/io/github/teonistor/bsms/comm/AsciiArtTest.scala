@@ -243,21 +243,27 @@ class AsciiArtTest extends AnyFunSpec with IdiomaticMockito {
         Vector(3,6) -> healthyShip,
         Vector(3,7) -> damagedShip))
       val yellowBoat = ShipInPlay("Yellow Boat", Map(
-        Vector(0,2) -> healthyShip,
+        Vector(0,2) -> damagedShip,
         Vector(0,3) -> healthyShip,
         Vector(0,4) -> damagedShip))
+      val floatingBoat = ShipInPlay("Floating Boat", Map(
+        Vector(0,3) -> healthyShip,
+        Vector(0,4) -> healthyShip,
+        Vector(0,5) -> damagedShip))
       val board = Iterator(blueBoat, greenBoat, purpleBoat, redBoat, whiteBoat, yellowBoat)
         .flatMap(ship => ship.parts.keys.map((_, Right(ship))))
         .toMap
+      val overlay = floatingBoat.parts.keys.map((_, Right(floatingBoat)))
+        .toMap
 
-      assert(AsciiArt.illustrateShips(board, None, Some(Vector(3,2)), 7, 9) ==
+      assert(AsciiArt.illustrateShips(board, Some(overlay), Some(Vector(3, 2)), 7, 9) ==
         """╭───██──────╮
           |╰──┬───██───┴──┬───██╮
-          |╭──┼──────╲╱───┴─────╯
-          |│  │        ╭──╮
+          |╭██┼──────╲╱───┴─────╯
+          |╭──╮        ╭──╮
           |│██│        │  │
-          |╰──╯     ╭──┤██│
-          |         │  │  │
+          |│██│     ╭──┤██│
+          |╰──╯     │  │  │
           |         │██│  │
           |         ╰──┴──╯
           |""".stripMargin)

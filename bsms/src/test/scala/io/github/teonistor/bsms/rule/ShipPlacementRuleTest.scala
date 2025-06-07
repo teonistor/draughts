@@ -135,19 +135,19 @@ class ShipPlacementRuleTest extends AnyFunSuiteLike {
     }
   }
 
-  test("remove ship"){
-    val input = ShipPlacementRule.placeShip(ShipPlacementRule.placeShip(Map.empty,
-      fishingBoat, Vector(3, 8), vertical).get,
+  test("isolate ship") {
+    val lifted = ShipPlacementRule.placeShip(Map.empty,
       pirateShip, Vector(5, 1), horizontal).get
-    val expected = ShipPlacementRule.placeShip(Map.empty,
+    val remaining = ShipPlacementRule.placeShip(Map.empty,
       fishingBoat, Vector(3, 8), vertical).get
+    val both = lifted ++ remaining
 
-    assert(ShipPlacementRule.removeShip(input, Vector(5, 1)) == expected)
-    assert(ShipPlacementRule.removeShip(input, Vector(6, 1)) == expected)
-    assert(ShipPlacementRule.removeShip(input, Vector(7, 1)) == expected)
-    assert(ShipPlacementRule.removeShip(input, Vector(8, 1)) == expected)
+    assert(ShipPlacementRule.isolateShip(both, Vector(5, 1)) == (lifted, remaining))
+    assert(ShipPlacementRule.isolateShip(both, Vector(6, 1)) == (lifted, remaining))
+    assert(ShipPlacementRule.isolateShip(both, Vector(7, 1)) == (lifted, remaining))
+    assert(ShipPlacementRule.isolateShip(both, Vector(8, 1)) == (lifted, remaining))
 
-    assert(ShipPlacementRule.removeShip(input, Vector(5, 2)) == input)
-    assert(ShipPlacementRule.removeShip(input, Vector(9, 1)) == input)
+    assert(ShipPlacementRule.isolateShip(both, Vector(5, 2)) == (Map.empty, both))
+    assert(ShipPlacementRule.isolateShip(both, Vector(9, 1)) == (Map.empty, both))
   }
 }
