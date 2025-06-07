@@ -1,16 +1,19 @@
 package io.github.teonistor.bsms.core
 
+import io.github.teonistor.bsms.data.GameCondition.continues
 import io.github.teonistor.bsms.data._
 import io.github.teonistor.bsms.rule.GameOverChecker
 import io.github.teonistor.bsms.rule.StageChange.advanceStageIfNecessary
+import io.github.teonistor.commongaming.Game
 
 import java.util.function.{Function => JuFunction}
 
 case class BattleshipMinesweeper(settings: GameSettings,
                                  aliceState: PlayerState,
-                                 bobState: PlayerState) {
+                                 bobState: PlayerState) extends Game {
 
   lazy val condition: GameCondition = GameOverChecker.check(this)
+  override def isGameOver: Boolean = condition != continues
 
   // Not sure where the executive TODO is...
   // Notify for which ship dead always

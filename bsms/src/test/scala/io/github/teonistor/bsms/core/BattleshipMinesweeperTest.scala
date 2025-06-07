@@ -1,5 +1,6 @@
 package io.github.teonistor.bsms.core
 
+import io.github.teonistor.bsms.data.GameCondition.continues
 import io.github.teonistor.bsms.data.Player.{alice, bob}
 import io.github.teonistor.bsms.data._
 import io.github.teonistor.bsms.rule.{GameOverChecker, StageChange}
@@ -20,6 +21,27 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
   private val position = mock[Position]
   private val orientation = mock[Orientation]
   private val movement = mock[Movement]
+
+  test("Game Condition - game over") {
+    val game = BattleshipMinesweeper(settings, aliceBefore, bobBefore)
+    val condition = mock[GameCondition]
+    withObjectMocked[GameOverChecker.type] {
+      GameOverChecker.check(game) returns condition
+
+      assert(game.condition == condition)
+      assert(game.isGameOver)
+    }
+  }
+
+  test("Game Condition - game continues") {
+    val game = BattleshipMinesweeper(settings, aliceBefore, bobBefore)
+    withObjectMocked[GameOverChecker.type] {
+      GameOverChecker.check(game) returns continues
+
+      assert(game.condition == continues)
+      assert(!game.isGameOver)
+    }
+  }
 
   test("place and use a ship") {
     aliceBefore.placeShip(ship, position, orientation) returns valid(aliceMiddle)
@@ -131,16 +153,6 @@ class BattleshipMinesweeperTest extends AnyFunSuiteLike with IdiomaticMockito {
       assert(result.isInvalid)
       assert(result.getError == "Sting operation")
       StageChange.advanceStageIfNecessary(any()) wasCalled once
-    }
-  }
-
-  test("Game Condition") {
-    val game = BattleshipMinesweeper(settings, aliceBefore, bobBefore)
-    val condition = mock[GameCondition]
-    withObjectMocked[GameOverChecker.type] {
-      GameOverChecker.check(game) returns condition
-
-      assert(game.condition == condition)
     }
   }
 }
