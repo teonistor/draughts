@@ -15,7 +15,7 @@ class AsciiArtIO(aliceMove:    Movement => Unit,
                  bobToggle:    () => Unit,
                  bobConfirm:   () => Unit) {
 
-  private val window = new JFrame("Battleship Minesweeper Input Box")
+  private[bsms] val window = new JFrame("Battleship Minesweeper Input Box")
 
   window.setLayout(new FlowLayout())
   window.add(new JLabel(
