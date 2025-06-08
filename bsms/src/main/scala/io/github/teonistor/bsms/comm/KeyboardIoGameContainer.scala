@@ -13,4 +13,10 @@ case class KeyboardIoGameContainer(game: BattleshipMinesweeper,
     (aliceIO.preview(game.aliceState) combine bobIO.preview(game.bobState))
       .ap { case (a, b) => illustrateGame(a, b, game.settings) }
       .mapError[String](_.mkString(". "))
+
+  def updateAlice(func: KeyboardesqueIoState => KeyboardesqueIoState): KeyboardIoGameContainer =
+    copy(aliceIO = func(aliceIO))
+
+  def updateBob(func: KeyboardesqueIoState => KeyboardesqueIoState): KeyboardIoGameContainer =
+    copy(bobIO = func(bobIO))
 }

@@ -17,17 +17,17 @@ object KeyboardAsciiArtIoRunner {
       setter(func(getter()))
 
     new AsciiArtIO(
-      move => v(kigc => kigc.copy(aliceIO = kigc.aliceIO.move(move))),
-      () => v(kigc => kigc.copy(aliceIO = kigc.aliceIO.toggle())),
-      () => w(kigc => {
-        val (result, newAliceIO) = kigc.aliceIO.apply(kigc.game, alice)
-        result.map(newGame => kigc.copy(game = newGame, aliceIO = newAliceIO))
-      }),
-      move => v(kigc => kigc.copy(bobIO = kigc.bobIO.move(move))),
-      () => v(kigc => kigc.copy(bobIO = kigc.bobIO.toggle())),
-      () => w(kigc => {
-        val (result, newBobIO) = kigc.bobIO.apply(kigc.game, bob)
-        result.map(newGame => kigc.copy(game = newGame, bobIO = newBobIO))
-      }))
+      move => v(_.updateAlice(_.move(move))),
+      ()   => v(_.updateAlice(_.toggle())),
+      ()   => w(kigc => {
+                val (result, newAliceIO) = kigc.aliceIO(kigc.game, alice)
+                result.map(newGame => kigc.copy(game = newGame, aliceIO = newAliceIO))
+              }),
+      move => v(_.updateBob(_.move(move))),
+      ()   => v(_.updateBob(_.toggle())),
+      ()   => w(kigc => {
+                val (result, newBobIO) = kigc.bobIO(kigc.game, bob)
+                result.map(newGame => kigc.copy(game = newGame, bobIO = newBobIO))
+              }))
   }
 }
