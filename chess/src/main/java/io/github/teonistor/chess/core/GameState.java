@@ -4,13 +4,12 @@ import io.github.teonistor.chess.board.Position;
 import io.github.teonistor.chess.piece.Piece;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.With;
-
-import javax.annotation.Nullable;
 
 @AllArgsConstructor
 @Getter

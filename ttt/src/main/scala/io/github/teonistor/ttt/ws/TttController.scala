@@ -3,6 +3,7 @@ package io.github.teonistor.ttt.ws
 import io.github.teonistor.ttt.ui._
 import io.github.teonistor.ttt.{ControlLoop, GameState}
 import io.vavr.collection.Stream.rangeClosed
+import jakarta.annotation.{PostConstruct, PreDestroy}
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.context.annotation.Lazy
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Controller
 
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executors.newSingleThreadExecutor
-import javax.annotation.{PostConstruct, PreDestroy}
 
 @Controller
 @Lazy
